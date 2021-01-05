@@ -63,6 +63,9 @@ public strictfp class RobotPlayer {
 
     static void runEnlightenmentCenter() throws GameActionException {
         RobotType toBuild = randomSpawnableRobotType();
+        if (rc.canBid(1)) {
+            rc.bid(1);
+        }
         int influence = 50;
         for (Direction dir : directions) {
             if (rc.canBuildRobot(toBuild, dir, influence)) {
@@ -140,5 +143,25 @@ public strictfp class RobotPlayer {
             rc.move(dir);
             return true;
         } else return false;
+    }
+
+    static Direction getPathDirTo(MapLocation tgt) throws GameActionException {
+        if (rc.getLocation().equals(tgt)) {
+            return Direction.CENTER;
+        }
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = 9999;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = Math.pow((rc.getCooldownTurns()/pass), 2)
+                        + Math.pow((tgt.x - adj.x), 2) + Math.pow((tgt.y - adj.y), 2);
+                if (cost < optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                }
+            }
+        }
+        return optimalDir;
     }
 }
