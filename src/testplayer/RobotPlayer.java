@@ -145,6 +145,15 @@ public strictfp class RobotPlayer {
         } else return false;
     }
 
+    /**
+     * Finds the optimal direction to move in to reach a target square.
+     * Factors in distance between target square and the surrounding squares at the current location and the passability of surrounding squares.
+     *
+     * @param tgt The target location to move to
+     * @return Direction that is most optimal to move in.
+     * @throws GameActionException
+     */
+
     static Direction getPathDirTo(MapLocation tgt) throws GameActionException {
         if (rc.getLocation().equals(tgt)) {
             return Direction.CENTER;
