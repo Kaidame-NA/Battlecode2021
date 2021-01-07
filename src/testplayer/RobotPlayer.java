@@ -202,4 +202,46 @@ public strictfp class RobotPlayer {
 
         return optimalDir;
     }
+
+    static int encodeFlag(int msg, int x, int y, int extraInfo) {
+        String flag = padBinary(Integer.toBinaryString(msg), 4);
+        if (x >= 0) {
+            flag += "0" + padBinary(Integer.toBinaryString(x), 6);
+        } else {
+            flag += "1" + padBinary(Integer.toBinaryString(Math.abs(x)), 6);
+        }
+        if (y >= 0) {
+            flag += "0" + padBinary(Integer.toBinaryString(y), 6);
+        } else {
+            flag += "1" + padBinary(Integer.toBinaryString(Math.abs(y)), 6);
+        }
+        flag += padBinary(Integer.toBinaryString(extraInfo), 6);
+        return Integer.parseInt(flag, 10);
+    }
+
+    static int[] decodeFlag(int flag) {
+        int[] flagContents = new int[4];
+        String stringFlag = Integer.toBinaryString(flag);
+        stringFlag = padBinary(stringFlag, 24);
+        flagContents[0] = Integer.parseInt(stringFlag.substring(0, 4), 10);
+        if (stringFlag.charAt(4) == '0') {
+            flagContents[1] = Integer.parseInt(stringFlag.substring(5, 11), 10);
+        } else {
+            flagContents[1] = -Integer.parseInt(stringFlag.substring(5, 11), 10);
+        }
+        if (stringFlag.charAt(11) == '0') {
+            flagContents[2] = Integer.parseInt(stringFlag.substring(12, 18), 10);
+        } else {
+            flagContents[2] = -Integer.parseInt(stringFlag.substring(12, 18), 10);
+        }
+        flagContents[3] = Integer.parseInt(stringFlag.substring(18), 10);
+        return flagContents;
+    }
+
+    static String padBinary(String str, int tgtLength) {
+        while (str.length() < tgtLength) {
+            str = "0" + str;
+        }
+        return str;
+    }
 }
