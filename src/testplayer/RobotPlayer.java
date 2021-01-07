@@ -239,9 +239,6 @@ public strictfp class RobotPlayer {
     }
 
     static String padBinary(String str, int tgtLength) {
-        while (str.length() < tgtLength) {
-            str = "0" + str;
-        }
-        return str;
+        return String.format("%0"+tgtLength+"d", str);
     }
 }
