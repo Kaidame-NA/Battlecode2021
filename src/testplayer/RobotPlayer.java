@@ -1,6 +1,8 @@
 package testplayer;
 import battlecode.common.*;
 
+import java.util.HashSet;
+
 public strictfp class RobotPlayer {
     static RobotController rc;
 
@@ -22,6 +24,10 @@ public strictfp class RobotPlayer {
     };
 
     static int turnCount;
+    static boolean politicianCreated = false;
+    static MapLocation startLocation;
+    static int closestDistToTarget = 9999;
+    static int movesSinceClosest = 0;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -137,10 +143,13 @@ public strictfp class RobotPlayer {
      * @return true if a move was performed
      * @throws GameActionException
      */
+
+    public static HashSet<MapLocation> banList = new HashSet(); //CREATE THE BANLIST
     static boolean tryMove(Direction dir) throws GameActionException {
         System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.canMove(dir)) {
             rc.move(dir);
+            banList.add(rc.getLocation());
             return true;
         } else return false;
     }
@@ -155,22 +164,42 @@ public strictfp class RobotPlayer {
      */
 
     static Direction getPathDirTo(MapLocation tgt) throws GameActionException {
+
+        double distanceWeight = 1; // Change the multiplier for distance
+        double passabilityWeight = 1; // Change the multiplier for passability
+
         if (rc.getLocation().equals(tgt)) {
+            banList.clear();
             return Direction.CENTER;
         }
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = 9999;
+        double optimalCost = Double.MAX_VALUE;
         for (Direction dir : directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getCooldownTurns()/pass), 2)
-                        + Math.pow((tgt.x - adj.x), 2) + Math.pow((tgt.y - adj.y), 2);
-                if (cost < optimalCost && rc.canMove(dir)) {
+                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) * passabilityWeight + //rc.getCooldownTurns()
+                        (Math.abs(tgt.x - adj.x) - Math.abs(tgt.x - rc.getLocation().x) +
+                                Math.abs(tgt.y - adj.y) - Math.abs(tgt.y - rc.getLocation().y)) * distanceWeight;
+                System.out.println("Cost: " + cost);
+                System.out.println("Direction: " + dir);
+                if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
+                    optimalCost = cost;
                 }
             }
         }
+        int localClosestDist = rc.adjacentLocation(optimalDir).distanceSquaredTo(tgt);
+        if (localClosestDist < closestDistToTarget) {
+            closestDistToTarget = localClosestDist;
+            movesSinceClosest = 0;
+        } else if (optimalDir != Direction.CENTER){
+            movesSinceClosest ++;
+        }
+        if (movesSinceClosest > 6) {
+            optimalDir = rc.getLocation().directionTo(tgt);
+        }
+
         return optimalDir;
     }
 }
