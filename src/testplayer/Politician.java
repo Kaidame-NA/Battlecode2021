@@ -7,7 +7,7 @@ import java.util.LinkedList;
 public class Politician extends RobotPlayer{
     static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
     static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
-    static boolean converted;
+    static boolean converted = false;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
