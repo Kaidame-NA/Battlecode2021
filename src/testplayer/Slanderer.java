@@ -13,7 +13,7 @@ public class Slanderer extends RobotPlayer {
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
-        for (int i = 0; ++i < possibleECs.length;) {
+        for (int i = possibleECs.length; --i >= 0;) {
             if (possibleECs[i].getType() == RobotType.ENLIGHTENMENT_CENTER) {
                 ECIDs.add(possibleECs[i].getID());
                 ECLocations.add(possibleECs[i].getLocation());
