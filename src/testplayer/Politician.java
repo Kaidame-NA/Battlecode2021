@@ -5,8 +5,8 @@ import battlecode.common.*;
 import java.util.LinkedList;
 
 public class Politician extends RobotPlayer{
-    static LinkedList<Integer> ECIDs;
-    static LinkedList<MapLocation> ECLocations;
+    static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
+    static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
     static boolean converted;
 
     static void setup() throws GameActionException {
@@ -17,7 +17,7 @@ public class Politician extends RobotPlayer{
                 ECLocations.add(possibleECs[i].getLocation());
             }
         }
-        if (ECIDs.get(0) == 0 && ECLocations.get(0) == null) {
+        if (ECIDs.isEmpty() && ECLocations.isEmpty()) {
             converted = true;
         }
     }
@@ -27,12 +27,13 @@ public class Politician extends RobotPlayer{
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
         if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
-            System.out.println("empowering...");
+            //System.out.println("empowering...");
             rc.empower(actionRadius);
-            System.out.println("empowered");
+            //System.out.println("empowered");
             return;
         }
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
+        if (tryMove(randomDirection())) {
+            //System.out.println("I moved!");
+        }
     }
 }

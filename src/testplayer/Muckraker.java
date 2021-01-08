@@ -5,8 +5,8 @@ import battlecode.common.*;
 import java.util.LinkedList;
 
 public class Muckraker extends RobotPlayer{
-    static LinkedList<Integer> ECIDs;
-    static LinkedList<MapLocation> ECLocations;
+    static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
+    static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -25,13 +25,14 @@ public class Muckraker extends RobotPlayer{
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
                 if (rc.canExpose(robot.location)) {
-                    System.out.println("e x p o s e d");
+                    //System.out.println("e x p o s e d");
                     rc.expose(robot.location);
                     return;
                 }
             }
         }
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
+        if (tryMove(randomDirection())) {
+            //System.out.println("I moved!");
+        }
     }
 }

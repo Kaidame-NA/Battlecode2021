@@ -8,8 +8,8 @@ import battlecode.common.RobotType;
 import java.util.LinkedList;
 
 public class Slanderer extends RobotPlayer {
-    static LinkedList<Integer> ECIDs;
-    static LinkedList<MapLocation> ECLocations;
+    static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
+    static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -22,7 +22,8 @@ public class Slanderer extends RobotPlayer {
     }
 
     static void run() throws GameActionException {
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
+        if (tryMove(randomDirection())) {
+            //System.out.println("I moved!");
+        }
     }
 }

@@ -42,7 +42,7 @@ public strictfp class RobotPlayer {
 
         turnCount = 0;
 
-        System.out.println("I'm a " + rc.getType() + " and I just got created!");
+        //System.out.println("I'm a " + rc.getType() + " and I just got created!");
         switch (rc.getType()) {
             case POLITICIAN: Politician.setup(); break;
             case SLANDERER: Slanderer.setup(); break;
@@ -54,7 +54,7 @@ public strictfp class RobotPlayer {
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You may rewrite this into your own control structure if you wish.
-                System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
+                //System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
                     case ENLIGHTENMENT_CENTER: EnlightenmentCenter.run(); break;
                     case POLITICIAN:           Politician.run();          break;
@@ -100,7 +100,7 @@ public strictfp class RobotPlayer {
 
     public static HashSet<MapLocation> banList = new HashSet(); //CREATE THE BANLIST
     static boolean tryMove(Direction dir) throws GameActionException {
-        System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
+        //System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.canMove(dir)) {
             rc.move(dir);
             banList.add(rc.getLocation());
@@ -135,8 +135,8 @@ public strictfp class RobotPlayer {
                 double cost = Math.pow((rc.getType().actionCooldown/pass), 2) * passabilityWeight + //rc.getCooldownTurns()
                         (Math.abs(tgt.x - adj.x) - Math.abs(tgt.x - rc.getLocation().x) +
                                 Math.abs(tgt.y - adj.y) - Math.abs(tgt.y - rc.getLocation().y)) * distanceWeight;
-                System.out.println("Cost: " + cost);
-                System.out.println("Direction: " + dir);
+                //System.out.println("Cost: " + cost);
+                //System.out.println("Direction: " + dir);
                 if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
                     optimalCost = cost;
