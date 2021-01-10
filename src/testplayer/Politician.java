@@ -3,11 +3,21 @@ package testplayer;
 import battlecode.common.*;
 
 import java.util.LinkedList;
+import java.util.Map;
 
 public class Politician extends RobotPlayer{
     static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
     static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
-    static boolean converted = false;
+    static final int SCOUTING = 0;
+    static final int ATTACKING = 1;
+    static final int RETURNING = 2;
+    static final int CONVERTED = 3;
+    static int role;
+    static MapLocation target;
+    static int[] homeECFlagContents;
+    static LinkedList<MapLocation> scoutLocations = new LinkedList<MapLocation>();
+    static int homeECx;
+    static int homeECy;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -18,7 +28,21 @@ public class Politician extends RobotPlayer{
             }
         }
         if (ECIDs.isEmpty() && ECLocations.isEmpty()) {
-            converted = true;
+            role = CONVERTED;
+            rc.setFlag(encodeFlag(CONVERTED_FLAG, 0, 0, 0));
+        } else {
+            //getting scout locations based on ec location, basically +-64 in all 8 directions
+            homeECx = ECLocations.get(0).x;
+            homeECy = ECLocations.get(0).y;
+            scoutLocations.add(new MapLocation(homeECx - 64, homeECy - 64)); //southwest
+            scoutLocations.add(new MapLocation(homeECx - 64, homeECy)); //west
+            scoutLocations.add(new MapLocation(homeECx - 64, homeECy + 64)); //northwest
+            scoutLocations.add(new MapLocation(homeECx, homeECy + 64)); //north
+            scoutLocations.add(new MapLocation(homeECx + 64, homeECy + 64)); //northeast
+            scoutLocations.add(new MapLocation(homeECx + 64, homeECy)); //east
+            scoutLocations.add(new MapLocation(homeECx + 64, homeECy - 64)); //southeast
+            scoutLocations.add(new MapLocation(homeECx, homeECy - 64)); //south
+            role = SCOUTING;
         }
     }
 
@@ -26,14 +50,95 @@ public class Politician extends RobotPlayer{
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
-        if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
-            //System.out.println("empowering...");
-            rc.empower(actionRadius);
-            //System.out.println("empowered");
-            return;
+        RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        if (role != CONVERTED) {
+            if (rc.canGetFlag(ECIDs.get(0))) {
+                homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
+            }
         }
-        if (tryMove(randomDirection())) {
-            //System.out.println("I moved!");
+        if (role == SCOUTING) {
+            //go to a list of preset possible ec places
+            target = scoutLocations.get(0);
+            RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+            for (int i = unitsInRange.length; --i >= 0;) {
+                RobotInfo unit = unitsInRange[i];
+                if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
+                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x, unit.location.y, 0));
+                    role = RETURNING;
+                }
+                else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x, unit.location.y, unit.getInfluence()));
+                    role = RETURNING;
+                }
+            }
+            if (!tryMove(getPathDirTo(target))) {
+                scoutLocations.removeFirst();
+            };
+        } else if (role == ATTACKING) {
+            //only attacks target location atm, no reaction to other units on the way
+            if (rc.getLocation().distanceSquaredTo(target) < actionRadius && rc.getConviction() > 10
+            && rc.canEmpower(rc.getLocation().distanceSquaredTo(target))) {
+                rc.empower(rc.getLocation().distanceSquaredTo(target));
+            }
+            tryMove(getPathDirTo(target));
+        } else if (role == RETURNING) {
+            target = ECLocations.get(0);
+            tryMove(getPathDirTo(target));
+            for (int i = friendlyInRange.length; --i >= 0;) {
+                //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
+                //take its flag and commands(unless its an attack)
+                if (friendlyInRange[i].getLocation().distanceSquaredTo(target)
+                        < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
+                    int flag = rc.getFlag(friendlyInRange[i].getID());
+                    int[] flagContents = decodeFlag(flag);
+                    if (flagContents[0] != CONVERTED_FLAG) {
+                        rc.setFlag(flag);
+                    }
+                    //depending on signal code, change role and target
+                }
+            }
+        } else if (role == CONVERTED) { //right now they just run around and kamikaze
+            if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
+                rc.empower(actionRadius);
+                return;
+            }
+            tryMove(randomDirection());
+        }
+        //relay, mobile robot/robot comms
+        if (role != RETURNING && role != CONVERTED) {
+            //if you are not returning info and a friendly is near with flag
+            for (int i = friendlyInRange.length; --i >= 0; ) {
+                if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                    int flag = rc.getFlag(friendlyInRange[i].getID());
+                    int[] flagContents = decodeFlag(flag);
+                    //relay info if you are closer to home ec
+                    if (!ECLocations.isEmpty()
+                            && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
+                            > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
+                            (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)) {
+                        rc.setFlag(flag);
+                        target = ECLocations.get(0);
+                        role = RETURNING;
+                    }  //otherwise if its an attack command go attack
+                    else if (flagContents[0] == ATTACK_ENEMY) {
+                        rc.setFlag(flag);
+                        target = new MapLocation(homeECx + flagContents[1],
+                                homeECy + flagContents[2]);
+                        role = ATTACKING;
+                    }
+                }
+            }
+        }
+        //reading home ec flag info
+        if (homeECFlagContents != null) {
+            //if its an attack command, attack
+            if (homeECFlagContents[0] == ATTACK_ENEMY) {
+                rc.setFlag(rc.getFlag(ECIDs.get(0)));
+                target = new MapLocation(homeECx + homeECFlagContents[1],
+                        homeECy + homeECFlagContents[2]);
+                role = ATTACKING;
+            }
         }
     }
+
 }

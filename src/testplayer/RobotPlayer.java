@@ -29,6 +29,13 @@ public strictfp class RobotPlayer {
     static int closestDistToTarget = 9999;
     static int movesSinceClosest = 0;
 
+    //SIGNAL CODES
+    static final int ENEMY_EC_FOUND = 1;
+    static final int NEUTRAL_EC_FOUND = 2;
+    static final int ATTACK_ENEMY = 3;
+    static final int CONVERTED_FLAG = 4;
+    static final int DEFEND = 5;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!

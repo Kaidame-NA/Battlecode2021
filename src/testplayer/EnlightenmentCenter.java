@@ -9,13 +9,11 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static void run() throws GameActionException {
         RobotType toBuild = randomSpawnableRobotType();
-        if (rc.canBid(1)) {
-            rc.bid(1);
-        }
+        bidVote();
         int influence = 50;
         for (Direction dir : directions) {
-            if (rc.canBuildRobot(toBuild, dir, influence)) {
-                rc.buildRobot(toBuild, dir, influence);
+            if (rc.canBuildRobot(RobotType.POLITICIAN, dir, influence)) {
+                rc.buildRobot(RobotType.POLITICIAN, dir, influence);
             } else {
                 break;
             }
