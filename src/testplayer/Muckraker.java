@@ -126,11 +126,15 @@ public class Muckraker extends RobotPlayer{
         }
         if (homeECFlagContents != null) {
             //if its an attack command, attack
-            if (homeECFlagContents[0] == ATTACK_ENEMY && homeECFlagContents[3] == 0) {
-                rc.setFlag(rc.getFlag(ECIDs.get(0)));
-                target = new MapLocation(homeECx + homeECFlagContents[1],
-                        homeECy + homeECFlagContents[2]);
-                role = ATTACKING;
+            if (homeECFlagContents[0] == ATTACK_ENEMY) {
+                if (homeECFlagContents[3] == 0) {
+                    rc.setFlag(rc.getFlag(ECIDs.get(0)));
+                    target = new MapLocation(homeECx + homeECFlagContents[1],
+                            homeECy + homeECFlagContents[2]);
+                    role = ATTACKING;
+                } else {
+                    role = SCOUTING;
+                }
             }
         }
     }
