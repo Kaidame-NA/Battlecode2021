@@ -48,6 +48,7 @@ public strictfp class RobotPlayer {
         RobotPlayer.rc = rc;
 
         turnCount = 0;
+        startLocation = rc.getLocation();
 
         //System.out.println("I'm a " + rc.getType() + " and I just got created!");
         switch (rc.getType()) {
@@ -55,6 +56,7 @@ public strictfp class RobotPlayer {
             case SLANDERER: Slanderer.setup(); break;
             case MUCKRAKER: Muckraker.setup(); break;
         }
+
         while (true) {
             turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to freeze
@@ -207,5 +209,11 @@ public strictfp class RobotPlayer {
             output+="0";
         }
         return output + str;
+    }
+
+    static Direction awayFromCreationEC() {
+        MapLocation curr = rc.getLocation();
+        //System.out.println(startLocation + " " + curr);
+        return curr.directionTo(curr.subtract(curr.directionTo(startLocation)));
     }
 }

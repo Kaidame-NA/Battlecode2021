@@ -15,9 +15,9 @@ public class Politician extends RobotPlayer{
     static int role;
     static MapLocation target;
     static int[] homeECFlagContents;
-    static LinkedList<MapLocation> scoutLocations = new LinkedList<MapLocation>();
     static int homeECx;
     static int homeECy;
+    static Direction along;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -31,19 +31,11 @@ public class Politician extends RobotPlayer{
             role = CONVERTED;
             rc.setFlag(encodeFlag(CONVERTED_FLAG, 0, 0, 0));
         } else {
-            //getting scout locations based on ec location, basically +-64 in all 8 directions
             homeECx = ECLocations.get(0).x;
             homeECy = ECLocations.get(0).y;
-            scoutLocations.add(new MapLocation(homeECx - 64, homeECy - 64)); //southwest
-            scoutLocations.add(new MapLocation(homeECx - 64, homeECy)); //west
-            scoutLocations.add(new MapLocation(homeECx - 64, homeECy + 64)); //northwest
-            scoutLocations.add(new MapLocation(homeECx, homeECy + 64)); //north
-            scoutLocations.add(new MapLocation(homeECx + 64, homeECy + 64)); //northeast
-            scoutLocations.add(new MapLocation(homeECx + 64, homeECy)); //east
-            scoutLocations.add(new MapLocation(homeECx + 64, homeECy - 64)); //southeast
-            scoutLocations.add(new MapLocation(homeECx, homeECy - 64)); //south
             role = SCOUTING;
         }
+        along = awayFromCreationEC();
     }
 
     static void run() throws GameActionException {
@@ -57,22 +49,22 @@ public class Politician extends RobotPlayer{
             }
         }
         if (role == SCOUTING) {
-            //go to a list of preset possible ec places
-            target = scoutLocations.get(0);
+            //go to point along direction of creation
+            target = rc.getLocation().add(along);
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
-                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x, unit.location.y, 0));
+                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
                     role = RETURNING;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x, unit.location.y, unit.getInfluence()));
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
                     role = RETURNING;
                 }
             }
-            if (!tryMove(getPathDirTo(target))) {
-                scoutLocations.removeFirst();
+            if (rc.getCooldownTurns() < 1 && !tryMove(getPathDirTo(target))) {
+                along = along.rotateRight();
             };
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
