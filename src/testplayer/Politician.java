@@ -56,7 +56,7 @@ public class Politician extends RobotPlayer{
                     role = RETURNING;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    if (rc.getConviction() - 10 > unit.getConviction()) {
+                    if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
                         rc.empower(rc.getLocation().distanceSquaredTo(unit.getLocation()));
                     }
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
@@ -82,7 +82,8 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (rc.getLocation().distanceSquaredTo(target) < actionRadius && rc.getConviction() > 10
+            if (rc.getLocation().distanceSquaredTo(target) < actionRadius
+                    && rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) > 10
             && rc.canEmpower(rc.getLocation().distanceSquaredTo(target)) && role == ATTACKING) {
                 rc.empower(rc.getLocation().distanceSquaredTo(target));
             }
