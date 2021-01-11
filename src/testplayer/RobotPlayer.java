@@ -2,6 +2,7 @@ package testplayer;
 import battlecode.common.*;
 
 import java.util.HashSet;
+import java.util.ArrayList;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
