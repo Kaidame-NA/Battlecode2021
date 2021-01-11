@@ -56,6 +56,9 @@ public class Politician extends RobotPlayer{
                     role = RETURNING;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
+                    if (rc.getConviction() - 10 > unit.getConviction()) {
+                        rc.empower(rc.getLocation().distanceSquaredTo(unit.getLocation()));
+                    }
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
                     role = RETURNING;
                 }
@@ -135,9 +138,9 @@ public class Politician extends RobotPlayer{
                     }*/
                 }
             }
-            if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 800)) {
-                rc.empower(actionRadius);
-            }
+        }
+        if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 400)) {
+            rc.empower(actionRadius);
         }
         //reading home ec flag info
         if (homeECFlagContents != null) {
