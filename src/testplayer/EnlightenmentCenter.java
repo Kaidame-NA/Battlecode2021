@@ -47,7 +47,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                     if (flagContents[0] == ENEMY_EC_FOUND) {
                         rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], 0));
                     } else if (flagContents[0] == NEUTRAL_EC_FOUND) {
-                        rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], 0));
+                        rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], 1));
                     }
                 }
             }

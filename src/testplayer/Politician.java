@@ -44,7 +44,7 @@ public class Politician extends RobotPlayer{
         if (role != CONVERTED) {
             if (rc.canGetFlag(ECIDs.get(0))) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
-            }
+            } //maybe something about if cant then its taken
         }
         if (role == SCOUTING) {
             //go to point along direction of creation

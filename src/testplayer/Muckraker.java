@@ -10,9 +10,12 @@ public class Muckraker extends RobotPlayer{
     static int role;
     static final int SCOUTING = 0;
     static final int RETURNING = 1;
+    static final int ATTACKING = 2;
     static int homeECx;
     static int homeECy;
     static MapLocation target;
+    static int stuckCounter;
+    static int[] homeECFlagContents;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -41,6 +44,9 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
+        if (rc.canGetFlag(ECIDs.get(0))) {
+            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
+        }
         if (role == SCOUTING) {
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             for (int i = unitsInRange.length; --i >= 0;) {
@@ -57,6 +63,8 @@ public class Muckraker extends RobotPlayer{
             if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
                 rc.move(getPathDirSpread());
             }
+        } else if (role == ATTACKING) {
+            tryMove(getPathDirTo(target));
         } else {
             target = ECLocations.get(0);
             tryMove(getPathDirTo(target));
@@ -70,8 +78,11 @@ public class Muckraker extends RobotPlayer{
                     if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER) {
                         rc.setFlag(flag);
                     }
-                    //depending on signal code, change role and target
+
                 }
+            }
+            if (rc.canSenseLocation(target)) {
+                role = SCOUTING;
             }
         }
 
@@ -91,7 +102,22 @@ public class Muckraker extends RobotPlayer{
                         target = ECLocations.get(0);
                         role = RETURNING;
                     }
+                    else if (flagContents[0] == ATTACK_ENEMY && flagContents[3] == 0) {
+                        rc.setFlag(flag);
+                        target = new MapLocation(homeECx + flagContents[1],
+                                homeECy + flagContents[2]);
+                        role = ATTACKING;
+                    }
                 }
+            }
+        }
+        if (homeECFlagContents != null) {
+            //if its an attack command, attack
+            if (homeECFlagContents[0] == ATTACK_ENEMY && homeECFlagContents[3] == 0) {
+                rc.setFlag(rc.getFlag(ECIDs.get(0)));
+                target = new MapLocation(homeECx + homeECFlagContents[1],
+                        homeECy + homeECFlagContents[2]);
+                role = ATTACKING;
             }
         }
     }
