@@ -18,6 +18,7 @@ public class Politician extends RobotPlayer{
     static int homeECx;
     static int homeECy;
 
+
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
         for (int i = possibleECs.length; --i >= 0;) {
@@ -46,6 +47,9 @@ public class Politician extends RobotPlayer{
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
             } //maybe something about if cant then its taken
         }
+        if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 400)) {
+            rc.empower(actionRadius);
+        }
         if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
@@ -59,6 +63,7 @@ public class Politician extends RobotPlayer{
                     if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
                         rc.empower(rc.getLocation().distanceSquaredTo(unit.getLocation()));
                     }
+                    System.out.println(unit.location.x + " - " + homeECx + ", " + unit.location.y + " - " + homeECy);
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
                     role = RETURNING;
                 }
@@ -140,9 +145,6 @@ public class Politician extends RobotPlayer{
                 }
             }
         }
-        if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 400)) {
-            rc.empower(actionRadius);
-        }
         //reading home ec flag info
         if (homeECFlagContents != null) {
             //if its an attack command, attack
@@ -155,6 +157,17 @@ public class Politician extends RobotPlayer{
         }
         if (rc.getFlag(rc.getID()) == 0) {
             role = SCOUTING;
+        }
+        for (int i = friendlyInRange.length; --i >= 0; ) {
+            if (friendlyInRange[i].getType() == RobotType.ENLIGHTENMENT_CENTER) {
+                ECIDs.add(friendlyInRange[i].getID());
+                ECLocations.add(friendlyInRange[i].getLocation());
+                if (ECIDs.size() == 1 && ECLocations.size() == 1) {
+                    homeECx = ECLocations.get(0).x;
+                    homeECy = ECLocations.get(0).y;
+                    role = SCOUTING;
+                }
+            }
         }
     }
 
