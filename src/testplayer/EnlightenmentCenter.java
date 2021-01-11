@@ -5,23 +5,32 @@ import battlecode.common.*;
 public class EnlightenmentCenter extends RobotPlayer{
 
     static void run() throws GameActionException {
-        if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
+        if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
+            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
         }
 
-        if (rc.getInfluence() >= 500 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawn(), 100);
+        if (turnCount <= 4 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
         }
 
-        if (rc.getInfluence() >= 200 && rc.getInfluence() <= 500 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
-            if(decodeFlag(rc.getFlag(rc.getID()))[0] == ATTACK_ENEMY && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 100))
-            {
-                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 100);
-            } else {
-                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
-            }
+        if (rc.getInfluence() >= 600 && decodeFlag(rc.getFlag(rc.getID()))[0] == ATTACK_ENEMY &&
+                rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600);
         }
-        if (rc.getInfluence() <= 200 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+
+        if (rc.getInfluence() >= 200 && turnCount % 3 == 0 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 200)) {
+            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 200);
+        }
+
+        if (turnCount > 100 && rc.getInfluence() > 500 && turnCount % 2 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 23)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 23);
+        }
+
+        if (turnCount < 3000 && turnCount % 2 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 12)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 12);
+        }
+
+        if (turnCount < 3000 && turnCount % 2 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
         }
 
