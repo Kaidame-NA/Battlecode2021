@@ -112,13 +112,13 @@ public class Muckraker extends RobotPlayer{
                         rc.setFlag(flag);
                         target = ECLocations.get(0);
                         role = RETURNING;
-                    }
+                    }/*
                     else if (flagContents[0] == ATTACK_ENEMY && flagContents[3] == 0) {
                         rc.setFlag(flag);
                         target = new MapLocation(homeECx + flagContents[1],
                                 homeECy + flagContents[2]);
                         role = ATTACKING;
-                    }
+                    }*/
                 }
             }
         }

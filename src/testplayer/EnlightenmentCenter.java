@@ -4,7 +4,6 @@ import battlecode.common.*;
 
 public class EnlightenmentCenter extends RobotPlayer{
 
-    static int neutralAttackTurnCounter = 0;
     static void run() throws GameActionException {
         if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
@@ -41,13 +40,6 @@ public class EnlightenmentCenter extends RobotPlayer{
                     }
                 }
             }
-        }
-        if (decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
-            if (neutralAttackTurnCounter > 5) {
-                rc.setFlag(0);
-                neutralAttackTurnCounter = 0;
-            }
-            neutralAttackTurnCounter ++;
         }
     }
     

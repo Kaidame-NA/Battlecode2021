@@ -120,12 +120,13 @@ public class Politician extends RobotPlayer{
                         target = ECLocations.get(0);
                         role = RETURNING;
                     }  //otherwise if its an attack command go attack
+                    /*
                     else if (flagContents[0] == ATTACK_ENEMY) {
                         rc.setFlag(flag);
                         target = new MapLocation(homeECx + flagContents[1],
                                 homeECy + flagContents[2]);
                         role = ATTACKING;
-                    }
+                    }*/
                 }
             }
             if (attackable.length != 0 && rc.canEmpower(actionRadius) && rc.getInfluence() < 27) {
