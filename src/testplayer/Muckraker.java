@@ -74,6 +74,7 @@ public class Muckraker extends RobotPlayer{
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
                         role = SCOUTING;
+                        rc.setFlag(0);
                     }
                 }
             }
@@ -135,6 +136,7 @@ public class Muckraker extends RobotPlayer{
                     role = ATTACKING;
                 } else if (homeECFlagContents[3] == 1 && ownFlag[1] == homeECFlagContents[1] &&
                 homeECFlagContents[2] == ownFlag[2]) {
+                    rc.setFlag(0);
                     role = SCOUTING;
                 }
             }

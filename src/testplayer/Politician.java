@@ -75,11 +75,12 @@ public class Politician extends RobotPlayer{
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
                         role = SCOUTING;
+                        rc.setFlag(0);
                     }
                 }
             }
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius && rc.getConviction() > 10
-            && rc.canEmpower(rc.getLocation().distanceSquaredTo(target))) {
+            && rc.canEmpower(rc.getLocation().distanceSquaredTo(target)) && role == ATTACKING) {
                 rc.empower(rc.getLocation().distanceSquaredTo(target));
             }
             tryMove(getPathDirTo(target));
@@ -95,6 +96,9 @@ public class Politician extends RobotPlayer{
                     int[] flagContents = decodeFlag(flag);
                     if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER) {
                         rc.setFlag(flag);
+                        if (flag == 0) {
+                            role = SCOUTING;
+                        }
                     }
                     //depending on signal code, change role and target
                 }
@@ -131,7 +135,7 @@ public class Politician extends RobotPlayer{
                     }*/
                 }
             }
-            if (attackable.length != 0 && rc.canEmpower(actionRadius) && rc.getInfluence() < 27) {
+            if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 800)) {
                 rc.empower(actionRadius);
             }
         }
