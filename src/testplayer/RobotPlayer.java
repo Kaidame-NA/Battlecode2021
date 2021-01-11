@@ -216,4 +216,52 @@ public strictfp class RobotPlayer {
         //System.out.println(startLocation + " " + curr);
         return curr.directionTo(curr.subtract(curr.directionTo(startLocation)));
     }
+    
+    static boolean shouldSpread() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(20, friendly);
+        if (friendlies.length != 0)
+            return true;
+        else {
+            return false;
+        }
+    }
+    
+    static Direction getPathDirSpread() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
+
+        int numberofnearbyfriendlies = friendlies.length;
+
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = Double.MIN_VALUE;
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = - (rc.getType().actionCooldown/pass);
+                if (numberofnearbyfriendlies > 0) {
+                    MapLocation spreadfromone = friendlies[0].getLocation();
+                    cost += Math.abs(spreadfromone.x - adj.x) + Math.abs(spreadfromone.y - adj.y);
+                }
+                if (numberofnearbyfriendlies >= 2) {
+                    MapLocation spreadfromtwo = friendlies[1].getLocation();
+                    cost += Math.pow(Math.abs(spreadfromtwo.x - adj.x), 2) + Math.pow(Math.abs(spreadfromtwo.y - adj.y), 2);
+                }
+                if (numberofnearbyfriendlies >= 3) {
+                    MapLocation spreadfromthree = friendlies[2].getLocation();
+                    cost += Math.pow(Math.abs(spreadfromthree.x - adj.x), 3) + Math.pow(Math.abs(spreadfromthree.y - adj.y), 3);
+                }
+                if (numberofnearbyfriendlies > 3) {
+                    MapLocation spreadfromone = friendlies[0].getLocation();
+                    cost += Math.pow(Math.abs(spreadfromone.x - adj.x),5) + Math.pow(Math.abs(spreadfromone.y - adj.y), 5);
+                }
+                    if (cost > optimalCost && rc.canMove(dir)) {
+                        optimalDir = dir;
+                        optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
+    }
 }
