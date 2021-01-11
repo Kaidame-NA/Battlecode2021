@@ -100,7 +100,6 @@ public class Politician extends RobotPlayer{
         } else if (role == CONVERTED) { //right now they just run around and kamikaze
             if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
                 rc.empower(actionRadius);
-                return;
             }
             tryMove(randomDirection());
         }
@@ -128,6 +127,9 @@ public class Politician extends RobotPlayer{
                         role = ATTACKING;
                     }
                 }
+            }
+            if (attackable.length != 0 && rc.canEmpower(actionRadius) && rc.getInfluence() < 27) {
+                rc.empower(actionRadius);
             }
         }
         //reading home ec flag info

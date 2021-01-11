@@ -14,12 +14,12 @@ public class EnlightenmentCenter extends RobotPlayer{
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawn(), 100);
         }
 
-        if (rc.getInfluence() >= 200 && rc.getInfluence() <= 500 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
-            if(rc.getFlag(rc.getID()) == ATTACK_ENEMY && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 100))
+        if (rc.getInfluence() >= 200 && rc.getInfluence() <= 500 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+            if(decodeFlag(rc.getFlag(rc.getID()))[0] == ATTACK_ENEMY && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 100))
             {
                 rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 100);
             }
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
         }
         if (rc.getInfluence() <= 200 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
