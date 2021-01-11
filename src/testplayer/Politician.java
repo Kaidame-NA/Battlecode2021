@@ -72,6 +72,8 @@ public class Politician extends RobotPlayer{
                     if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()) {
                         ECIDs.addFirst(unit.getID());
                         ECLocations.addFirst(target);
+                        homeECx = ECLocations.get(0).x;
+                        homeECy = ECLocations.get(0).y;
                         role = SCOUTING;
                     }
                 }
