@@ -6,18 +6,39 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static int neutralAttackTurnCounter = 0;
     static void run() throws GameActionException {
-        RobotType toBuild = randomSpawnableRobotType();
-        if (rc.canBid(1)) {
-            rc.bid(1);
+        
+        if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
+            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
         }
-        int influence = 50;
-        for (Direction dir : directions) {
-            if (rc.canBuildRobot(RobotType.POLITICIAN, dir, influence)) {
-                rc.buildRobot(RobotType.POLITICIAN, dir, influence);
-            } else {
-                break;
-            }
+
+        if (rc.getInfluence() > 200 && rc.getInfluence() < 1000 && (rc.getInfluence() % 10) == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
+            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawn(), 100);
         }
+
+        if (rc.getInfluence() < 200 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        }
+
+        if (rc.getInfluence() > 100 && rc.getInfluence() < 200 && (rc.getInfluence() % 5) == 1 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+        }
+
+        //if (rc.getInfluence() > 100 && rc.getInfluence() < 200 && (rc.getInfluence() % 2) == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        //     rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        // }
+
+        //if (rc.getInfluence() > 200 && rc.getInfluence() < 500 && (rc.getInfluence() % 7) == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        //    rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        //}
+
+        if (rc.getInfluence() > 200 && rc.getInfluence() < 1000 && (rc.getInfluence() % 4) == 1 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+        }
+
+        System.out.println(rc.getInfluence());
+        
+        bidVote();
+        
         RobotInfo[] nearbyUnits = rc.senseNearbyRobots();
         for (int i = nearbyUnits.length; --i >= 0;) {
             if (nearbyUnits[i].getTeam() == rc.getTeam()) {
@@ -39,10 +60,44 @@ public class EnlightenmentCenter extends RobotPlayer{
             neutralAttackTurnCounter ++;
         }
     }
+    
+    static Direction getOptimalSpawn() throws GameActionException {
+        Direction optimalDir = Direction.SOUTH;
+        double optimalCost = Double.MIN_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double cost = rc.sensePassability(adj);
+                //System.out.println("Cost: " + cost);
+                if (cost > optimalCost && rc.canBuildRobot(RobotType.SLANDERER, dir, 1)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
+    }
 
-        static boolean wonLastVote;
-        static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
-        //bids for the ec
+    static Direction getOptimalSpawnSlanderer() throws GameActionException {
+        Direction optimalDir = Direction.SOUTH;
+        double optimalCost = Double.MAX_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double cost = rc.sensePassability(adj);
+                //System.out.println("Cost: " + cost);
+                if (cost < optimalCost && rc.canBuildRobot(RobotType.SLANDERER, dir, 1)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
+    }
+
+    static boolean wonLastVote;
+    static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
+    //bids for the ec
     static void bidVote() throws GameActionException{
         int round = rc.getRoundNum();
         int newBid;
@@ -65,6 +120,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         if(friendlyVotes > 1500 || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game
         {
             rc.bid(0);
+            System.out.println("The election has already been decided.");
         }
         else if(!wonLastVote){ // we lost the last vote...
             double iCoef = 2;
@@ -79,23 +135,40 @@ public class EnlightenmentCenter extends RobotPlayer{
                 System.out.println("Lost last vote, newBid<1 so lets bid the minimum, 1");
             }
             else if(newBid < threshold && rc.canBid(newBid)){
-                //bid the max we are willing to, also if its greater than our last bid
+                //dont want to be bankrupting ourselves so we have a threshold (max value we are willing to bid)
 
                 rc.bid(newBid);
                 prevBid = newBid;
+                System.out.println("Last vote lost, and we are <threshold, bid: " + newBid);
+            }
+            else if(newBid >= threshold && threshold>prevBid && rc.canBid(threshold)){
+                //bid the max we are willing to, also if its greater than our last bid
+                newBid = threshold;
+                rc.bid(newBid);
+                prevBid = newBid;
+                System.out.println("Last vote lost, and we are >threshold, bid: " + newBid);
+            }
+            else{
+                rc.bid(0);
+                System.out.println("We lost the last vote, but we arent willing to bid more than last time so we bid 0");
             }
         }
         else{// we won the last vote!
             double dCoef = 1.7; //changeable
 
-            newBid = (int) Math.ceil(Math.pow( (-1/dCoef),(-winStreak+2) ) + prevBid);
+            newBid = (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2) ) + prevBid);
+            System.out.println("winStreak: " + winStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //decreasing doubley (winStreak is increasing while prevBid is decreasing)
 
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
+                prevBid = 1;
+                System.out.println("Won last vote, newBid<1 so lets bid the minimum, 1");
             }
             else if(rc.canBid(newBid)){
                 rc.bid(newBid);
+                prevBid = newBid;
+                System.out.println("We won the last vote, lets bid " + newBid);
             }
 
         }
