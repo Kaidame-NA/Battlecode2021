@@ -141,5 +141,8 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
+        if (rc.getFlag(rc.getID()) == 0) {
+            role = SCOUTING;
+        }
     }
 }

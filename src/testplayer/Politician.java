@@ -152,6 +152,9 @@ public class Politician extends RobotPlayer{
                 role = ATTACKING;
             }
         }
+        if (rc.getFlag(rc.getID()) == 0) {
+            role = SCOUTING;
+        }
     }
 
 }
