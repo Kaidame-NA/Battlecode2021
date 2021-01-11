@@ -94,28 +94,29 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         if(rc.getTeamVotes()>friendlyVotes){
             wonLastVote = true;
-            winStreak++;
+            if(winStreak<25) winStreak++;
             loseStreak = 0;
             System.out.println("I won the last vote! Winstreak: " + winStreak);
         }
         else{
             wonLastVote = false;
             winStreak = 0;
-            loseStreak++;
+            if(loseStreak<25) loseStreak++;
             System.out.println("I lost the last vote :((. Losestreak: " + loseStreak);
         }
         friendlyVotes = rc.getTeamVotes();
 
 
-        if(friendlyVotes > 1500 || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game
+        if(friendlyVotes > 1500 || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
         {
-            rc.bid(0);
+            //rc.bid(0);
             System.out.println("The election has already been decided.");
         }
         else if(!wonLastVote){ // we lost the last vote...
             double iCoef = 2;
 
             newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1) ));
+            System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //increasing doubley (loseStreak is increasing while prevBid is increasing)
 
             int threshold = rc.getInfluence()/5; //our maximum we are willing to bid
@@ -129,17 +130,17 @@ public class EnlightenmentCenter extends RobotPlayer{
 
                 rc.bid(newBid);
                 prevBid = newBid;
-                System.out.println("Last vote lost, and we are <threshold, bid: " + newBid);
+                System.out.println("Last vote lost, and we are less than the threshold, bid: " + newBid);
             }
             else if(newBid >= threshold && threshold>prevBid && rc.canBid(threshold)){
                 //bid the max we are willing to, also if its greater than our last bid
                 newBid = threshold;
                 rc.bid(newBid);
                 prevBid = newBid;
-                System.out.println("Last vote lost, and we are >threshold, bid: " + newBid);
+                System.out.println("Last vote lost, and we are greater than the threshold, bid: " + newBid);
             }
             else{
-                rc.bid(0);
+                //rc.bid(0);
                 System.out.println("We lost the last vote, but we arent willing to bid more than last time so we bid 0");
             }
         }
@@ -158,7 +159,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             else if(rc.canBid(newBid)){
                 rc.bid(newBid);
                 prevBid = newBid;
-                System.out.println("We won the last vote, lets bid " + newBid);
+                System.out.println("Won last vote, lets bid " + newBid);
             }
 
         }
