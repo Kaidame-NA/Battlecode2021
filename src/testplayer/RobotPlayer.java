@@ -338,4 +338,20 @@ public strictfp class RobotPlayer {
 
         return optimalDir;
     }
+
+    //returns the direction to move away from a location
+    static Direction awayFromLocation(MapLocation loc) throws GameActionException {
+        MapLocation curr = rc.getLocation();
+        System.out.println("Away From Location: " + loc + " Current Location: " + curr);
+        return curr.directionTo(curr.subtract(curr.directionTo(loc)));
+    }
+
+    //runs the direction to run away from the first enemy seen; otherwise return randomdir (for now)
+    static Direction awayFromEnemies() throws GameActionException {
+        RobotInfo[] Enemies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam().opponent());
+        for(RobotInfo info: Enemies){
+            return awayFromLocation(info.location);
+        }
+        return randomDirection();
+    }
 }
