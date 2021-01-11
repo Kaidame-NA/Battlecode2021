@@ -17,7 +17,6 @@ public class Politician extends RobotPlayer{
     static int[] homeECFlagContents;
     static int homeECx;
     static int homeECy;
-    static Direction along;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -35,7 +34,6 @@ public class Politician extends RobotPlayer{
             homeECy = ECLocations.get(0).y;
             role = SCOUTING;
         }
-        along = awayFromCreationEC();
     }
 
     static void run() throws GameActionException {
@@ -50,7 +48,6 @@ public class Politician extends RobotPlayer{
         }
         if (role == SCOUTING) {
             //go to point along direction of creation
-            target = rc.getLocation().add(along);
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
@@ -63,9 +60,9 @@ public class Politician extends RobotPlayer{
                     role = RETURNING;
                 }
             }
-            if (rc.getCooldownTurns() < 1 && !tryMove(getPathDirTo(target))) {
-                along = along.rotateRight();
-            };
+            if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
+                rc.move(getPathDirSpread());
+            }
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius && rc.getConviction() > 10
@@ -83,7 +80,7 @@ public class Politician extends RobotPlayer{
                         < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
-                    if (flagContents[0] != CONVERTED_FLAG) {
+                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER) {
                         rc.setFlag(flag);
                     }
                     //depending on signal code, change role and target
@@ -107,7 +104,8 @@ public class Politician extends RobotPlayer{
                     if (!ECLocations.isEmpty()
                             && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
                             > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
-                            (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)) {
+                            (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                            friendlyInRange[i].getType() == RobotType.POLITICIAN) {
                         rc.setFlag(flag);
                         target = ECLocations.get(0);
                         role = RETURNING;
