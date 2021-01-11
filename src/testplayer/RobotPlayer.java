@@ -230,7 +230,7 @@ public strictfp class RobotPlayer {
     
     static Direction getPathDirSpread() throws GameActionException {
         Team friendly = rc.getTeam();
-        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
+        RobotInfo[] friendlies = rc.senseNearbyRobots(30, friendly);
 
         int numberofnearbyfriendlies = friendlies.length;
 
