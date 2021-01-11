@@ -41,7 +41,7 @@ public class Politician extends RobotPlayer{
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
-        if (role != CONVERTED) {
+        if (role != CONVERTED && !ECIDs.isEmpty()) {
             if (rc.canGetFlag(ECIDs.get(0))) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
             } //maybe something about if cant then its taken
