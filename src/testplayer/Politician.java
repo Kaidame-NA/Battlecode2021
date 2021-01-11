@@ -65,6 +65,17 @@ public class Politician extends RobotPlayer{
             }
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
+            if (rc.canSenseLocation(target)) {
+                RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+                for (int i = unitsInRange.length; --i >= 0;) {
+                    RobotInfo unit = unitsInRange[i];
+                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()) {
+                        ECIDs.addFirst(unit.getID());
+                        ECLocations.addFirst(target);
+                        role = SCOUTING;
+                    }
+                }
+            }
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius && rc.getConviction() > 10
             && rc.canEmpower(rc.getLocation().distanceSquaredTo(target))) {
                 rc.empower(rc.getLocation().distanceSquaredTo(target));

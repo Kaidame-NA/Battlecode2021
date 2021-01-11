@@ -64,6 +64,17 @@ public class Muckraker extends RobotPlayer{
                 rc.move(getPathDirSpread());
             }
         } else if (role == ATTACKING) {
+            if (rc.canSenseLocation(target)) {
+                RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+                for (int i = unitsInRange.length; --i >= 0;) {
+                    RobotInfo unit = unitsInRange[i];
+                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()) {
+                        ECIDs.addFirst(unit.getID());
+                        ECLocations.addFirst(target);
+                        role = SCOUTING;
+                    }
+                }
+            }
             tryMove(getPathDirTo(target));
         } else {
             target = ECLocations.get(0);
