@@ -264,4 +264,53 @@ public strictfp class RobotPlayer {
         }
         return optimalDir;
     }
+    
+    static Direction getPathDirToEnemyEC(MapLocation tgt) throws GameActionException {
+
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(30, friendly);
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+
+        if (rc.getLocation().equals(tgt)) {
+            banList.clear();
+            return Direction.CENTER;
+        }
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = Double.MAX_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                        (Math.abs(tgt.x - adj.x) - Math.abs(tgt.x - rc.getLocation().x) +
+                                Math.abs(tgt.y - adj.y) - Math.abs(tgt.y - rc.getLocation().y));
+                if (nearbypoliticians.size() != 0) {
+                    MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 2);
+                }
+                if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        int localClosestDist = rc.adjacentLocation(optimalDir).distanceSquaredTo(tgt);
+        if (localClosestDist < closestDistToTarget) {
+            closestDistToTarget = localClosestDist;
+            movesSinceClosest = 0;
+        } else if (optimalDir != Direction.CENTER){
+            movesSinceClosest ++;
+        }
+        if (movesSinceClosest > 6) {
+            optimalDir = rc.getLocation().directionTo(tgt);
+        }
+
+        return optimalDir;
+    }
 }
