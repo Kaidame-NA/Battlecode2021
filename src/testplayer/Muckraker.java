@@ -75,7 +75,7 @@ public class Muckraker extends RobotPlayer{
                     }
                 }
             }
-            tryMove(getPathDirTo(target));
+            tryMove(getPathDirToEnemyEC(target));
         } else {
             target = ECLocations.get(0);
             tryMove(getPathDirTo(target));
