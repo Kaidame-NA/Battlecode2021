@@ -220,7 +220,7 @@ public strictfp class RobotPlayer {
     
     static boolean shouldSpread() throws GameActionException {
         Team friendly = rc.getTeam();
-        RobotInfo[] friendlies = rc.senseNearbyRobots(20, friendly);
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
         if (friendlies.length != 0)
             return true;
         else {
@@ -230,7 +230,7 @@ public strictfp class RobotPlayer {
     
     static Direction getPathDirSpread() throws GameActionException {
         Team friendly = rc.getTeam();
-        RobotInfo[] friendlies = rc.senseNearbyRobots(30, friendly); // only muckrakers can use this function when sensing radius is 30
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
 
         int numberofnearbyfriendlies = friendlies.length;
 
