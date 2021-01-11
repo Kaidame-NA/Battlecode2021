@@ -31,8 +31,8 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
-        if (tryMove(randomDirection())) {
-            //System.out.println("I moved!");
+        if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
+            rc.move(getPathDirSpread());
         }
     }
 }
