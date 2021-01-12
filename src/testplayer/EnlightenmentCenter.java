@@ -74,7 +74,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
         }
 
-        if (turnCount < 150 && numberofunitsproduced % 2 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+        if (turnCount < 150 && numberofunitsproduced % 2 == 0 && decodeFlag(rc.getFlag(rc.getID()))[0] != ATTACK_ENEMY && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
