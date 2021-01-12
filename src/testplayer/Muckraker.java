@@ -91,19 +91,19 @@ public class Muckraker extends RobotPlayer{
                     }
                 }
             }
-            if (rc.getID() % 4 == 0) {
+            if (rc.getID() % 5 == 0) {
                 tryMove(getPathDirToEnemyEC(target));
             }
 
-            if (rc.getID() % 4 == 1) {
+            if (rc.getID() % 5 == 1) {
                 tryMove(getAlternatePathTwoDirToEnemyEC(target));
             }
 
-            if (rc.getID() % 4 == 2) {
+            if (rc.getID() % 5 == 2) {
                 tryMove(getAlternatePathThreeDirToEnemyEC(target));
             }
 
-            if (rc.getID() % 4 == 3) {
+            if (rc.getID() % 5 == 3 || rc.getID() % 5 == 4) {
                 tryMove(getAlternatePathDirToEnemyEC(target));
             }
             
