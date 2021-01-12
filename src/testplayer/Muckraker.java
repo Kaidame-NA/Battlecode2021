@@ -91,6 +91,7 @@ public class Muckraker extends RobotPlayer{
                     }
                 }
             }
+            //attack groups:
             if (rc.getID() % 5 == 0) {
                 tryMove(getPathDirToEnemyEC(target));
             }
