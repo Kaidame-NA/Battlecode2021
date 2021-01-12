@@ -145,7 +145,7 @@ public class Muckraker extends RobotPlayer{
                     role = ATTACKING;
             } else if (homeECFlagContents[0] == ATTACK_NEUTRAL && ownFlag[1] == homeECFlagContents[1] &&
                     homeECFlagContents[2] == ownFlag[2]) {
-                rc.setFlag(0);
+                rc.setFlag(scoutingFlag);
                 role = SCOUTING;
             }
         }
