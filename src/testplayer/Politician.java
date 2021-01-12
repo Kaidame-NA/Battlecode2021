@@ -59,47 +59,6 @@ public class Politician extends RobotPlayer{
         if (attackable.length != 0 && rc.canEmpower(actionRadius) && (rc.getInfluence() < 27 || turnCount > 400)) {
             rc.empower(actionRadius);
         }
-        //reading home ec flag info
-        if (homeECFlagContents != null) {
-            //if its an attack command, attack
-            if (homeECFlagContents[0] == ATTACK_ENEMY || homeECFlagContents[0] == ATTACK_NEUTRAL) {
-                rc.setFlag(rc.getFlag(ECIDs.get(0)));
-                target = new MapLocation(homeECx + homeECFlagContents[1],
-                        homeECy + homeECFlagContents[2]);
-                role = ATTACKING;
-            }
-        }
-
-        //relay, mobile robot/robot comms
-        if (role != RETURNING && role != CONVERTED) {
-            //if you are not returning info and a friendly is near with flag
-            for (int i = friendlyInRange.length; --i >= 0; ) {
-                if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                    int flag = rc.getFlag(friendlyInRange[i].getID());
-                    int[] flagContents = decodeFlag(flag);
-                    //relay info if you are closer to home ec
-                    if (!ECLocations.isEmpty()
-                            && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
-                            > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
-                            (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                            friendlyInRange[i].getType() != RobotType.SLANDERER && flagContents[3] == homeECIDTag) {
-                        rc.setFlag(flag);
-                        target = ECLocations.get(0);
-                        role = RETURNING;
-                    }  //otherwise if its an attack command go attack
-                    /*
-                    else if (flagContents[0] == ATTACK_ENEMY) {
-                        rc.setFlag(flag);
-                        target = new MapLocation(homeECx + flagContents[1],
-                                homeECy + flagContents[2]);
-                        role = ATTACKING;
-                    }*/
-                }
-            }
-        }
-        if (rc.getFlag(rc.getID()) == scoutingFlag) {
-            role = SCOUTING;
-        }
 
         if (role == SCOUTING) {
             //go to point along direction of creation
@@ -137,6 +96,11 @@ public class Politician extends RobotPlayer{
                         role = SCOUTING;
                         scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
                         rc.setFlag(scoutingFlag);
+                        if (role != CONVERTED) {
+                            if (rc.canGetFlag(ECIDs.get(0))) {
+                                homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
+                            } //maybe something about if cant then its taken
+                        }
                     }
                 }
             }
@@ -183,6 +147,48 @@ public class Politician extends RobotPlayer{
                 rc.empower(actionRadius);
             }
             tryMove(randomDirection());
+        }
+
+        //reading home ec flag info
+        if (homeECFlagContents != null) {
+            //if its an attack command, attack
+            if (homeECFlagContents[0] == ATTACK_ENEMY || homeECFlagContents[0] == ATTACK_NEUTRAL) {
+                rc.setFlag(rc.getFlag(ECIDs.get(0)));
+                target = new MapLocation(homeECx + homeECFlagContents[1],
+                        homeECy + homeECFlagContents[2]);
+                role = ATTACKING;
+            }
+        }
+
+        //relay, mobile robot/robot comms
+        if (role != RETURNING && role != CONVERTED) {
+            //if you are not returning info and a friendly is near with flag
+            for (int i = friendlyInRange.length; --i >= 0; ) {
+                if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                    int flag = rc.getFlag(friendlyInRange[i].getID());
+                    int[] flagContents = decodeFlag(flag);
+                    //relay info if you are closer to home ec
+                    if (!ECLocations.isEmpty()
+                            && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
+                            > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
+                            (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                            friendlyInRange[i].getType() != RobotType.SLANDERER && flagContents[3] == homeECIDTag) {
+                        rc.setFlag(flag);
+                        target = ECLocations.get(0);
+                        role = RETURNING;
+                    }  //otherwise if its an attack command go attack
+                    /*
+                    else if (flagContents[0] == ATTACK_ENEMY) {
+                        rc.setFlag(flag);
+                        target = new MapLocation(homeECx + flagContents[1],
+                                homeECy + flagContents[2]);
+                        role = ATTACKING;
+                    }*/
+                }
+            }
+        }
+        if (rc.getFlag(rc.getID()) == scoutingFlag) {
+            role = SCOUTING;
         }
 
         for (int i = friendlyInRange.length; --i >= 0; ) {
