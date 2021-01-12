@@ -161,7 +161,7 @@ public strictfp class RobotPlayer {
         } else if (optimalDir != Direction.CENTER){
             movesSinceClosest ++;
         }
-        if (movesSinceClosest > 6) {
+        if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
         }
 
@@ -314,12 +314,22 @@ public strictfp class RobotPlayer {
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
                 double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
-                        (Math.abs(tgt.x - adj.x) - Math.abs(tgt.x - rc.getLocation().x) +
-                                Math.abs(tgt.y - adj.y) - Math.abs(tgt.y - rc.getLocation().y));
+                        (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
                 if (nearbypoliticians.size() != 0) {
                     MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
-                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 2);
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 10);
                 }
+
+                if (nearbypoliticians.size() > 1) {
+                    MapLocation spreadfrompoliticiantwo = nearbypoliticians.get(1).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 10);
+                }
+
+                if (nearbypoliticians.size() > 2) {
+                    MapLocation spreadfrompoliticianthree = nearbypoliticians.get(2).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 10);
+                }
+
                 if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
                     optimalCost = cost;
@@ -333,10 +343,9 @@ public strictfp class RobotPlayer {
         } else if (optimalDir != Direction.CENTER){
             movesSinceClosest ++;
         }
-        if (movesSinceClosest > 6) {
+        if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
         }
-
         return optimalDir;
     }
 
