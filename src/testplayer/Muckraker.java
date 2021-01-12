@@ -31,6 +31,7 @@ public class Muckraker extends RobotPlayer{
         homeECy = ECLocations.get(0).y;
         homeECIDTag = ECIDs.get(0) % 128;
         scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
+        rc.setFlag(scoutingFlag);
         role = SCOUTING;
     }
 
