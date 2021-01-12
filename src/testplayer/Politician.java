@@ -107,7 +107,11 @@ public class Politician extends RobotPlayer{
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius
                     && rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) > 10
             && rc.canEmpower(rc.getLocation().distanceSquaredTo(target)) && role == ATTACKING) {
-                rc.empower(rc.getLocation().distanceSquaredTo(target));
+                if (rc.getLocation().distanceSquaredTo(target) <= 2
+                        || (rc.getCooldownTurns() < 1 && !rc.canMove(rc.getLocation().directionTo(target))
+                        && movesSinceClosest > 4)) {
+                    rc.empower(rc.getLocation().distanceSquaredTo(target));
+                }
             }
             tryMove(getPathDirTo(target));
         } else if (role == RETURNING) {
