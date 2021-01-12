@@ -34,8 +34,9 @@ public strictfp class RobotPlayer {
     static final int ENEMY_EC_FOUND = 1;
     static final int NEUTRAL_EC_FOUND = 2;
     static final int ATTACK_ENEMY = 3;
-    static final int CONVERTED_FLAG = 4;
-    static final int DEFEND = 5;
+    static final int ATTACK_NEUTRAL = 4;
+    static final int CONVERTED_FLAG = 5;
+    static final int DEFEND = 6;
 
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
@@ -168,7 +169,7 @@ public strictfp class RobotPlayer {
     }
 
     static int encodeFlag(int msg, int x, int y, int extraInfo) {
-        String flag = padBinary(Integer.toBinaryString(msg), 4);
+        String flag = padBinary(Integer.toBinaryString(msg), 3);
         if (x >= 0) {
             flag += "0" + padBinary(Integer.toBinaryString(x), 6);
         } else {
@@ -179,7 +180,7 @@ public strictfp class RobotPlayer {
         } else {
             flag += "1" + padBinary(Integer.toBinaryString(Math.abs(y)), 6);
         }
-        flag += padBinary(Integer.toBinaryString(extraInfo), 6);
+        flag += padBinary(Integer.toBinaryString(extraInfo), 7);
         return Integer.parseInt(flag, 2);
     }
 
@@ -187,18 +188,18 @@ public strictfp class RobotPlayer {
         int[] flagContents = new int[4];
         String stringFlag = Integer.toBinaryString(flag);
         stringFlag = padBinary(stringFlag, 24);
-        flagContents[0] = Integer.parseInt(stringFlag.substring(0, 4), 2);
-        if (stringFlag.charAt(4) == '0') {
-            flagContents[1] = Integer.parseInt(stringFlag.substring(5, 11), 2);
+        flagContents[0] = Integer.parseInt(stringFlag.substring(0, 3), 2);
+        if (stringFlag.charAt(3) == '0') {
+            flagContents[1] = Integer.parseInt(stringFlag.substring(4, 10), 2);
         } else {
-            flagContents[1] = -Integer.parseInt(stringFlag.substring(5, 11), 2);
+            flagContents[1] = -Integer.parseInt(stringFlag.substring(4, 10), 2);
         }
-        if (stringFlag.charAt(11) == '0') {
-            flagContents[2] = Integer.parseInt(stringFlag.substring(12, 18), 2);
+        if (stringFlag.charAt(10) == '0') {
+            flagContents[2] = Integer.parseInt(stringFlag.substring(11, 17), 2);
         } else {
-            flagContents[2] = -Integer.parseInt(stringFlag.substring(12, 18), 2);
+            flagContents[2] = -Integer.parseInt(stringFlag.substring(11, 17), 2);
         }
-        flagContents[3] = Integer.parseInt(stringFlag.substring(18), 2);
+        flagContents[3] = Integer.parseInt(stringFlag.substring(17), 2);
         return flagContents;
     }
 

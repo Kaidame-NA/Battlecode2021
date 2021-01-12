@@ -16,6 +16,8 @@ public class Muckraker extends RobotPlayer{
     static MapLocation target;
     static int stuckCounter;
     static int[] homeECFlagContents;
+    static int homeECIDTag;
+    static int scoutingFlag;
 
     static void setup() throws GameActionException {
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
@@ -27,6 +29,8 @@ public class Muckraker extends RobotPlayer{
         }
         homeECx = ECLocations.get(0).x;
         homeECy = ECLocations.get(0).y;
+        homeECIDTag = ECIDs.get(0) % 128;
+        scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
         role = SCOUTING;
     }
 
@@ -52,11 +56,11 @@ public class Muckraker extends RobotPlayer{
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
-                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
+                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
                 }
             }
@@ -73,8 +77,9 @@ public class Muckraker extends RobotPlayer{
                         ECLocations.addFirst(target);
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
+                        homeECIDTag = ECIDs.get(0) % 128;
                         role = SCOUTING;
-                        rc.setFlag(0);
+                        rc.setFlag(scoutingFlag);
                     }
                 }
             }
@@ -89,8 +94,12 @@ public class Muckraker extends RobotPlayer{
                         < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
-                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER
+                        && flagContents[3] == homeECIDTag) {
                         rc.setFlag(flag);
+                        if (flag == scoutingFlag) {
+                            role = SCOUTING;
+                        }
                     }
 
                 }
@@ -111,7 +120,7 @@ public class Muckraker extends RobotPlayer{
                             && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
                             > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
                             (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                            friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                            friendlyInRange[i].getType() != RobotType.SLANDERER && flagContents[3] == homeECIDTag) {
                         rc.setFlag(flag);
                         target = ECLocations.get(0);
                         role = RETURNING;
@@ -129,19 +138,18 @@ public class Muckraker extends RobotPlayer{
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
             if (homeECFlagContents[0] == ATTACK_ENEMY) {
-                if (homeECFlagContents[3] == 0) {
+
                     rc.setFlag(rc.getFlag(ECIDs.get(0)));
                     target = new MapLocation(homeECx + homeECFlagContents[1],
                             homeECy + homeECFlagContents[2]);
                     role = ATTACKING;
-                } else if (homeECFlagContents[3] == 1 && ownFlag[1] == homeECFlagContents[1] &&
-                homeECFlagContents[2] == ownFlag[2]) {
-                    rc.setFlag(0);
-                    role = SCOUTING;
-                }
+            } else if (homeECFlagContents[0] == ATTACK_NEUTRAL && ownFlag[1] == homeECFlagContents[1] &&
+                    homeECFlagContents[2] == ownFlag[2]) {
+                rc.setFlag(0);
+                role = SCOUTING;
             }
         }
-        if (rc.getFlag(rc.getID()) == 0) {
+        if (rc.getFlag(rc.getID()) == scoutingFlag) {
             role = SCOUTING;
         }
     }

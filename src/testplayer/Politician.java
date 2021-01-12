@@ -17,6 +17,8 @@ public class Politician extends RobotPlayer{
     static int[] homeECFlagContents;
     static int homeECx;
     static int homeECy;
+    static int homeECIDTag;
+    static int scoutingFlag;
 
 
     static void setup() throws GameActionException {
@@ -33,16 +35,22 @@ public class Politician extends RobotPlayer{
         } else {
             homeECx = ECLocations.get(0).x;
             homeECy = ECLocations.get(0).y;
+            homeECIDTag = ECIDs.get(0) % 128;
+            scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
             role = SCOUTING;
         }
     }
 
     static void run() throws GameActionException {
+        if (ECIDs.isEmpty() && ECLocations.isEmpty()) {
+            role = CONVERTED;
+            rc.setFlag(encodeFlag(CONVERTED_FLAG, 0, 0, 0));
+        }
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
-        if (role != CONVERTED && !ECIDs.isEmpty()) {
+        if (role != CONVERTED) {
             if (rc.canGetFlag(ECIDs.get(0))) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
             } //maybe something about if cant then its taken
@@ -56,7 +64,7 @@ public class Politician extends RobotPlayer{
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
-                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
+                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
@@ -64,7 +72,7 @@ public class Politician extends RobotPlayer{
                         rc.empower(rc.getLocation().distanceSquaredTo(unit.getLocation()));
                     }
                     System.out.println(unit.location.x + " - " + homeECx + ", " + unit.location.y + " - " + homeECy);
-                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, 0));
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
                 }
             }
@@ -82,8 +90,9 @@ public class Politician extends RobotPlayer{
                         ECLocations.addFirst(target);
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
+                        homeECIDTag = ECIDs.get(0) % 128;
                         role = SCOUTING;
-                        rc.setFlag(0);
+                        rc.setFlag(scoutingFlag);
                     }
                 }
             }
@@ -103,9 +112,10 @@ public class Politician extends RobotPlayer{
                         < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
-                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER
+                        && flagContents[3] == homeECIDTag) {
                         rc.setFlag(flag);
-                        if (flag == 0) {
+                        if (flag == scoutingFlag) {
                             role = SCOUTING;
                         }
                     }
@@ -130,7 +140,7 @@ public class Politician extends RobotPlayer{
                             && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
                             > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
                             (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                            friendlyInRange[i].getType() == RobotType.POLITICIAN) {
+                            friendlyInRange[i].getType() == RobotType.POLITICIAN && flagContents[3] == homeECIDTag) {
                         rc.setFlag(flag);
                         target = ECLocations.get(0);
                         role = RETURNING;
@@ -148,14 +158,14 @@ public class Politician extends RobotPlayer{
         //reading home ec flag info
         if (homeECFlagContents != null) {
             //if its an attack command, attack
-            if (homeECFlagContents[0] == ATTACK_ENEMY) {
+            if (homeECFlagContents[0] == ATTACK_ENEMY || homeECFlagContents[0] == ATTACK_NEUTRAL) {
                 rc.setFlag(rc.getFlag(ECIDs.get(0)));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
                 role = ATTACKING;
             }
         }
-        if (rc.getFlag(rc.getID()) == 0) {
+        if (rc.getFlag(rc.getID()) == scoutingFlag) {
             role = SCOUTING;
         }
         for (int i = friendlyInRange.length; --i >= 0; ) {
@@ -165,6 +175,7 @@ public class Politician extends RobotPlayer{
                 if (ECIDs.size() == 1 && ECLocations.size() == 1) {
                     homeECx = ECLocations.get(0).x;
                     homeECy = ECLocations.get(0).y;
+                    homeECIDTag = ECIDs.get(0) % 128;
                     role = SCOUTING;
                 }
             }
