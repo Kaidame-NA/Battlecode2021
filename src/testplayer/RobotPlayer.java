@@ -232,7 +232,13 @@ public strictfp class RobotPlayer {
     static Direction getPathDirSpread() throws GameActionException {
         Team friendly = rc.getTeam();
         RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
-
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
         int numberofnearbyfriendlies = friendlies.length;
 
         Direction optimalDir = Direction.CENTER;
@@ -242,6 +248,11 @@ public strictfp class RobotPlayer {
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
                 double cost = - (rc.getType().actionCooldown/pass);
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost += Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 2);
+                }
                 if (numberofnearbyfriendlies > 0) {
                     MapLocation spreadfromone = friendlies[0].getLocation();
                     cost += Math.abs(spreadfromone.x - adj.x) + Math.abs(spreadfromone.y - adj.y);
@@ -303,6 +314,14 @@ public strictfp class RobotPlayer {
             }
         }
 
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
         if (rc.getLocation().equals(tgt)) {
             banList.clear();
             return Direction.CENTER;
@@ -315,19 +334,289 @@ public strictfp class RobotPlayer {
                 double pass = rc.sensePassability(adj);
                 double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
                         (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 3);
+                }
+
                 if (nearbypoliticians.size() != 0) {
                     MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
-                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 10);
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 3);
                 }
 
                 if (nearbypoliticians.size() > 1) {
                     MapLocation spreadfrompoliticiantwo = nearbypoliticians.get(1).getLocation();
-                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 10);
+                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 3);
                 }
 
                 if (nearbypoliticians.size() > 2) {
                     MapLocation spreadfrompoliticianthree = nearbypoliticians.get(2).getLocation();
-                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 10);
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 3);
+                }
+
+                if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        int localClosestDist = rc.adjacentLocation(optimalDir).distanceSquaredTo(tgt);
+        if (localClosestDist < closestDistToTarget) {
+            closestDistToTarget = localClosestDist;
+            movesSinceClosest = 0;
+        } else if (optimalDir != Direction.CENTER){
+            movesSinceClosest ++;
+        }
+        if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
+            optimalDir = rc.getLocation().directionTo(tgt);
+        }
+        return optimalDir;
+    }
+
+    static Direction getAlternatePathDirToEnemyEC(MapLocation tgt) throws GameActionException {
+
+        Team friendly = rc.getTeam();
+        Team enemy = rc.getTeam().opponent();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(30, friendly);
+        RobotInfo[] enemies = rc.senseNearbyRobots(30, enemy);
+
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyenemyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : enemies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyenemyecs.add(robot);
+            }
+        }
+
+        if (rc.getLocation().equals(tgt)) {
+            banList.clear();
+            return Direction.CENTER;
+        }
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = Double.MAX_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                        (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
+
+                if (nearbyenemyecs.size() != 0) {
+                    MapLocation spreadfromenemyecone = nearbyenemyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromenemyecone.x - adj.x) + Math.abs(spreadfromenemyecone.y - adj.y)), 5);
+                }
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() != 0) {
+                    MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 1) {
+                    MapLocation spreadfrompoliticiantwo = nearbypoliticians.get(1).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 2) {
+                    MapLocation spreadfrompoliticianthree = nearbypoliticians.get(2).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 3);
+                }
+
+                if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        int localClosestDist = rc.adjacentLocation(optimalDir).distanceSquaredTo(tgt);
+        if (localClosestDist < closestDistToTarget) {
+            closestDistToTarget = localClosestDist;
+            movesSinceClosest = 0;
+        } else if (optimalDir != Direction.CENTER){
+            movesSinceClosest ++;
+        }
+        if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
+            optimalDir = rc.getLocation().directionTo(tgt);
+        }
+        return optimalDir;
+    }
+
+    static Direction getAlternatePathTwoDirToEnemyEC(MapLocation tgt) throws GameActionException {
+
+        Team friendly = rc.getTeam();
+        Team enemy = rc.getTeam().opponent();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
+        RobotInfo[] enemies = rc.senseNearbyRobots(25, enemy);
+
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyenemyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : enemies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyenemyecs.add(robot);
+            }
+        }
+
+        if (rc.getLocation().equals(tgt)) {
+            banList.clear();
+            return Direction.CENTER;
+        }
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = Double.MAX_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                        (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
+
+                if (nearbyenemyecs.size() != 0) {
+                    MapLocation spreadfromenemyecone = nearbyenemyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromenemyecone.x - adj.x) + Math.abs(spreadfromenemyecone.y - adj.y)), 5);
+                }
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() != 0) {
+                    MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 1) {
+                    MapLocation spreadfrompoliticiantwo = nearbypoliticians.get(1).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 2) {
+                    MapLocation spreadfrompoliticianthree = nearbypoliticians.get(2).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 3);
+                }
+
+                if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        int localClosestDist = rc.adjacentLocation(optimalDir).distanceSquaredTo(tgt);
+        if (localClosestDist < closestDistToTarget) {
+            closestDistToTarget = localClosestDist;
+            movesSinceClosest = 0;
+        } else if (optimalDir != Direction.CENTER){
+            movesSinceClosest ++;
+        }
+        if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
+            optimalDir = rc.getLocation().directionTo(tgt);
+        }
+        return optimalDir;
+    }
+
+    static Direction getAlternatePathThreeDirToEnemyEC(MapLocation tgt) throws GameActionException {
+
+        Team friendly = rc.getTeam();
+        Team enemy = rc.getTeam().opponent();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(20, friendly);
+        RobotInfo[] enemies = rc.senseNearbyRobots(20, enemy);
+
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbyenemyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : enemies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyenemyecs.add(robot);
+            }
+        }
+
+        if (rc.getLocation().equals(tgt)) {
+            banList.clear();
+            return Direction.CENTER;
+        }
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = Double.MAX_VALUE;
+        for (Direction dir : directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj)) {
+                double pass = rc.sensePassability(adj);
+                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                        (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
+
+                if (nearbyenemyecs.size() != 0) {
+                    MapLocation spreadfromenemyecone = nearbyenemyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromenemyecone.x - adj.x) + Math.abs(spreadfromenemyecone.y - adj.y)), 5);
+                }
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() != 0) {
+                    MapLocation spreadfrompoliticianone = nearbypoliticians.get(0).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianone.x - adj.x) + Math.abs(spreadfrompoliticianone.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 1) {
+                    MapLocation spreadfrompoliticiantwo = nearbypoliticians.get(1).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticiantwo.x - adj.x) + Math.abs(spreadfrompoliticiantwo.y - adj.y)), 3);
+                }
+
+                if (nearbypoliticians.size() > 2) {
+                    MapLocation spreadfrompoliticianthree = nearbypoliticians.get(2).getLocation();
+                    cost -= Math.pow((Math.abs(spreadfrompoliticianthree.x - adj.x) + Math.abs(spreadfrompoliticianthree.y - adj.y)), 3);
                 }
 
                 if (cost < optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
