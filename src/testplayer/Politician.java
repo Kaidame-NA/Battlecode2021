@@ -72,7 +72,6 @@ public class Politician extends RobotPlayer{
                     if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
                         rc.empower(rc.getLocation().distanceSquaredTo(unit.getLocation()));
                     }
-                    System.out.println(unit.location.x + " - " + homeECx + ", " + unit.location.y + " - " + homeECy);
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
                 }
@@ -86,13 +85,15 @@ public class Politician extends RobotPlayer{
                 RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
                 for (int i = unitsInRange.length; --i >= 0;) {
                     RobotInfo unit = unitsInRange[i];
-                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()) {
+                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()
+                        && unit.location.equals(target)) {
                         ECIDs.addFirst(unit.getID());
                         ECLocations.addFirst(target);
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
                         homeECIDTag = ECIDs.get(0) % 128;
                         role = SCOUTING;
+                        scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
                         rc.setFlag(scoutingFlag);
                     }
                 }
@@ -122,6 +123,10 @@ public class Politician extends RobotPlayer{
                     }
                     //depending on signal code, change role and target
                 }
+            }
+            if (rc.canSenseLocation(target)) {
+                rc.setFlag(scoutingFlag);
+                role = SCOUTING;
             }
         } else if (role == CONVERTED) { //right now they just run around and kamikaze
             if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
@@ -177,6 +182,8 @@ public class Politician extends RobotPlayer{
                     homeECx = ECLocations.get(0).x;
                     homeECy = ECLocations.get(0).y;
                     homeECIDTag = ECIDs.get(0) % 128;
+                    scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
+                    rc.setFlag(scoutingFlag);
                     role = SCOUTING;
                 }
             }

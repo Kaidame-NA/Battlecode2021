@@ -1,6 +1,7 @@
 package testplayer;
 
 import battlecode.common.*;
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 
 import java.util.LinkedList;
 
@@ -73,19 +74,21 @@ public class Muckraker extends RobotPlayer{
                 RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
                 for (int i = unitsInRange.length; --i >= 0;) {
                     RobotInfo unit = unitsInRange[i];
-                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam()) {
+                    if (unit.type == RobotType.ENLIGHTENMENT_CENTER && unit.team == rc.getTeam() &&
+                        unit.location.equals(target)) {
                         ECIDs.addFirst(unit.getID());
                         ECLocations.addFirst(target);
                         homeECx = ECLocations.get(0).x;
                         homeECy = ECLocations.get(0).y;
                         homeECIDTag = ECIDs.get(0) % 128;
                         role = SCOUTING;
+                        scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
                         rc.setFlag(scoutingFlag);
                     }
                 }
             }
             tryMove(getPathDirToEnemyEC(target));
-        } else {
+        } else if (role == RETURNING){
             target = ECLocations.get(0);
             tryMove(getPathDirTo(target));
             for (int i = friendlyInRange.length; --i >= 0;) {
@@ -106,11 +109,12 @@ public class Muckraker extends RobotPlayer{
                 }
             }
             if (rc.canSenseLocation(target)) {
+                rc.setFlag(scoutingFlag);
                 role = SCOUTING;
             }
         }
 
-        if (role == SCOUTING) {
+        if (role != RETURNING) {
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
                 if (rc.canGetFlag(friendlyInRange[i].getID())) {
@@ -138,7 +142,7 @@ public class Muckraker extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ATTACK_ENEMY && (rc.getID() % 3 == 0)) {
+            if (homeECFlagContents[0] == ATTACK_ENEMY) {
 
                     rc.setFlag(rc.getFlag(ECIDs.get(0)));
                     target = new MapLocation(homeECx + homeECFlagContents[1],
