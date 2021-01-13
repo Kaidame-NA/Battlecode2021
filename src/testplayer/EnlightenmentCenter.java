@@ -32,7 +32,14 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static void spawn() throws GameActionException{
-        if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
+        if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3
+                && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence()/2)
+                && rc.getInfluence() > 500) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence()/2);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+        else if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
             numberofunitsproduced++;
             numberofslanderersproduced++;
