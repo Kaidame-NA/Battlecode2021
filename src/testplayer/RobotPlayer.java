@@ -1,8 +1,7 @@
 package testplayer;
 import battlecode.common.*;
 
-import java.util.HashSet;
-import java.util.ArrayList;
+import java.util.*;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
@@ -211,12 +210,6 @@ public strictfp class RobotPlayer {
             output+="0";
         }
         return output + str;
-    }
-
-    static Direction awayFromCreationEC() {
-        MapLocation curr = rc.getLocation();
-        //System.out.println(startLocation + " " + curr);
-        return curr.directionTo(curr.subtract(curr.directionTo(startLocation)));
     }
     
     static boolean shouldSpread() throws GameActionException {
@@ -649,8 +642,33 @@ public strictfp class RobotPlayer {
     static Direction awayFromEnemies() throws GameActionException {
         RobotInfo[] Enemies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam().opponent());
         for(RobotInfo info: Enemies){
-            return awayFromLocation(info.location);
+            return optimalDirection( awayFromLocation(info.location) );
         }
-        return randomDirection();
+        return randomDirection();//eventually change to "normal" slanderer or bot movement
+    }
+
+    static Direction optimalDirection(Direction dir) throws GameActionException{
+        SortedMap<Double, Direction> directions
+                = new TreeMap<Double, Direction>(Collections.reverseOrder()); //sorted high to low passability
+
+        if(rc.canSenseLocation( rc.getLocation().add(dir) ) )
+            directions.put(rc.sensePassability( rc.getLocation().add(dir) ), dir);
+        if(rc.canSenseLocation( rc.getLocation().add(dir.rotateLeft()) ) )
+            directions.put(rc.sensePassability( rc.getLocation().add(dir.rotateLeft()) ), dir.rotateLeft());
+        if(rc.canSenseLocation( rc.getLocation().add(dir.rotateRight()) ) )
+            directions.put(rc.sensePassability( rc.getLocation().add(dir.rotateRight()) ), dir.rotateRight());
+
+        for (Map.Entry mapElement : directions.entrySet() ) {
+            //Getting the Key
+            //double key = (double)mapElement.getKey();
+
+            // Finding the value
+            Direction value = (Direction) mapElement.getValue();
+
+            if(rc.canMove(value) ){
+                return value;
+            }
+        }
+        return Direction.CENTER;
     }
 }
