@@ -178,10 +178,10 @@ public class Politician extends RobotPlayer{
                 rc.move(getPathDirSpread());
             }
         } else if (role == FOLLOW) {
-            if (rc.canSenseRobot(trailedMuckrakerID)) {
+            if (rc.canSenseRobot(trailedMuckrakerID) && notTrailed(trailedMuckrakerID, friendlyInRange)) {
                 target = rc.senseRobot(trailedMuckrakerID).getLocation();
                 if (!ECLocations.isEmpty()
-                        && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) < 200
+                        && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) < 100
                         && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
                     rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
                 } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius)) {
