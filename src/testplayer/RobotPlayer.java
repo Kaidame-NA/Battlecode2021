@@ -58,10 +58,12 @@ public strictfp class RobotPlayer {
             case MUCKRAKER: Muckraker.setup(); break;
             case ENLIGHTENMENT_CENTER: EnlightenmentCenter.setup(); break;
         }
-
         while (true) {
-            turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to freeze
+//            if(turnCount >= 1000)
+//            {
+//                rc.resign();
+//            }
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You may rewrite this into your own control structure if you wish.
@@ -80,6 +82,7 @@ public strictfp class RobotPlayer {
                 System.out.println(rc.getType() + " Exception");
                 e.printStackTrace();
             }
+            turnCount += 1;
         }
     }
 
