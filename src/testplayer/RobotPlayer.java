@@ -56,6 +56,7 @@ public strictfp class RobotPlayer {
             case POLITICIAN: Politician.setup(); break;
             case SLANDERER: Slanderer.setup(); break;
             case MUCKRAKER: Muckraker.setup(); break;
+            case ENLIGHTENMENT_CENTER: EnlightenmentCenter.setup(); break;
         }
 
         while (true) {

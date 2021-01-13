@@ -21,6 +21,7 @@ public class Muckraker extends RobotPlayer{
     static int scoutingFlag;
 
     static void setup() throws GameActionException {
+        turnCount = rc.getRoundNum();
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
         for (int i = possibleECs.length; --i >= 0;){
             if (possibleECs[i].getType() == RobotType.ENLIGHTENMENT_CENTER) {

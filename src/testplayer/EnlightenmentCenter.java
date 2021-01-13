@@ -10,6 +10,11 @@ public class EnlightenmentCenter extends RobotPlayer{
     numberofslanderersproduced, numberofpoliticiansproduced = 0;
 
     static int ecIDTag = rc.getID() % 128;
+
+    static void setup() throws GameActionException {
+        turnCount = rc.getRoundNum();
+    }
+
     static void run() throws GameActionException {
         spawn();
         //System.out.println(rc.getInfluence());
