@@ -634,7 +634,7 @@ public strictfp class RobotPlayer {
     //returns the direction to move away from a location
     static Direction awayFromLocation(MapLocation loc) throws GameActionException {
         MapLocation curr = rc.getLocation();
-        System.out.println("Away From Location: " + loc + " Current Location: " + curr);
+        //System.out.println("Away From Location: " + loc + " Current Location: " + curr);
         return curr.directionTo(curr.subtract(curr.directionTo(loc)));
     }
 

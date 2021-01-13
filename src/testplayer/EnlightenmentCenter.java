@@ -12,7 +12,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int ecIDTag = rc.getID() % 128;
     static void run() throws GameActionException {
         spawn();
-        System.out.println(rc.getInfluence());
+        //System.out.println(rc.getInfluence());
         
         bidVote();
         

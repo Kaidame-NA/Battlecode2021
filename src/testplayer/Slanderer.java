@@ -23,7 +23,7 @@ public class Slanderer extends RobotPlayer {
 
     static void run() throws GameActionException {
         if (tryMove(awayFromEnemies()) && rc.canMove(awayFromEnemies())) {
-            System.out.println("enemy spotted run away!!");
+            //System.out.println("enemy spotted run away!!");
             rc.move(awayFromEnemies());
         }
     }
