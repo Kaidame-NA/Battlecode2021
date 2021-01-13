@@ -68,8 +68,8 @@ public class Politician extends RobotPlayer{
         //follow muckrakers if small poli
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
-                && !ECLocations.isEmpty() && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) < 1000) {
-                if (trailedMuckrakerID == 0 && role != RETURNING && notTrailed(trailedMuckrakerID, friendlyInRange)) {
+                && !ECLocations.isEmpty() && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) < 500) {
+                if (trailedMuckrakerID == 0 && role != RETURNING && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
                     trailedMuckrakerID = enemiesInRange[i].getID();
                     role = FOLLOW;
                     rc.setFlag(0);
@@ -95,9 +95,10 @@ public class Politician extends RobotPlayer{
                     if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
                         target = unit.getLocation();
                         role = ATTACKING;
-                    }
+                    } else {
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
                     role = RETURNING;
+                    }
                 }
             }
             if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
@@ -185,7 +186,7 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
                 } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius)) {
                     rc.empower(actionRadius);
-                } else if (!ECLocations.isEmpty() && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) > 1000) {
+                } else if (!ECLocations.isEmpty() && rc.getLocation().distanceSquaredTo(ECLocations.get(0)) > 500) {
                     trailedMuckrakerID = 0;
                     rc.setFlag(scoutingFlag);
                     role = SCOUTING;
