@@ -107,38 +107,56 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
         //phase 2
 
-        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16);
+        else if (effectiveturn >= 300 && effectiveturn <= 350 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn >= 350 && effectiveturn <= 400 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn >= 400 && effectiveturn <= 450 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn >= 450 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
         //phase 3
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 >= 16 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/3)) {
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 >= 26 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/3)) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/3);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 <= 16 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 <= 26 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
