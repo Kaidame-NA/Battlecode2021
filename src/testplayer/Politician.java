@@ -179,7 +179,7 @@ public class Politician extends RobotPlayer{
             if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
                 rc.empower(actionRadius);
             }
-            if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
+            if (shouldSpread()) {
                 rc.move(getPathDirSpread());
             }
         } else if (role == FOLLOW) {

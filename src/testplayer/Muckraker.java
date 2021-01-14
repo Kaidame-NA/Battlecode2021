@@ -56,9 +56,10 @@ public class Muckraker extends RobotPlayer{
         if (rc.canGetFlag(ECIDs[currentHomeEC])) {
             homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
         }
-
+        //System.out.println("Checkpoint 3: " + Clock.getBytecodeNum());
         if (role == SCOUTING) {
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+            //System.out.println("Checkpoint Scout A: " + Clock.getBytecodeNum());
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
@@ -70,10 +71,13 @@ public class Muckraker extends RobotPlayer{
                     role = RETURNING;
                 }
             }
-            if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
+            //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
+            if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             }
+            //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
         } else if (role == ATTACKING) {
+            //System.out.println("Checkpoint Attack A: " + Clock.getBytecodeNum());
             if (rc.canSenseLocation(target)) {
                 RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
                 for (int i = unitsInRange.length; --i >= 0;) {
@@ -95,6 +99,7 @@ public class Muckraker extends RobotPlayer{
                     }
                 }
             }
+            //System.out.println("Checkpoint Attack B: " + Clock.getBytecodeNum());
             //attack groups:
             if (rc.getID() % 5 == 0) {
                 tryMove(getPathDirToEnemyEC(target));
@@ -111,10 +116,12 @@ public class Muckraker extends RobotPlayer{
             if (rc.getID() % 5 == 3 || rc.getID() % 5 == 4) {
                 tryMove(getAlternatePathDirToEnemyEC(target));
             }
+            //System.out.println("Checkpoint Attack C: " + Clock.getBytecodeNum());
             
         } else if (role == RETURNING){
             target = ECLocations[currentHomeEC];
             tryMove(getPathDirTo(target));
+            //System.out.println("Checkpoint Return A: " + Clock.getBytecodeNum());
             for (int i = friendlyInRange.length; --i >= 0;) {
                 //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
                 //take its flag and commands(unless its an attack)
@@ -141,12 +148,14 @@ public class Muckraker extends RobotPlayer{
 
                 }
             }
+           // System.out.println("Checkpoint Return B: " + Clock.getBytecodeNum());
             if (rc.canSenseLocation(target)) {
                 rc.setFlag(scoutingFlag);
                 role = SCOUTING;
             }
+            //System.out.println("Checkpoint Return C: " + Clock.getBytecodeNum());
         }
-
+        //System.out.println("Checkpoint 4: " + Clock.getBytecodeNum());
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
@@ -162,7 +171,7 @@ public class Muckraker extends RobotPlayer{
                 role = SCOUTING;
             }
         }
-
+        //System.out.println("Checkpoint 5: " + Clock.getBytecodeNum());
         if (role != RETURNING) {
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
@@ -190,6 +199,7 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
+        //System.out.println("Checkpoint 6: " + Clock.getBytecodeNum());
         if (rc.getFlag(rc.getID()) == scoutingFlag) {
             role = SCOUTING;
         }
