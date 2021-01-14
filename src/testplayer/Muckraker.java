@@ -43,6 +43,7 @@ public class Muckraker extends RobotPlayer{
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        int distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
@@ -126,7 +127,7 @@ public class Muckraker extends RobotPlayer{
                 //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
                 //take its flag and commands(unless its an attack)
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(target)
-                        < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
+                        < distToHome && rc.canGetFlag(friendlyInRange[i].getID())) {
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
                     if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER
@@ -176,8 +177,7 @@ public class Muckraker extends RobotPlayer{
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                        > rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                    && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
                     if (rc.canGetFlag(friendlyInRange[i].getID())) {
                         int flag = rc.getFlag(friendlyInRange[i].getID());
                         int[] flagContents = decodeFlag(flag);
