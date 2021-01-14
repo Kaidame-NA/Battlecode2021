@@ -107,9 +107,13 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (shouldSpread()) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(polisring());
+            }
+            else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             }
+
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
             if (rc.canSenseLocation(target)) {
@@ -144,7 +148,12 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            tryMove(getPathDirTo(target));
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(polisring());
+            }
+            else {
+                tryMove(getPathDirTo(target));
+            }
         } else if (role == RETURNING) {
             target = ECLocations[currentHomeEC];
             tryMove(getPathDirTo(target));
@@ -182,9 +191,14 @@ public class Politician extends RobotPlayer{
             if (attackable.length != 0 && rc.canEmpower(actionRadius)) {
                 rc.empower(actionRadius);
             }
-            if (shouldSpread()) {
+
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(polisring());
+            }
+            else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             }
+
         } else if (role == FOLLOW) {
             if (rc.canSenseRobot(trailedMuckrakerID)) {
                 target = rc.senseRobot(trailedMuckrakerID).getLocation();

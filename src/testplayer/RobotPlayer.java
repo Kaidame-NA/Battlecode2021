@@ -236,12 +236,22 @@ public strictfp class RobotPlayer {
                 nearbyecs.add(robot);
             }
         }
-        int numberofnearbyfriendlies = friendlies.length;
 
-        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+        ArrayList<RobotInfo> nearbyfriendlies = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            int id = robot.getID();
+            if (type == RobotType.MUCKRAKER || type == RobotType.POLITICIAN) {
+                nearbyfriendlies.add(robot);
+            }
+        }
+
+        int numberofnearbyfriendlies = nearbyfriendlies.size();
+
+        numberofnearbyfriendlies = nearbyfriendlies.size() > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = Double.MIN_VALUE;
+        double optimalCost = - Double.MAX_VALUE;
         for (Direction dir: directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
@@ -254,7 +264,7 @@ public strictfp class RobotPlayer {
                 }
                 for(int i = numberofnearbyfriendlies; --i>=0;)
                 {
-                    MapLocation spreadFrom = friendlies[i].getLocation();
+                    MapLocation spreadFrom = nearbyfriendlies.get(i).getLocation();
                     cost += Math.abs(spreadFrom.x - adj.x) + Math.abs(spreadFrom.y - adj.y);
                 }
                 if (cost > optimalCost && rc.canMove(dir)) {
@@ -641,5 +651,100 @@ public strictfp class RobotPlayer {
             }
         }
         return Direction.CENTER;
+    }
+
+    static Direction slanderersSafe() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(20, friendly);
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
+        ArrayList<RobotInfo> nearbypolis = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypolis.add(robot);
+            }
+        }
+
+        int numberofnearbypolis = nearbypolis.size();
+
+        numberofnearbypolis = nearbypolis.size() > 10 ? 10 : numberofnearbypolis; // cap at 10
+
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = - Double.MAX_VALUE;
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
+                double pass = rc.sensePassability(adj);
+                //double cost = - (rc.getType().actionCooldown/pass);
+                double cost = 0;
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.abs(3 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
+                }
+                /*
+                for(int i = numberofnearbypolis; --i>=0;)
+                {
+                    MapLocation spreadTo = nearbypolis.get(i).getLocation();
+                    cost += Math.abs(spreadTo.x - adj.x) + Math.abs(spreadTo.y - adj.y);
+                }
+                */
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        };
+        return optimalDir;
+    }
+
+    static Direction polisring() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+
+        int numberofnearbyfriendlies = friendlies.length;
+
+        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = - Double.MAX_VALUE;
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
+                double pass = rc.sensePassability(adj);
+                //double cost = - (rc.getType().actionCooldown/pass);
+                double cost = 0;
+
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost -= Math.abs(4.5 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
+                }
+                /*
+                for(int i = numberofnearbyfriendlies; --i>=0;)
+                {
+                    MapLocation spreadFrom = friendlies[i].getLocation();
+                    cost += Math.abs(spreadFrom.x - adj.x) + Math.abs(spreadFrom.y - adj.y);
+                }
+                 */
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
     }
 }
