@@ -6,8 +6,9 @@ import com.sun.org.apache.bcel.internal.generic.RETURN;
 import java.util.LinkedList;
 
 public class Muckraker extends RobotPlayer{
-    static LinkedList<Integer> ECIDs = new LinkedList<Integer>();
-    static LinkedList<MapLocation> ECLocations = new LinkedList<MapLocation>();
+    static int[] ECIDs = new int[20];
+    static MapLocation[] ECLocations = new MapLocation[20];
+    static int currentHomeEC = -1;
     static int role;
     static final int SCOUTING = 0;
     static final int RETURNING = 1;
@@ -25,13 +26,14 @@ public class Muckraker extends RobotPlayer{
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
         for (int i = possibleECs.length; --i >= 0;){
             if (possibleECs[i].getType() == RobotType.ENLIGHTENMENT_CENTER) {
-                ECIDs.add(possibleECs[i].getID());
-                ECLocations.add(possibleECs[i].getLocation());
+                currentHomeEC ++;
+                ECIDs[currentHomeEC] = possibleECs[i].getID();
+                ECLocations[currentHomeEC] = possibleECs[i].getLocation();
             }
         }
-        homeECx = ECLocations.get(0).x;
-        homeECy = ECLocations.get(0).y;
-        homeECIDTag = ECIDs.get(0) % 128;
+        homeECx = ECLocations[currentHomeEC].x;
+        homeECy = ECLocations[currentHomeEC].y;
+        homeECIDTag = ECIDs[currentHomeEC] % 128;
         scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
         rc.setFlag(scoutingFlag);
         role = SCOUTING;
@@ -51,8 +53,8 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
-        if (rc.canGetFlag(ECIDs.get(0))) {
-            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
+        if (rc.canGetFlag(ECIDs[currentHomeEC])) {
+            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
         }
 
         if (role == SCOUTING) {
@@ -69,7 +71,7 @@ public class Muckraker extends RobotPlayer{
                 }
             }
             if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
-                rc.move(getPathDirSpread());
+                tryMove(getPathDirSpread());
             }
         } else if (role == ATTACKING) {
             if (rc.canSenseLocation(target)) {
@@ -78,16 +80,17 @@ public class Muckraker extends RobotPlayer{
                     RobotInfo unit = unitsInRange[i];
                     if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam() &&
                         unit.getLocation().equals(target)) {
-                        ECIDs.addFirst(unit.getID());
-                        ECLocations.addFirst(target);
-                        homeECx = ECLocations.get(0).x;
-                        homeECy = ECLocations.get(0).y;
-                        homeECIDTag = ECIDs.get(0) % 128;
+                        currentHomeEC ++;
+                        ECIDs[currentHomeEC] = (unit.getID());
+                        ECLocations[currentHomeEC] = (target);
+                        homeECx = ECLocations[currentHomeEC].x;
+                        homeECy = ECLocations[currentHomeEC].y;
+                        homeECIDTag = ECIDs[currentHomeEC] % 128;
                         role = SCOUTING;
                         scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
                         rc.setFlag(scoutingFlag);
-                        if (rc.canGetFlag(ECIDs.get(0))) {
-                            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs.get(0)));
+                        if (rc.canGetFlag(ECIDs[currentHomeEC])) {
+                            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
                         }
                     }
                 }
@@ -110,7 +113,7 @@ public class Muckraker extends RobotPlayer{
             }
             
         } else if (role == RETURNING){
-            target = ECLocations.get(0);
+            target = ECLocations[currentHomeEC];
             tryMove(getPathDirTo(target));
             for (int i = friendlyInRange.length; --i >= 0;) {
                 //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
@@ -148,7 +151,7 @@ public class Muckraker extends RobotPlayer{
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
             if (homeECFlagContents[0] == ATTACK_ENEMY) {
 
-                rc.setFlag(rc.getFlag(ECIDs.get(0)));
+                rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
                 role = ATTACKING;
@@ -166,13 +169,13 @@ public class Muckraker extends RobotPlayer{
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
                     //relay info if you are closer to home ec
-                    if (!ECLocations.isEmpty()
-                            && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations.get(0))
-                            > rc.getLocation().distanceSquaredTo(ECLocations.get(0)) &&
+                    if (ECLocations[0] != null
+                            && friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                            > rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) &&
                             (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
                             friendlyInRange[i].getType() != RobotType.SLANDERER && flagContents[3] == homeECIDTag) {
                         rc.setFlag(flag);
-                        target = ECLocations.get(0);
+                        target = ECLocations[currentHomeEC];
                         role = RETURNING;
                     }/*
                     else if (flagContents[0] == ATTACK_ENEMY && flagContents[3] == 0) {
