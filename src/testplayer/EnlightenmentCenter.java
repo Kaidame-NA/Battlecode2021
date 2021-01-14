@@ -189,7 +189,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         friendlyVotes = rc.getTeamVotes();
 
 
-        if(friendlyVotes > 1500)// || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
+        if(friendlyVotes > 750)// || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
         {
             //System.out.println("The election has already been decided.");
         }
