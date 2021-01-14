@@ -45,7 +45,7 @@ public class Politician extends RobotPlayer{
             scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
             rc.setFlag(scoutingFlag);
             role = SCOUTING;
-            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3 && rc.getConviction() > 200
+            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3 && rc.getConviction() > 49
                 && rc.canEmpower(2)) {
                 rc.empower(2);
             }
@@ -157,7 +157,7 @@ public class Politician extends RobotPlayer{
                         if (flag == scoutingFlag) {
                             role = SCOUTING;
                             rc.setFlag(flag);
-                        } else if (flagContents[0] == ATTACK_ENEMY && rc.getConviction() > 110) {
+                        } else if (flagContents[0] == ATTACK_ENEMY && rc.getConviction() > 99) {
                             target = new MapLocation(homeECx + flagContents[1],
                                     homeECy + flagContents[2]);
                             rc.setFlag(flag);
@@ -183,7 +183,7 @@ public class Politician extends RobotPlayer{
                 tryMove(getPathDirSpread());
             }
         } else if (role == FOLLOW) {
-            if (rc.canSenseRobot(trailedMuckrakerID) && notTrailed(trailedMuckrakerID, friendlyInRange)) {
+            if (rc.canSenseRobot(trailedMuckrakerID)) {
                 target = rc.senseRobot(trailedMuckrakerID).getLocation();
                 if (ECLocations[0] != null
                         && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 100
@@ -207,8 +207,9 @@ public class Politician extends RobotPlayer{
         //reading home ec flag info
         if (homeECFlagContents != null) {
             //if its an attack command, attack
-            if ((homeECFlagContents[0] == ATTACK_ENEMY || homeECFlagContents[0] == ATTACK_NEUTRAL) &&
-                rc.getConviction() > 110) {
+            if (((homeECFlagContents[0] == ATTACK_ENEMY &&
+                rc.getConviction() > 99) || homeECFlagContents[0] == ATTACK_NEUTRAL)
+                && role != FOLLOW && rc.canGetFlag(rc.getFlag(ECIDs[currentHomeEC]))) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
@@ -230,7 +231,7 @@ public class Politician extends RobotPlayer{
                         if (ECLocations[0] != null
                                 && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)
                                 && flagContents[3] == homeECIDTag) {
-                            if (!(friendlyInRange[i].getConviction() < 110 && role == ATTACKING)) {
+                            if (!(friendlyInRange[i].getConviction() < 100 && role == ATTACKING)) {
                                 rc.setFlag(flag);
                                 target = ECLocations[currentHomeEC];
                                 role = RETURNING;

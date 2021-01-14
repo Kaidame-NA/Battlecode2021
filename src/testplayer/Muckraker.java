@@ -160,7 +160,7 @@ public class Muckraker extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ATTACK_ENEMY) {
+            if (homeECFlagContents[0] == ATTACK_ENEMY && rc.canGetFlag(rc.getFlag(ECIDs[currentHomeEC]))) {
 
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
@@ -175,27 +175,42 @@ public class Muckraker extends RobotPlayer{
         //System.out.println("Checkpoint 5: " + Clock.getBytecodeNum());
         if (role != RETURNING) {
             //if you are not returning info and a friendly is near with flag
-            for (int i = friendlyInRange.length; --i >= 0; ) {
-                if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                        > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
-                    if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                        int flag = rc.getFlag(friendlyInRange[i].getID());
-                        int[] flagContents = decodeFlag(flag);
-                        //relay info if you are closer to home ec
-                        if (ECLocations[0] != null
-                                && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                                flagContents[3] == homeECIDTag) {
-                            rc.setFlag(flag);
-                            target = ECLocations[currentHomeEC];
-                            role = RETURNING;
-                            break;
-                        }/*
-                    else if (flagContents[0] == ATTACK_ENEMY && flagContents[3] == 0) {
-                        rc.setFlag(flag);
-                        target = new MapLocation(homeECx + flagContents[1],
-                                homeECy + flagContents[2]);
-                        role = ATTACKING;
-                    }*/
+            if (friendlyInRange.length > 60) {
+                for (int i = friendlyInRange.length/2; --i >= 0; ) {
+                    if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                            > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                            int flag = rc.getFlag(friendlyInRange[i].getID());
+                            int[] flagContents = decodeFlag(flag);
+                            //relay info if you are closer to home ec
+                            if (ECLocations[0] != null
+                                    && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                                    flagContents[3] == homeECIDTag) {
+                                rc.setFlag(flag);
+                                target = ECLocations[currentHomeEC];
+                                role = RETURNING;
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (int i = friendlyInRange.length; --i >= 0; ) {
+                    if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                            > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                            int flag = rc.getFlag(friendlyInRange[i].getID());
+                            int[] flagContents = decodeFlag(flag);
+                            //relay info if you are closer to home ec
+                            if (ECLocations[0] != null
+                                    && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                                    flagContents[3] == homeECIDTag) {
+                                rc.setFlag(flag);
+                                target = ECLocations[currentHomeEC];
+                                role = RETURNING;
+                                break;
+                            }
+                        }
                     }
                 }
             }
