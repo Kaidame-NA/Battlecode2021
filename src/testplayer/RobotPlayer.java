@@ -238,6 +238,8 @@ public strictfp class RobotPlayer {
         }
         int numberofnearbyfriendlies = friendlies.length;
 
+        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+
         Direction optimalDir = Direction.CENTER;
         double optimalCost = Double.MIN_VALUE;
         for (Direction dir: directions) {

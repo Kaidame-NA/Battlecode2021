@@ -148,7 +148,7 @@ public class Muckraker extends RobotPlayer{
 
                 }
             }
-           // System.out.println("Checkpoint Return B: " + Clock.getBytecodeNum());
+           //System.out.println("Checkpoint Return B: " + Clock.getBytecodeNum());
             if (rc.canSenseLocation(target)) {
                 rc.setFlag(scoutingFlag);
                 role = SCOUTING;
