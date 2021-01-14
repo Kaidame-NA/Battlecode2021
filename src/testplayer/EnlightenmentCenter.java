@@ -2,6 +2,8 @@ package testplayer;
 
 import battlecode.common.*;
 
+import java.util.ArrayList;
+
 public class EnlightenmentCenter extends RobotPlayer{
 
 
@@ -93,7 +95,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
+        else if (effectiveturn < 300 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
             numberofunitsproduced++;
             numberofslanderersproduced++;
@@ -136,7 +138,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
             numberofunitsproduced++;
             numberofslanderersproduced++;
@@ -167,7 +169,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && rc.getInfluence() >= 200 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 300)) {
+        else if (effectiveturn > 500 && effectiveturn < 1100 && safeToSpawnSlanderer() && rc.getInfluence() >= 200 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 300)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 300);
             numberofunitsproduced++;
             numberofslanderersproduced++;
@@ -179,7 +181,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
         }
         //phase 4
-        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 200 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 500)) {
+        else if (effectiveturn >= 1100 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 200 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 500)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 500);
             numberofunitsproduced++;
             numberofslanderersproduced++;
@@ -207,6 +209,31 @@ public class EnlightenmentCenter extends RobotPlayer{
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
+        }
+    }
+
+    static Boolean safeToSpawnSlanderer() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, friendly);
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+        ArrayList<RobotInfo> nearbyslanderers = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.SLANDERER) {
+                nearbyslanderers.add(robot);
+            }
+        }
+
+        if (nearbypoliticians.size() > 3 * nearbyslanderers.size()) {
+            return true;
+        } else {
+            return false;
         }
     }
 
