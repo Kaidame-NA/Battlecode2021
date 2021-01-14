@@ -209,7 +209,7 @@ public class Politician extends RobotPlayer{
             //if its an attack command, attack
             if (((homeECFlagContents[0] == ATTACK_ENEMY &&
                 rc.getConviction() > 99) || homeECFlagContents[0] == ATTACK_NEUTRAL)
-                && role != FOLLOW && rc.canGetFlag(rc.getFlag(ECIDs[currentHomeEC]))) {
+                && role != FOLLOW) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
