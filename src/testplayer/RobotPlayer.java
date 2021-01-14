@@ -250,49 +250,14 @@ public strictfp class RobotPlayer {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
                     cost += Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 2);
                 }
-                if (numberofnearbyfriendlies > 0) {
-                    MapLocation spreadfromone = friendlies[0].getLocation();
-                    cost += Math.abs(spreadfromone.x - adj.x) + Math.abs(spreadfromone.y - adj.y);
+                for(int i = numberofnearbyfriendlies; --i>=0;)
+                {
+                    MapLocation spreadFrom = friendlies[i].getLocation();
+                    cost += Math.abs(spreadFrom.x - adj.x) + Math.abs(spreadFrom.y - adj.y);
                 }
-                if (numberofnearbyfriendlies >= 2) {
-                    MapLocation spreadfromtwo = friendlies[1].getLocation();
-                    cost += Math.abs(spreadfromtwo.x - adj.x) + Math.abs(spreadfromtwo.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 3) {
-                    MapLocation spreadfromthree = friendlies[2].getLocation();
-                    cost += Math.abs(spreadfromthree.x - adj.x) + Math.abs(spreadfromthree.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 4) {
-                    MapLocation spreadfromfour = friendlies[3].getLocation();
-                    cost += Math.abs(spreadfromfour.x - adj.x) + Math.abs(spreadfromfour.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 5) {
-                    MapLocation spreadfromfive = friendlies[4].getLocation();
-                    cost += Math.abs(spreadfromfive.x - adj.x) + Math.abs(spreadfromfive.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 6) {
-                    MapLocation spreadfromsix = friendlies[5].getLocation();
-                    cost += Math.abs(spreadfromsix.x - adj.x) + Math.abs(spreadfromsix.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 7) {
-                    MapLocation spreadfromseven = friendlies[6].getLocation();
-                    cost += Math.abs(spreadfromseven.x - adj.x) + Math.abs(spreadfromseven.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 8) {
-                    MapLocation spreadfromeight = friendlies[7].getLocation();
-                    cost += Math.abs(spreadfromeight.x - adj.x) + Math.abs(spreadfromeight.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 9) {
-                    MapLocation spreadfromnine = friendlies[8].getLocation();
-                    cost += Math.abs(spreadfromnine.x - adj.x) + Math.abs(spreadfromnine.y - adj.y);
-                }
-                if (numberofnearbyfriendlies >= 10) {
-                    MapLocation spreadfromten = friendlies[9].getLocation();
-                    cost += Math.abs(spreadfromten.x - adj.x) + Math.abs(spreadfromten.y - adj.y);
-                }
-                    if (cost > optimalCost && rc.canMove(dir)) {
-                        optimalDir = dir;
-                        optimalCost = cost;
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
                 }
             }
         }
