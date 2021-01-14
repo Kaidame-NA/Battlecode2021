@@ -744,6 +744,7 @@ public strictfp class RobotPlayer {
                     cost -= Math.abs(4.75 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
                 }
                 /*
+
                 for(int i = numberofnearbyslanderers; --i>=0;)
                 {
                     MapLocation spreadTo = nearbyslanderers.get(i).getLocation();
@@ -756,7 +757,7 @@ public strictfp class RobotPlayer {
                 }
             }
         }
-        if (nearbyecs.size() == 0 && numberofnearbyslanderers ==0) {
+        if (nearbyecs.size() == 0) { // && numberofnearbyslanderers ==0 if adding commented stuff above
             optimalDir = getPathDirSpread();
         }
         return optimalDir;
