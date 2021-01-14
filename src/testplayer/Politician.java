@@ -109,8 +109,11 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
                 tryMove(polisring());
+            }
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
@@ -150,8 +153,11 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
                 tryMove(polisring());
+            }
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else {
                 tryMove(getPathDirTo(target));
@@ -196,8 +202,11 @@ public class Politician extends RobotPlayer{
                 rc.empower(actionRadius);
             }
 
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
                 tryMove(polisring());
+            }
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else if (shouldSpread()) {
                 tryMove(getPathDirSpread());

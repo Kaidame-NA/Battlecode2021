@@ -686,15 +686,19 @@ public strictfp class RobotPlayer {
                 double cost = 0;
                 if (nearbyecs.size() != 0) {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
-                    cost -= Math.abs(3 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
+                    cost -= Math.abs(2.25 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
                 }
-                /*
-                for(int i = numberofnearbypolis; --i>=0;)
-                {
-                    MapLocation spreadTo = nearbypolis.get(i).getLocation();
-                    cost += Math.abs(spreadTo.x - adj.x) + Math.abs(spreadTo.y - adj.y);
+                //technically this code below shouldnt ever be run, but its here just in case
+                if (nearbyecs.size() == 0) {
+                    for(int i = numberofnearbypolis; --i>=0;)
+                    {
+                        MapLocation spreadTo = nearbypolis.get(i).getLocation();
+                        cost += Math.sqrt(Math.pow(spreadTo.x - adj.x, 2) + Math.pow(spreadTo.y - adj.y, 2));
+                    }
+                    cost += (rc.getType().actionCooldown/pass);
                 }
-                */
+
+
                 if (cost > optimalCost && rc.canMove(dir)) {
                     optimalDir = dir;
                     optimalCost = cost;
@@ -715,9 +719,16 @@ public strictfp class RobotPlayer {
             }
         }
 
-        int numberofnearbyfriendlies = friendlies.length;
+        ArrayList<RobotInfo> nearbyslanderers = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.SLANDERER) {
+                nearbyslanderers.add(robot);
+            }
+        }
+        int numberofnearbyslanderers = nearbyslanderers.size();
 
-        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+        numberofnearbyslanderers = nearbyslanderers.size() > 10 ? 10 : numberofnearbyslanderers; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
         double optimalCost = - Double.MAX_VALUE;
@@ -730,13 +741,13 @@ public strictfp class RobotPlayer {
 
                 if (nearbyecs.size() != 0) {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
-                    cost -= Math.abs(4.5 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
+                    cost -= Math.abs(4.75 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
                 }
                 /*
-                for(int i = numberofnearbyfriendlies; --i>=0;)
+                for(int i = numberofnearbyslanderers; --i>=0;)
                 {
-                    MapLocation spreadFrom = friendlies[i].getLocation();
-                    cost += Math.abs(spreadFrom.x - adj.x) + Math.abs(spreadFrom.y - adj.y);
+                    MapLocation spreadTo = nearbyslanderers.get(i).getLocation();
+                    cost += .1 * Math.sqrt(Math.pow(spreadTo.x - adj.x, 2) + Math.pow(spreadTo.y - adj.y, 2));
                 }
                  */
                 if (cost > optimalCost && rc.canMove(dir)) {
@@ -745,6 +756,26 @@ public strictfp class RobotPlayer {
                 }
             }
         }
+        if (nearbyecs.size() == 0 && numberofnearbyslanderers ==0) {
+            optimalDir = getPathDirSpread();
+        }
         return optimalDir;
+    }
+
+    static boolean ecinrange() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, friendly);
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+        if (nearbyecs.size() > 0) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
