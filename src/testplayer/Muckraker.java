@@ -135,16 +135,18 @@ public class Muckraker extends RobotPlayer{
                         if (flag == scoutingFlag) {
                             role = SCOUTING;
                             rc.setFlag(flag);
+                            break;
                         } else if (flagContents[0] == ATTACK_ENEMY) {
                             target = new MapLocation(homeECx + flagContents[1],
                                     homeECy + flagContents[2]);
                             rc.setFlag(flag);
                             role = ATTACKING;
+                            break;
                         } else if (flag == rc.getFlag(rc.getID())) {
                             role = SCOUTING;
                             rc.setFlag(scoutingFlag);
+                            break;
                         }
-                        break;
                     }
 
                 }

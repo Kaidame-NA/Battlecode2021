@@ -59,6 +59,7 @@ public class Politician extends RobotPlayer{
         }
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
+        int distToHome = 0;
         RobotInfo[] attackable = rc.senseNearbyRobots(actionRadius, enemy);
         RobotInfo[] enemiesInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
         muckrakersInRange = 0;
@@ -66,6 +67,7 @@ public class Politician extends RobotPlayer{
         if (role != CONVERTED && role != OVERFLOW) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+                distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
             } //maybe something about if cant then its taken
         }
         //follow muckrakers if small poli
@@ -161,7 +163,7 @@ public class Politician extends RobotPlayer{
                 //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
                 //take its flag and commands(unless its an attack)
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(target)
-                        < rc.getLocation().distanceSquaredTo(target) && rc.canGetFlag(friendlyInRange[i].getID())) {
+                        < distToHome && rc.canGetFlag(friendlyInRange[i].getID())) {
                     int flag = rc.getFlag(friendlyInRange[i].getID());
                     int[] flagContents = decodeFlag(flag);
                     if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER
@@ -169,16 +171,18 @@ public class Politician extends RobotPlayer{
                         if (flag == scoutingFlag) {
                             role = SCOUTING;
                             rc.setFlag(flag);
+                            break;
                         } else if (flagContents[0] == ATTACK_ENEMY && rc.getConviction() > 99) {
                             target = new MapLocation(homeECx + flagContents[1],
                                     homeECy + flagContents[2]);
                             rc.setFlag(flag);
                             role = ATTACKING;
+                            break;
                         } else if (flag == rc.getFlag(rc.getID())) {
                             role = SCOUTING;
                             rc.setFlag(scoutingFlag);
+                            break;
                         }
-                        break;
                     }
                     //depending on signal code, change role and target
                 }
@@ -239,8 +243,7 @@ public class Politician extends RobotPlayer{
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                        > rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) &&
-                        friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
                     if (rc.canGetFlag(friendlyInRange[i].getID())) {
                         int flag = rc.getFlag(friendlyInRange[i].getID());
                         int[] flagContents = decodeFlag(flag);
@@ -252,8 +255,8 @@ public class Politician extends RobotPlayer{
                                 rc.setFlag(flag);
                                 target = ECLocations[currentHomeEC];
                                 role = RETURNING;
+                                break;
                             }
-                            break;
                         }
                     }
                 }
