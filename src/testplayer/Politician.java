@@ -15,6 +15,7 @@ public class Politician extends RobotPlayer{
     static final int RETURNING = 2;
     static final int CONVERTED = 3;
     static final int FOLLOW = 4;
+    static final int OVERFLOW = 5;
     static int role;
     static MapLocation target;
     static int[] homeECFlagContents;
@@ -45,9 +46,8 @@ public class Politician extends RobotPlayer{
             scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
             rc.setFlag(scoutingFlag);
             role = SCOUTING;
-            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3 && rc.getConviction() > 49
-                && rc.canEmpower(2)) {
-                rc.empower(2);
+            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3) {
+                role = OVERFLOW;
             }
         }
     }
@@ -63,7 +63,7 @@ public class Politician extends RobotPlayer{
         RobotInfo[] enemiesInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
         muckrakersInRange = 0;
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
-        if (role != CONVERTED) {
+        if (role != CONVERTED && role != OVERFLOW) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
             } //maybe something about if cant then its taken
@@ -72,7 +72,7 @@ public class Politician extends RobotPlayer{
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
-                if (trailedMuckrakerID == 0 && role != RETURNING && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
+                if (trailedMuckrakerID == 0 && role != RETURNING && role != OVERFLOW && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
                     trailedMuckrakerID = enemiesInRange[i].getID();
                     role = FOLLOW;
                     rc.setFlag(0);
@@ -84,8 +84,11 @@ public class Politician extends RobotPlayer{
                 muckrakersInRange ++;
             }
         }
-
-        if (role == SCOUTING) {
+        if (role == OVERFLOW) {
+            if (rc.canEmpower(2)) {
+                rc.empower(2);
+            }
+        } else if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             for (int i = unitsInRange.length; --i >= 0;) {
@@ -209,7 +212,7 @@ public class Politician extends RobotPlayer{
             //if its an attack command, attack
             if (((homeECFlagContents[0] == ATTACK_ENEMY &&
                 rc.getConviction() > 99) || homeECFlagContents[0] == ATTACK_NEUTRAL)
-                && role != FOLLOW) {
+                && role != FOLLOW && role != OVERFLOW) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
@@ -218,7 +221,7 @@ public class Politician extends RobotPlayer{
         }
 
         //relay, mobile robot/robot comms
-        if (role != RETURNING && role != CONVERTED && role != FOLLOW) {
+        if (role != RETURNING && role != CONVERTED && role != FOLLOW && role != OVERFLOW) {
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
