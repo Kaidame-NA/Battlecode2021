@@ -126,7 +126,7 @@ public class Politician extends RobotPlayer{
                 for (int i = unitsInRange.length; --i >= 0;) {
                     RobotInfo unit = unitsInRange[i];
                     if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam()
-                        && unit.getLocation().equals(target)) {
+                        && unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
                         currentHomeEC ++;
                         ECIDs[currentHomeEC] = (unit.getID());
                         ECLocations[currentHomeEC] = (target);
@@ -290,7 +290,7 @@ public class Politician extends RobotPlayer{
                 }
             }
         }
-
+    homeECFlagContents = null;
     }
 
     static boolean notTrailed(int trailedMuckrakerID, RobotInfo[] friendlies) throws GameActionException {
@@ -304,6 +304,15 @@ public class Politician extends RobotPlayer{
                 }
             }
             return true;
+        }
+        return false;
+    }
+
+    static boolean contains(int ecid, int[] arr) {
+        for (int i = arr.length; --i >= 0;) {
+            if (arr[i] == ecid) {
+                return true;
+            }
         }
         return false;
     }

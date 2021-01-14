@@ -84,7 +84,7 @@ public class Muckraker extends RobotPlayer{
                 for (int i = unitsInRange.length; --i >= 0;) {
                     RobotInfo unit = unitsInRange[i];
                     if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam() &&
-                        unit.getLocation().equals(target)) {
+                        unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
                         currentHomeEC ++;
                         ECIDs[currentHomeEC] = (unit.getID());
                         ECLocations[currentHomeEC] = (target);
@@ -200,5 +200,15 @@ public class Muckraker extends RobotPlayer{
         if (rc.getFlag(rc.getID()) == scoutingFlag) {
             role = SCOUTING;
         }
+        homeECFlagContents = null;
+    }
+
+    static boolean contains(int ecid, int[] arr) {
+        for (int i = arr.length; --i >= 0;) {
+            if (arr[i] == ecid) {
+                return true;
+            }
+        }
+        return false;
     }
 }
