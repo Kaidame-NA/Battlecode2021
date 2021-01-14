@@ -104,7 +104,7 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (rc.canMove(getPathDirSpread()) && shouldSpread()) {
+            if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             }
         } else if (role == ATTACKING) {
@@ -221,14 +221,15 @@ public class Politician extends RobotPlayer{
             //if you are not returning info and a friendly is near with flag
             for (int i = friendlyInRange.length; --i >= 0; ) {
                 if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                        > rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC])) {
+                        > rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) &&
+                        friendlyInRange[i].getType() != RobotType.SLANDERER) {
                     if (rc.canGetFlag(friendlyInRange[i].getID())) {
                         int flag = rc.getFlag(friendlyInRange[i].getID());
                         int[] flagContents = decodeFlag(flag);
                         //relay info if you are closer to home ec
                         if (ECLocations[0] != null
-                                && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                                friendlyInRange[i].getType() != RobotType.SLANDERER && flagContents[3] == homeECIDTag) {
+                                && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)
+                                && flagContents[3] == homeECIDTag) {
                             if (!(friendlyInRange[i].getConviction() < 110 && role == ATTACKING)) {
                                 rc.setFlag(flag);
                                 target = ECLocations[currentHomeEC];
