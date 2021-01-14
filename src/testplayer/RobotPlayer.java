@@ -242,7 +242,7 @@ public strictfp class RobotPlayer {
         double optimalCost = Double.MIN_VALUE;
         for (Direction dir: directions) {
             MapLocation adj = rc.adjacentLocation(dir);
-            if (rc.canSenseLocation(adj)) {
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);
                 double cost = - (rc.getType().actionCooldown/pass);
 
