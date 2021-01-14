@@ -74,7 +74,7 @@ public class Politician extends RobotPlayer{
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
-                if (trailedMuckrakerID == 0 && role != RETURNING && role != OVERFLOW && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
+                if (trailedMuckrakerID == 0 && role != RETURNING && role != OVERFLOW ) {
                     trailedMuckrakerID = enemiesInRange[i].getID();
                     role = FOLLOW;
                     rc.setFlag(0);

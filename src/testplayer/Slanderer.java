@@ -24,10 +24,10 @@ public class Slanderer extends RobotPlayer {
 
     static void run() throws GameActionException {
 
-        if (tryMove(slanderersSafe()) && rc.canMove(slanderersSafe()) && ecinrange()) {
-            rc.move(slanderersSafe());
+        if (ecinrange()) {
+            tryMove(slanderersSafe());
         } else {
-            rc.move(getPathDirTo(ECLocations.get(0)));
+            tryMove(getPathDirTo(ECLocations.get(0)));
         }
     }
 }
