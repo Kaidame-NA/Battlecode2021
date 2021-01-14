@@ -48,6 +48,20 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
+
+        //overflow
+        else if (rc.getInfluence() >= 10000 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (rc.getInfluence() >= 10000 && (numberofunitsproduced % 3 == 1 || numberofunitsproduced % 3 == 2) && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
         //phase 1
         else if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
