@@ -1,4 +1,4 @@
-package testplayer;
+package oldPlayer;
 import battlecode.common.*;
 
 import java.util.*;
