@@ -113,57 +113,63 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofattackingunitsproduced++;
         }
 
-        else if (effectiveturn < 150 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 14)) {
+        else if (effectiveturn < 100 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 14)) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 14);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16)) {
+        else if (effectiveturn < 150 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16)) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn < 200 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn < 250 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn < 300 && (numberofunitsproduced % 4 == 1 || numberofunitsproduced % 4 == 3 || numberofunitsproduced % 4 == 0) && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn < 300 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
+        else if (effectiveturn < 300 && safeToSpawnSlanderer() && numberofunitsproduced % 4 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
         //phase 2
 
-        else if (effectiveturn >= 300 && effectiveturn <= 350 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18);
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
-        }
-
-        else if (effectiveturn >= 350 && effectiveturn <= 400 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
-        }
-
-        else if (effectiveturn >= 400 && effectiveturn <= 450 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22);
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
-        }
-
-        else if (effectiveturn >= 450 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 350 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24);
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
@@ -248,6 +254,34 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
     }
 
+    static Boolean muckRushDefense() throws GameActionException {
+        Team enemy = rc.getTeam().opponent();
+        RobotInfo[] enemies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
+        ArrayList<RobotInfo> nearbymuckrakers = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : enemies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.MUCKRAKER) {
+                nearbymuckrakers.add(robot);
+            }
+        }
+
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, friendly);
+        ArrayList<RobotInfo> nearbypoliticians = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.POLITICIAN) {
+                nearbypoliticians.add(robot);
+            }
+        }
+
+        if (nearbymuckrakers.size() > nearbypoliticians.size()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     static Boolean safeToSpawnSlanderer() throws GameActionException {
         Team friendly = rc.getTeam();
         RobotInfo[] friendlies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, friendly);
@@ -266,7 +300,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
 
-        if (nearbypoliticians.size() > 3 * nearbyslanderers.size()) {
+        if (nearbypoliticians.size() > nearbyslanderers.size()) {
             return true;
         } else {
             return false;
