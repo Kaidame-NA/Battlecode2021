@@ -332,10 +332,19 @@ public class EnlightenmentCenter extends RobotPlayer{
             //System.out.println("The election has already been decided.");
         }
         else if(winStreak == 0){ // we lost the last vote...
-            double iCoef = 1.97+currentInfluence/40000; //more is more aggro bidding
-            //double antiPreserve;
+            double iCoef = 2; //1.97+currentInfluence/40000; //more is more aggro bidding
 
-            newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1) ));
+            int antiPreserve;
+            if(currentInfluence<100)
+                antiPreserve = 0;
+            else if(currentInfluence < 1000)
+                antiPreserve = 1;
+            else if(currentInfluence<10000)
+                antiPreserve = 2;
+            else
+                antiPreserve = (int) Math.floor(Math.log10(currentInfluence));
+
+            newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1 - antiPreserve) ));
             //System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //increasing doubley (loseStreak is increasing while prevBid is increasing)
 
@@ -365,13 +374,14 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
         else{// we won the last vote!
             double dCoef = 1.7; //less is more aggro bidding
-            double preserve;
+
+            int preserve;
             if(currentInfluence<10000)
                 preserve = 0;
             else if(currentInfluence<1000000)
                 preserve = 1;
             else
-                preserve = 2;
+                preserve = 3;
 
             newBid = prevBid + (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2+preserve) ) );
             //System.out.println("winStreak: " + winStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
