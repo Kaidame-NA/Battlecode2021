@@ -327,6 +327,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         friendlyVotes = rc.getTeamVotes();
 
 
+        int threshold = currentInfluence/5; //our maximum we are willing to bid
         if(friendlyVotes > 750)// || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
         {
             //System.out.println("The election has already been decided.");
@@ -348,7 +349,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             //System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //increasing doubley (loseStreak is increasing while prevBid is increasing)
 
-            int threshold = currentInfluence/5; //our maximum we are willing to bid
+
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
                 prevBid = 1;
@@ -369,6 +370,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                 //System.out.println("Last vote lost, and we are greater than the threshold, bid: " + newBid);
             }
             else{
+                loseStreak--; //we already know we lost - no need to bid higher next time...
                 //System.out.println("We lost the last vote, but we arent willing to bid more than last time so we bid 0");
             }
         }
@@ -392,7 +394,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                 prevBid = 1;
                 //System.out.println("Won last vote, newBid<1 so lets bid the minimum, 1");
             }
-            else if(rc.canBid(newBid)){
+            else if(rc.canBid(newBid) && newBid < threshold){
                 rc.bid(newBid);
                 prevBid = newBid;
                 //System.out.println("Won last vote, lets bid " + newBid);
