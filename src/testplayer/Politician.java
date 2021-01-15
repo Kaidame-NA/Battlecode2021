@@ -46,7 +46,7 @@ public class Politician extends RobotPlayer{
             scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
             rc.setFlag(scoutingFlag);
             role = SCOUTING;
-            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3 && rc.getConviction() > 49) {
+            if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35 && rc.getConviction() > 49) {
                 rc.setFlag(0);
                 role = OVERFLOW;
             }

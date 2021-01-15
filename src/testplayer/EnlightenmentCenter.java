@@ -62,7 +62,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static void spawn() throws GameActionException{
         double turnslost = numberofattackingunitsproduced * buildcooldown;
         double effectiveturn = turnCount - turnslost;
-        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.3
+        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
             if (rc.getInfluence() > 49) {
                 rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
