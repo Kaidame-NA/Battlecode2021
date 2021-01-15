@@ -3,6 +3,7 @@ package testplayer;
 import battlecode.common.*;
 import com.sun.org.apache.bcel.internal.generic.RETURN;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Muckraker extends RobotPlayer{
@@ -233,5 +234,50 @@ public class Muckraker extends RobotPlayer{
             }
         }
         return false;
+    }
+
+    static Direction getPathDirSpread() throws GameActionException {
+        Team friendly = rc.getTeam();
+        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
+        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
+        for (RobotInfo robot : friendlies) {
+            RobotType type = robot.getType();
+            if (type == RobotType.ENLIGHTENMENT_CENTER) {
+                nearbyecs.add(robot);
+            }
+        }
+        int numberofnearbyfriendlies = friendlies.length;
+
+        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = - Double.MAX_VALUE;
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
+                double pass = rc.sensePassability(adj);
+                double cost = - (rc.getType().actionCooldown/pass);
+                /*
+                if (nearbyecs.size() != 0) {
+                    MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
+                    cost += (Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2));
+                }
+
+                 */
+                for(int i = numberofnearbyfriendlies; --i>=0;)
+                {
+                    MapLocation spreadFrom = friendlies[i].getLocation();
+                    cost += (30.0/rc.getLocation().distanceSquaredTo(spreadFrom)) * ((Math.abs(adj.x - spreadFrom.x) + Math.abs(adj.y - spreadFrom.y))
+                            - (Math.abs(rc.getLocation().x - spreadFrom.x) + Math.abs(rc.getLocation().y - spreadFrom.y))) +
+                            + 2*(Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
+                            Math.abs(adj.y - homeECy) - Math.abs(rc.getLocation().y - homeECy));
+                }
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
     }
 }
