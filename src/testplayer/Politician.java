@@ -46,7 +46,7 @@ public class Politician extends RobotPlayer{
             scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
             rc.setFlag(scoutingFlag);
             role = SCOUTING;
-            if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3) {
+            if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35 && rc.getConviction() > 49) {
                 rc.setFlag(0);
                 role = OVERFLOW;
             }
@@ -110,10 +110,10 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 30 && ecinrange()) {
                 tryMove(polisring());
             }
-            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 30) {
                 tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else if (shouldSpread()) {
@@ -154,10 +154,10 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 30 && ecinrange()) {
                 tryMove(polisring());
             }
-            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 30) {
                 tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else {
@@ -203,13 +203,7 @@ public class Politician extends RobotPlayer{
                 rc.empower(actionRadius);
             }
 
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
-                tryMove(polisring());
-            }
-            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
-                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
-            }
-            else if (shouldSpread()) {
+            if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             }
 
@@ -239,7 +233,7 @@ public class Politician extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             if (((homeECFlagContents[0] == ATTACK_ENEMY &&
-                rc.getConviction() > 99) || homeECFlagContents[0] == ATTACK_NEUTRAL)
+                rc.getConviction() > 49) || homeECFlagContents[0] == ATTACK_NEUTRAL)
                 && role != FOLLOW && role != OVERFLOW) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
@@ -251,21 +245,44 @@ public class Politician extends RobotPlayer{
         //relay, mobile robot/robot comms
         if (role != RETURNING && role != CONVERTED && role != FOLLOW && role != OVERFLOW) {
             //if you are not returning info and a friendly is near with flag
-            for (int i = friendlyInRange.length; --i >= 0; ) {
-                if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                        > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
-                    if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                        int flag = rc.getFlag(friendlyInRange[i].getID());
-                        int[] flagContents = decodeFlag(flag);
-                        //relay info if you are closer to home ec
-                        if (ECLocations[0] != null
-                                && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)
-                                && flagContents[3] == homeECIDTag) {
-                            if (!(friendlyInRange[i].getConviction() < 100 && role == ATTACKING)) {
-                                rc.setFlag(flag);
-                                target = ECLocations[currentHomeEC];
-                                role = RETURNING;
-                                break;
+            if (friendlyInRange.length > 40) {
+                for (int i = friendlyInRange.length/2; --i >= 0; ) {
+                    if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                            > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                            int flag = rc.getFlag(friendlyInRange[i].getID());
+                            int[] flagContents = decodeFlag(flag);
+                            //relay info if you are closer to home ec
+                            if (ECLocations[0] != null
+                                    && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)
+                                    && flagContents[3] == homeECIDTag) {
+                                if (!(friendlyInRange[i].getConviction() < 100 && role == ATTACKING)) {
+                                    rc.setFlag(flag);
+                                    target = ECLocations[currentHomeEC];
+                                    role = RETURNING;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (int i = friendlyInRange.length; --i >= 0; ) {
+                    if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                            > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                        if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                            int flag = rc.getFlag(friendlyInRange[i].getID());
+                            int[] flagContents = decodeFlag(flag);
+                            //relay info if you are closer to home ec
+                            if (ECLocations[0] != null
+                                    && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND)
+                                    && flagContents[3] == homeECIDTag) {
+                                if (!(friendlyInRange[i].getConviction() < 100 && role == ATTACKING)) {
+                                    rc.setFlag(flag);
+                                    target = ECLocations[currentHomeEC];
+                                    role = RETURNING;
+                                    break;
+                                }
                             }
                         }
                     }

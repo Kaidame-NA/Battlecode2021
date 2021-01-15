@@ -21,18 +21,38 @@ public class EnlightenmentCenter extends RobotPlayer{
     static void run() throws GameActionException {
         spawn();
         //System.out.println(rc.getInfluence());
-        
+
+        //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
         bidVote();
         
         RobotInfo[] nearbyUnits = rc.senseNearbyRobots();
-        for (int i = nearbyUnits.length; --i >= 0;) {
-            if (nearbyUnits[i].getTeam() == rc.getTeam()) {
-                if (rc.canGetFlag(nearbyUnits[i].getID())) {
-                    int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
-                    if (flagContents[0] == ENEMY_EC_FOUND) {
-                        rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
-                    } else if (flagContents[0] == NEUTRAL_EC_FOUND) {
-                        rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
+        if (nearbyUnits.length > 50) {
+            for (int i = nearbyUnits.length/2; --i >= 0; ) {
+                if (nearbyUnits[i].getTeam() == rc.getTeam()) {
+                    if (rc.canGetFlag(nearbyUnits[i].getID())) {
+                        int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
+                        if (flagContents[0] == ENEMY_EC_FOUND && flagContents[3] == ecIDTag) {
+                            rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
+                            break;
+                        } else if (flagContents[0] == NEUTRAL_EC_FOUND && flagContents[3] == ecIDTag) {
+                            rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
+                            break;
+                        }
+                    }
+                }
+            }
+        } else {
+            for (int i = nearbyUnits.length; --i >= 0; ) {
+                if (nearbyUnits[i].getTeam() == rc.getTeam()) {
+                    if (rc.canGetFlag(nearbyUnits[i].getID())) {
+                        int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
+                        if (flagContents[0] == ENEMY_EC_FOUND && flagContents[3] == ecIDTag) {
+                            rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
+                            break;
+                        } else if (flagContents[0] == NEUTRAL_EC_FOUND && flagContents[3] == ecIDTag) {
+                            rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
+                            break;
+                        }
                     }
                 }
             }
@@ -42,11 +62,13 @@ public class EnlightenmentCenter extends RobotPlayer{
     static void spawn() throws GameActionException{
         double turnslost = numberofattackingunitsproduced * buildcooldown;
         double effectiveturn = turnCount - turnslost;
-        if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3
+        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
+            if (rc.getInfluence() > 49) {
+                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                numberofunitsproduced++;
+                numberofpoliticiansproduced++;
+            }
         }
 
         //overflow
@@ -285,21 +307,19 @@ public class EnlightenmentCenter extends RobotPlayer{
         return optimalDir;
     }
 
-    static boolean wonLastVote;
     static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
     //bids for the ec
     static void bidVote() throws GameActionException{
+        int currentInfluence = rc.getInfluence();
         int round = rc.getRoundNum();
         int newBid;
 
         if(rc.getTeamVotes()>friendlyVotes){
-            wonLastVote = true;
             if(winStreak<25) winStreak++;
             loseStreak = 0;
             //System.out.println("I won the last vote! Winstreak: " + winStreak);
         }
         else{
-            wonLastVote = false;
             winStreak = 0;
             if(loseStreak<25) loseStreak++;
             //System.out.println("I lost the last vote :((. Losestreak: " + loseStreak);
@@ -311,14 +331,24 @@ public class EnlightenmentCenter extends RobotPlayer{
         {
             //System.out.println("The election has already been decided.");
         }
-        else if(!wonLastVote){ // we lost the last vote...
-            double iCoef = 2;
+        else if(winStreak == 0){ // we lost the last vote...
+            double iCoef = 2; //1.97+currentInfluence/40000; //more is more aggro bidding
 
-            newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1) ));
+            int antiPreserve;
+            if(currentInfluence<100)
+                antiPreserve = 0;
+            else if(currentInfluence < 1000)
+                antiPreserve = 1;
+            else if(currentInfluence<10000)
+                antiPreserve = 2;
+            else
+                antiPreserve = (int) Math.floor(Math.log10(currentInfluence));
+
+            newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1 - antiPreserve) ));
             //System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //increasing doubley (loseStreak is increasing while prevBid is increasing)
 
-            int threshold = rc.getInfluence()/5; //our maximum we are willing to bid
+            int threshold = currentInfluence/5; //our maximum we are willing to bid
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
                 prevBid = 1;
@@ -343,9 +373,17 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
         else{// we won the last vote!
-            double dCoef = 1.7; //changeable
+            double dCoef = 1.7; //less is more aggro bidding
 
-            newBid = (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2) ) + prevBid);
+            int preserve;
+            if(currentInfluence<10000)
+                preserve = 0;
+            else if(currentInfluence<1000000)
+                preserve = 1;
+            else
+                preserve = 3;
+
+            newBid = prevBid + (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2+preserve) ) );
             //System.out.println("winStreak: " + winStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //decreasing doubley (winStreak is increasing while prevBid is decreasing)
 
