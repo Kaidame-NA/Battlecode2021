@@ -22,8 +22,8 @@ public class EnlightenmentCenter extends RobotPlayer{
         spawn();
         //System.out.println(rc.getInfluence());
 
-        //only bidVote if we are not in overflow poli producing mode
-        if( rc.getEmpowerFactor(rc.getTeam(), 10) < 1.3 ) bidVote();
+        //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
+        bidVote();
         
         RobotInfo[] nearbyUnits = rc.senseNearbyRobots();
         for (int i = nearbyUnits.length; --i >= 0;) {
