@@ -65,7 +65,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
             if (rc.getInfluence() > 49) {
-                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                if (rc.getInfluence() < 1000000) {
+                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                } else {
+                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence() - 100000);
+                }
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
             }
@@ -341,7 +345,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         return optimalDir;
     }
 
-    static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
+    static int friendlyVotes, prevBid, winStreak, loseStreak, stalledRounds = 0;
     //bids for the ec
     static void bidVote() throws GameActionException{
         int currentInfluence = rc.getInfluence();
@@ -360,6 +364,12 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
         friendlyVotes = rc.getTeamVotes();
 
+        //amount of continuous rounds we have not bid for - reset the prevBid & loseStreak;
+        if(stalledRounds>=4) {
+            prevBid = 2;
+            loseStreak = 0;
+            stalledRounds = 0;
+        }
 
         int threshold = currentInfluence/5; //our maximum we are willing to bid
         if(friendlyVotes > 750)// || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
@@ -387,6 +397,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
                 prevBid = 1;
+                stalledRounds = 0;
                 //System.out.println("Lost last vote, newBid<1 so lets bid the minimum, 1");
             }
             else if(newBid < threshold && rc.canBid(newBid)){
@@ -394,6 +405,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
                 rc.bid(newBid);
                 prevBid = newBid;
+                stalledRounds = 0;
                 //System.out.println("Last vote lost, and we are less than the threshold, bid: " + newBid);
             }
             else if(newBid >= threshold && threshold>prevBid && rc.canBid(threshold)){
@@ -401,10 +413,12 @@ public class EnlightenmentCenter extends RobotPlayer{
                 newBid = threshold;
                 rc.bid(newBid);
                 prevBid = newBid;
+                stalledRounds = 0;
                 //System.out.println("Last vote lost, and we are greater than the threshold, bid: " + newBid);
             }
             else{
                 loseStreak--; //we already know we lost - no need to bid higher next time...
+                stalledRounds++;
                 //System.out.println("We lost the last vote, but we arent willing to bid more than last time so we bid 0");
             }
         }
@@ -432,6 +446,9 @@ public class EnlightenmentCenter extends RobotPlayer{
                 rc.bid(newBid);
                 prevBid = newBid;
                 //System.out.println("Won last vote, lets bid " + newBid);
+            }
+            else{
+                //we lost (no bid)
             }
 
         }
