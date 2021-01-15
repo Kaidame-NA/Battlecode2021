@@ -330,7 +330,8 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
         friendlyVotes = rc.getTeamVotes();
 
-        if(stalledRounds>=4) { //amount of rounds we have not bid for - reset the prevBid;
+        //amount of continuous rounds we have not bid for - reset the prevBid & loseStreak;
+        if(stalledRounds>=4) {
             prevBid = 2;
             loseStreak = 0;
             stalledRounds = 0;
@@ -362,6 +363,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
                 prevBid = 1;
+                stalledRounds = 0;
                 //System.out.println("Lost last vote, newBid<1 so lets bid the minimum, 1");
             }
             else if(newBid < threshold && rc.canBid(newBid)){
@@ -369,6 +371,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
                 rc.bid(newBid);
                 prevBid = newBid;
+                stalledRounds = 0;
                 //System.out.println("Last vote lost, and we are less than the threshold, bid: " + newBid);
             }
             else if(newBid >= threshold && threshold>prevBid && rc.canBid(threshold)){
@@ -376,6 +379,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                 newBid = threshold;
                 rc.bid(newBid);
                 prevBid = newBid;
+                stalledRounds = 0;
                 //System.out.println("Last vote lost, and we are greater than the threshold, bid: " + newBid);
             }
             else{
