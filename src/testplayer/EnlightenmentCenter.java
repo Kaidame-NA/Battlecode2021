@@ -65,7 +65,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
             if (rc.getInfluence() > 49) {
-                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                if (rc.getInfluence() < 1000000) {
+                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                } else {
+                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence() - 100000);
+                }
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
             }
