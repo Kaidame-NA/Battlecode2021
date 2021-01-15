@@ -116,10 +116,10 @@ public class Muckraker extends RobotPlayer{
             if (rc.getID() % 5 == 2) {
                 tryMove(getAlternatePathThreeDirToEnemyEC(target));
             }
-
+/*
             if (rc.getID() % 5 == 3 || rc.getID() % 5 == 4) {
                 tryMove(getAlternatePathDirToEnemyEC(target));
-            }
+            }*/
             //System.out.println("Checkpoint Attack C: " + Clock.getBytecodeNum());
             
         } else if (role == RETURNING){
@@ -165,7 +165,7 @@ public class Muckraker extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ATTACK_ENEMY) {
+            if (homeECFlagContents[0] == ATTACK_ENEMY && rc.getID() % 5 <= 2) {
 
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
