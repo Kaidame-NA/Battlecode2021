@@ -21,8 +21,9 @@ public class EnlightenmentCenter extends RobotPlayer{
     static void run() throws GameActionException {
         spawn();
         //System.out.println(rc.getInfluence());
-        
-        bidVote();
+
+        //only bidVote if we are not in overflow poli producing mode
+        if( rc.getEmpowerFactor(rc.getTeam(), 10) < 1.3 ) bidVote();
         
         RobotInfo[] nearbyUnits = rc.senseNearbyRobots();
         for (int i = nearbyUnits.length; --i >= 0;) {
@@ -42,7 +43,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static void spawn() throws GameActionException{
         double turnslost = numberofattackingunitsproduced * buildcooldown;
         double effectiveturn = turnCount - turnslost;
-        if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3
+        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.3
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
             if (rc.getInfluence() > 49) {
                 rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
@@ -287,7 +288,6 @@ public class EnlightenmentCenter extends RobotPlayer{
         return optimalDir;
     }
 
-    static boolean wonLastVote;
     static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
     //bids for the ec
     static void bidVote() throws GameActionException{
@@ -295,13 +295,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         int newBid;
 
         if(rc.getTeamVotes()>friendlyVotes){
-            wonLastVote = true;
             if(winStreak<25) winStreak++;
             loseStreak = 0;
             //System.out.println("I won the last vote! Winstreak: " + winStreak);
         }
         else{
-            wonLastVote = false;
             winStreak = 0;
             if(loseStreak<25) loseStreak++;
             //System.out.println("I lost the last vote :((. Losestreak: " + loseStreak);
@@ -313,8 +311,8 @@ public class EnlightenmentCenter extends RobotPlayer{
         {
             //System.out.println("The election has already been decided.");
         }
-        else if(!wonLastVote){ // we lost the last vote...
-            double iCoef = 2;
+        else if(winStreak == 0){ // we lost the last vote...
+            double iCoef = 1.97+rc.getInfluence()/40000; //ramp harder if we have more influence
 
             newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1) ));
             //System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
