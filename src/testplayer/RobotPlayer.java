@@ -236,7 +236,7 @@ public strictfp class RobotPlayer {
                 nearbyecs.add(robot);
             }
         }
-
+        /*
         ArrayList<RobotInfo> nearbyfriendlies = new ArrayList<RobotInfo>();
         for (RobotInfo robot : friendlies) {
             RobotType type = robot.getType();
@@ -246,9 +246,11 @@ public strictfp class RobotPlayer {
             }
         }
 
-        int numberofnearbyfriendlies = nearbyfriendlies.size();
 
-        numberofnearbyfriendlies = nearbyfriendlies.size() > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
+         */
+        int numberofnearbyfriendlies = friendlies.length;
+
+        numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
         double optimalCost = - Double.MAX_VALUE;
@@ -257,15 +259,17 @@ public strictfp class RobotPlayer {
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);
                 double cost = - (rc.getType().actionCooldown/pass);
-
+                /*
                 if (nearbyecs.size() != 0) {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
-                    cost += Math.pow((Math.abs(spreadfromecone.x - adj.x) + Math.abs(spreadfromecone.y - adj.y)), 2);
+                    cost += (Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2));
                 }
+
+                 */
                 for(int i = numberofnearbyfriendlies; --i>=0;)
                 {
-                    MapLocation spreadFrom = nearbyfriendlies.get(i).getLocation();
-                    cost += Math.abs(spreadFrom.x - adj.x) + Math.abs(spreadFrom.y - adj.y);
+                    MapLocation spreadFrom = friendlies[i].getLocation();
+                    cost += (Math.pow(spreadFrom.x - adj.x, 2) + Math.pow(spreadFrom.y - adj.y, 2));
                 }
                 if (cost > optimalCost && rc.canMove(dir)) {
                     optimalDir = dir;
