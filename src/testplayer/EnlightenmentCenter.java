@@ -307,7 +307,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         return optimalDir;
     }
 
-    static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
+    static int friendlyVotes, prevBid, winStreak, loseStreak, stalledRounds = 0;
     //bids for the ec
     static void bidVote() throws GameActionException{
         int currentInfluence = rc.getInfluence();
@@ -326,6 +326,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
         friendlyVotes = rc.getTeamVotes();
 
+        if(stalledRounds>=4) { //amount of rounds we have not bid for - reset the prevBid;
+            prevBid = 2;
+            loseStreak = 0;
+            stalledRounds = 0;
+        }
 
         int threshold = currentInfluence/5; //our maximum we are willing to bid
         if(friendlyVotes > 750)// || round-friendlyVotes > 1500)//if either we or enemy have already won the bidding game? unless ties...
@@ -371,6 +376,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
             else{
                 loseStreak--; //we already know we lost - no need to bid higher next time...
+                stalledRounds++;
                 //System.out.println("We lost the last vote, but we arent willing to bid more than last time so we bid 0");
             }
         }
@@ -398,6 +404,9 @@ public class EnlightenmentCenter extends RobotPlayer{
                 rc.bid(newBid);
                 prevBid = newBid;
                 //System.out.println("Won last vote, lets bid " + newBid);
+            }
+            else{
+                //we lost (no bid)
             }
 
         }
