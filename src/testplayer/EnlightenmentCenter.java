@@ -44,9 +44,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         double effectiveturn = turnCount - turnslost;
         if (rc.getEmpowerFactor(rc.getTeam(), 0) > 1.3
                 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
+            if (rc.getInfluence() > 49) {
+                rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                numberofunitsproduced++;
+                numberofpoliticiansproduced++;
+            }
         }
 
         //overflow
