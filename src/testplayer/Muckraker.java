@@ -177,20 +177,41 @@ public class Muckraker extends RobotPlayer{
         //System.out.println("Checkpoint 5: " + Clock.getBytecodeNum());
         if (role != RETURNING) {
             //if you are not returning info and a friendly is near with flag
-                for (int i = friendlyInRange.length; --i >= 0; ) {
-                    if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                            > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
-                        if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                            int flag = rc.getFlag(friendlyInRange[i].getID());
-                            int[] flagContents = decodeFlag(flag);
-                            //relay info if you are closer to home ec
-                            if (ECLocations[0] != null
-                                    && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                                    flagContents[3] == homeECIDTag) {
-                                rc.setFlag(flag);
-                                target = ECLocations[currentHomeEC];
-                                role = RETURNING;
-                                break;
+                if (friendlyInRange.length > 40) {
+                    for (int i = friendlyInRange.length/2; --i >= 0; ) {
+                        if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                                > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                            if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                                int flag = rc.getFlag(friendlyInRange[i].getID());
+                                int[] flagContents = decodeFlag(flag);
+                                //relay info if you are closer to home ec
+                                if (ECLocations[0] != null
+                                        && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                                        flagContents[3] == homeECIDTag) {
+                                    rc.setFlag(flag);
+                                    target = ECLocations[currentHomeEC];
+                                    role = RETURNING;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    for (int i = friendlyInRange.length; --i >= 0; ) {
+                        if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
+                                > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
+                            if (rc.canGetFlag(friendlyInRange[i].getID())) {
+                                int flag = rc.getFlag(friendlyInRange[i].getID());
+                                int[] flagContents = decodeFlag(flag);
+                                //relay info if you are closer to home ec
+                                if (ECLocations[0] != null
+                                        && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
+                                        flagContents[3] == homeECIDTag) {
+                                    rc.setFlag(flag);
+                                    target = ECLocations[currentHomeEC];
+                                    role = RETURNING;
+                                    break;
+                                }
                             }
                         }
                     }
