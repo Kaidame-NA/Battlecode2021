@@ -291,6 +291,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int friendlyVotes, prevBid, winStreak, loseStreak = 0;
     //bids for the ec
     static void bidVote() throws GameActionException{
+        int currentInfluence = rc.getInfluence();
         int round = rc.getRoundNum();
         int newBid;
 
@@ -312,13 +313,14 @@ public class EnlightenmentCenter extends RobotPlayer{
             //System.out.println("The election has already been decided.");
         }
         else if(winStreak == 0){ // we lost the last vote...
-            double iCoef = 1.97+rc.getInfluence()/40000; //ramp harder if we have more influence
+            double iCoef = 1.97+currentInfluence/40000; //more is more aggro bidding
+            //double antiPreserve;
 
             newBid = prevBid + (int) Math.ceil(Math.pow( (1/iCoef),(-loseStreak+1) ));
             //System.out.println("loseStreak: " + loseStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //increasing doubley (loseStreak is increasing while prevBid is increasing)
 
-            int threshold = rc.getInfluence()/5; //our maximum we are willing to bid
+            int threshold = currentInfluence/5; //our maximum we are willing to bid
             if(newBid < 1 && rc.canBid(1)){
                 rc.bid(1);
                 prevBid = 1;
@@ -343,9 +345,16 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
         else{// we won the last vote!
-            double dCoef = 1.7; //changeable
+            double dCoef = 1.7; //less is more aggro bidding
+            double preserve;
+            if(currentInfluence<10000)
+                preserve = 0;
+            else if(currentInfluence<1000000)
+                preserve = 1;
+            else
+                preserve = 2;
 
-            newBid = (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2) ) + prevBid);
+            newBid = prevBid + (int) Math.ceil(-1*Math.pow( (1/dCoef),(-winStreak+2+preserve) ) );
             //System.out.println("winStreak: " + winStreak + " prevBid:  " + prevBid + " newBid: " + newBid);
             //decreasing doubley (winStreak is increasing while prevBid is decreasing)
 
