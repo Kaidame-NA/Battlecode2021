@@ -30,9 +30,9 @@ public class EnlightenmentCenter extends RobotPlayer{
             if (nearbyUnits[i].getTeam() == rc.getTeam()) {
                 if (rc.canGetFlag(nearbyUnits[i].getID())) {
                     int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
-                    if (flagContents[0] == ENEMY_EC_FOUND) {
+                    if (flagContents[0] == ENEMY_EC_FOUND && flagContents[3] == ecIDTag) {
                         rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
-                    } else if (flagContents[0] == NEUTRAL_EC_FOUND) {
+                    } else if (flagContents[0] == NEUTRAL_EC_FOUND && flagContents[3] == ecIDTag) {
                         rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
                     }
                 }
