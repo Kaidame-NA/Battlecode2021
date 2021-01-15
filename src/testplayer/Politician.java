@@ -110,10 +110,10 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 30 && ecinrange()) {
                 tryMove(polisring());
             }
-            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 30) {
                 tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else if (shouldSpread()) {
@@ -154,10 +154,10 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if (rc.getID() % 2 == 0 && rc.getInfluence() < 100 && ecinrange()) {
+            if (rc.getID() % 2 == 0 && rc.getInfluence() < 30 && ecinrange()) {
                 tryMove(polisring());
             }
-            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 100) {
+            else if (rc.getID() % 2 == 0 && rc.getInfluence() < 30) {
                 tryMove(getPathDirTo(ECLocations[currentHomeEC]));
             }
             else {
@@ -233,7 +233,7 @@ public class Politician extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             if (((homeECFlagContents[0] == ATTACK_ENEMY &&
-                rc.getConviction() > 99) || homeECFlagContents[0] == ATTACK_NEUTRAL)
+                rc.getConviction() > 49) || homeECFlagContents[0] == ATTACK_NEUTRAL)
                 && role != FOLLOW && role != OVERFLOW) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
