@@ -374,7 +374,7 @@ public class Politician extends RobotPlayer{
                     cost += (25.0/rc.getLocation().distanceSquaredTo(spreadFrom)) * ((Math.abs(adj.x - spreadFrom.x) + Math.abs(adj.y - spreadFrom.y))
                             - (Math.abs(rc.getLocation().x - spreadFrom.x) + Math.abs(rc.getLocation().y - spreadFrom.y)));
                     if (role != CONVERTED) {
-                        cost += 2 * (Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
+                        cost += (Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
                                 Math.abs(adj.y - homeECy) - Math.abs(rc.getLocation().y - homeECy));
                     }
                 }

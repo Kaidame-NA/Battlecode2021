@@ -269,7 +269,7 @@ public class Muckraker extends RobotPlayer{
                     MapLocation spreadFrom = friendlies[i].getLocation();
                     cost += (30.0/rc.getLocation().distanceSquaredTo(spreadFrom)) * ((Math.abs(adj.x - spreadFrom.x) + Math.abs(adj.y - spreadFrom.y))
                             - (Math.abs(rc.getLocation().x - spreadFrom.x) + Math.abs(rc.getLocation().y - spreadFrom.y))) +
-                            + 2*(Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
+                            + (Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
                             Math.abs(adj.y - homeECy) - Math.abs(rc.getLocation().y - homeECy));
                 }
                 if (cost > optimalCost && rc.canMove(dir)) {
