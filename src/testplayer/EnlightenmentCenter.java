@@ -3,6 +3,8 @@ package testplayer;
 import battlecode.common.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
 
 public class EnlightenmentCenter extends RobotPlayer{
 
@@ -11,7 +13,9 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int numberofunitsproduced, numberofmuckrakersproduced,
     numberofslanderersproduced, numberofpoliticiansproduced, numberofattackingunitsproduced = 0;
     static double buildcooldown;
-    static int ecIDTag = rc.getID() % 128;
+    static HashSet<Integer> producedUnitIDs = new HashSet<Integer>();
+    static boolean attacking;
+    //static HashSet<MapLocation> neutralAttackedECs = new HashSet<MapLocation>();
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -19,56 +23,55 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static void run() throws GameActionException {
-        spawn();
-        //System.out.println(rc.getInfluence());
-
-        //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
-        bidVote();
-        
-        RobotInfo[] nearbyUnits = rc.senseNearbyRobots();
-        if (nearbyUnits.length > 50) {
-            for (int i = nearbyUnits.length/2; --i >= 0; ) {
-                if (nearbyUnits[i].getTeam() == rc.getTeam()) {
-                    if (rc.canGetFlag(nearbyUnits[i].getID())) {
-                        int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
-                        if (flagContents[0] == ENEMY_EC_FOUND && flagContents[3] == ecIDTag) {
-                            rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
-                            break;
-                        } else if (flagContents[0] == NEUTRAL_EC_FOUND && flagContents[3] == ecIDTag) {
-                            rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
-                            break;
-                        }
+        int tgtConviction = 0;
+        HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
+        for (Integer id : producedUnitsCopy) {
+            if (rc.canGetFlag(id)) {
+                int[] flag = decodeFlag(rc.getFlag(id));
+                if (flag[0] == NEUTRAL_EC_FOUND && !attacking) {
+                    tgtConviction = flag[3]; //check for switching attack target in this file
+                    rc.setFlag(rc.getFlag(id));
+                    attacking = true;
+                    //some logic about spawning correct poli size
+                } else if (flag[0] == ENEMY_EC_FOUND && !attacking) {
+                    rc.setFlag(rc.getFlag(id));
+                    tgtConviction = flag[3];
+                    attacking = true;
+                    //some logic about spawning correct poli size
+                } else if (flag[0] == SECURED_EC) {
+                    int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
+                    if (ownFlag[1] == flag[1] && ownFlag[2] == flag[2]) {
+                        rc.setFlag(encodeFlag(flag[0], flag[1], flag[2], flag[3]));
+                        attacking = false;
                     }
                 }
-            }
-        } else {
-            for (int i = nearbyUnits.length; --i >= 0; ) {
-                if (nearbyUnits[i].getTeam() == rc.getTeam()) {
-                    if (rc.canGetFlag(nearbyUnits[i].getID())) {
-                        int[] flagContents = decodeFlag(rc.getFlag(nearbyUnits[i].getID()));
-                        if (flagContents[0] == ENEMY_EC_FOUND && flagContents[3] == ecIDTag) {
-                            rc.setFlag(encodeFlag(ATTACK_ENEMY, flagContents[1], flagContents[2], ecIDTag));
-                            break;
-                        } else if (flagContents[0] == NEUTRAL_EC_FOUND && flagContents[3] == ecIDTag) {
-                            rc.setFlag(encodeFlag(ATTACK_NEUTRAL, flagContents[1], flagContents[2], ecIDTag));
-                            break;
-                        }
-                    }
-                }
+            } else {
+                producedUnitIDs.remove(id);
             }
         }
+        spawn();
+        //System.out.println(rc.getInfluence());
+        RobotInfo[] nearbyUnits = rc.senseNearbyRobots(2, rc.getTeam());
+        for (int i = nearbyUnits.length; --i >= 0;) {
+            producedUnitIDs.add(nearbyUnits[i].getID());
+        }
+        //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
+        bidVote();
+
     }
 
     static void spawn() throws GameActionException{
         double turnslost = numberofattackingunitsproduced * buildcooldown;
         double effectiveturn = turnCount - turnslost;
-        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35
-                && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence())) {
+        Direction spawnDir = getOptimalSpawn();
+        RobotType unitType = RobotType.POLITICIAN;
+        int conviction = 0;
+        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35) {
             if (rc.getInfluence() > 49) {
                 if (rc.getInfluence() < 1000000) {
-                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence());
+                    conviction = rc.getInfluence();
                 } else {
-                    rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), rc.getInfluence() - 100000);
+                    conviction = rc.getInfluence() - 100000;
                 }
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
@@ -76,185 +79,215 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
 
         //overflow
-        else if (rc.getInfluence() >= 10000 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
+        else if (rc.getInfluence() >= 10000 && numberofunitsproduced % 3 == 0) {
+            conviction = 26;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (rc.getInfluence() >= 10000 && (numberofunitsproduced % 3 == 1 || numberofunitsproduced % 3 == 2) && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 600);
+        else if (rc.getInfluence() >= 10000 && (numberofunitsproduced % 3 == 1 || numberofunitsproduced % 3 == 2)) {
+            conviction = 600;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
         //phase 1
-        else if (turnCount == 1 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
+        else if (turnCount == 1) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = 150;
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (turnCount <= 12 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (turnCount <= 12) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofmuckrakersproduced++;
             numberofunitsproduced++;
         }
 
-        else if (numberofattackingunitsproduced < 50 && rc.getInfluence() >= 500 && decodeFlag(rc.getFlag(rc.getID()))[0] == ATTACK_ENEMY &&
-                rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 500)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 500);
+        else if (numberofattackingunitsproduced < 50 && rc.getInfluence() >= 500 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
+            conviction = 500;
             numberofpoliticiansproduced++;
             numberofunitsproduced++;
             numberofattackingunitsproduced++;
         }
 
-        else if (numberofattackingunitsproduced < 50 && rc.getInfluence() < 500 && decodeFlag(rc.getFlag(rc.getID()))[0] == ATTACK_ENEMY &&
-                rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (numberofattackingunitsproduced < 50 && rc.getInfluence() < 500 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
             numberofattackingunitsproduced++;
         }
 
-        else if (effectiveturn < 100 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 14)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 14);
+        else if (effectiveturn < 100 && numberofunitsproduced % 4 == 0) {
+            conviction = 14;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 150 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 16);
+        else if (effectiveturn < 150 && numberofunitsproduced % 4 == 0) {
+            conviction = 16;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 200 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 18);
+        else if (effectiveturn < 200 && numberofunitsproduced % 4 == 0) {
+            conviction = 18;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 250 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 20);
+        else if (effectiveturn < 250 && numberofunitsproduced % 4 == 0) {
+            conviction = 20;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 22);
+        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 0) {
+            conviction = 22;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn < 300 && (numberofunitsproduced % 4 == 1 || numberofunitsproduced % 4 == 3 || numberofunitsproduced % 4 == 0) && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn < 300 && (numberofunitsproduced % 4 == 1 || numberofunitsproduced % 4 == 3 || numberofunitsproduced % 4 == 0)) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn < 300 && safeToSpawnSlanderer() && numberofunitsproduced % 4 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 100);
+        else if (effectiveturn < 300 && safeToSpawnSlanderer() && numberofunitsproduced % 4 == 2) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = 100;
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn < 300 && numberofunitsproduced % 4 == 2) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
         //phase 2
 
-        else if (effectiveturn >= 300 && effectiveturn <= 350 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24);
+        else if (effectiveturn >= 300 && effectiveturn <= 350 && numberofunitsproduced % 3 == 0) {
+            conviction = 24;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+        else if (effectiveturn >= 350 && effectiveturn <= 500 && numberofunitsproduced % 3 == 0) {
             rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26);
+            conviction = 26;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 1) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn >= 300 && effectiveturn <= 500 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 150);
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 2) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = 150;
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+        else if (effectiveturn >= 300 && effectiveturn <= 500 && numberofunitsproduced % 3 == 2) {
             rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
         //phase 3
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 >= 26 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/3)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/3);
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 >= 26 && numberofunitsproduced % 3 == 0 ) {
+            conviction = numberofmuckrakersproduced/3;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 <= 26 && numberofunitsproduced % 3 == 0 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofmuckrakersproduced/3 <= 26 && numberofunitsproduced % 3 == 0) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofunitsproduced % 3 == 1) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && safeToSpawnSlanderer() && rc.getInfluence() >= 200 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 300)) {
+        else if (effectiveturn > 500 && effectiveturn < 1100 && safeToSpawnSlanderer() && rc.getInfluence() >= 200 && numberofunitsproduced % 3 == 2) {
             rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 300);
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = 300;
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn > 500 && effectiveturn < 1100 && numberofunitsproduced % 3 == 2) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
         //phase 4
-        else if (effectiveturn >= 1100 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 200 && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 500)) {
-            rc.buildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), 500);
+        else if (effectiveturn >= 1100 && safeToSpawnSlanderer() && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 200) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = 500;
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
 
-        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 40 && rc.getInfluence() <= 200 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/2)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/2);
+        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 0 && rc.getInfluence() > 40 && rc.getInfluence() <= 200) {
+            conviction = numberofmuckrakersproduced/2;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 0 && rc.getInfluence() <= 40 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 0 && rc.getInfluence() <= 40) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 2 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/2)) {
-            rc.buildRobot(RobotType.POLITICIAN, getOptimalSpawn(), numberofmuckrakersproduced/2);
+        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 2) {
+            conviction = numberofmuckrakersproduced/2;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 1 && rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
-            rc.buildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1);
+        else if (effectiveturn >= 1100 && numberofunitsproduced % 3 == 1) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
+        }
+
+        if (rc.canBuildRobot(unitType, spawnDir, conviction)) {
+            rc.buildRobot(unitType, spawnDir, conviction);
+            RobotInfo builtRobot = rc.senseRobotAtLocation(rc.getLocation().add(spawnDir));
+            producedUnitIDs.add(builtRobot.getID());
         }
     }
 

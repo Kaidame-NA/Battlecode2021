@@ -12,15 +12,12 @@ public class Muckraker extends RobotPlayer{
     static int currentHomeEC = -1;
     static int role;
     static final int SCOUTING = 0;
-    static final int RETURNING = 1;
-    static final int ATTACKING = 2;
+    static final int ATTACKING = 1;
     static int homeECx;
     static int homeECy;
     static MapLocation target;
     static int stuckCounter;
     static int[] homeECFlagContents;
-    static int homeECIDTag;
-    static int scoutingFlag;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -34,9 +31,7 @@ public class Muckraker extends RobotPlayer{
         }
         homeECx = ECLocations[currentHomeEC].x;
         homeECy = ECLocations[currentHomeEC].y;
-        homeECIDTag = ECIDs[currentHomeEC] % 128;
-        scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
-        rc.setFlag(scoutingFlag);
+        rc.setFlag(0);
         role = SCOUTING;
     }
 
@@ -65,12 +60,10 @@ public class Muckraker extends RobotPlayer{
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
-                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
-                    role = RETURNING;
+                    rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, homeECIDTag));
-                    role = RETURNING;
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
                 }
             }
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
@@ -88,18 +81,8 @@ public class Muckraker extends RobotPlayer{
                     RobotInfo unit = unitsInRange[i];
                     if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam() &&
                         unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
-                        currentHomeEC ++;
-                        ECIDs[currentHomeEC] = (unit.getID());
-                        ECLocations[currentHomeEC] = (target);
-                        homeECx = ECLocations[currentHomeEC].x;
-                        homeECy = ECLocations[currentHomeEC].y;
-                        homeECIDTag = ECIDs[currentHomeEC] % 128;
                         role = SCOUTING;
-                        scoutingFlag = encodeFlag(0, 0, 0, homeECIDTag);
-                        rc.setFlag(scoutingFlag);
-                        if (rc.canGetFlag(ECIDs[currentHomeEC])) {
-                            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
-                        }
+                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
                     }
                 }
             }
@@ -123,108 +106,29 @@ public class Muckraker extends RobotPlayer{
             }*/
             //System.out.println("Checkpoint Attack C: " + Clock.getBytecodeNum());
             
-        } else if (role == RETURNING){
-            target = ECLocations[currentHomeEC];
-            tryMove(getPathDirTo(target));
-            //System.out.println("Checkpoint Return A: " + Clock.getBytecodeNum());
-            for (int i = friendlyInRange.length; --i >= 0;) {
-                //otherside of relay, if you are delivering and farther away, let closer bot assume info and you
-                //take its flag and commands(unless its an attack)
-                if (friendlyInRange[i].getLocation().distanceSquaredTo(target)
-                        < distToHome && rc.canGetFlag(friendlyInRange[i].getID())) {
-                    int flag = rc.getFlag(friendlyInRange[i].getID());
-                    int[] flagContents = decodeFlag(flag);
-                    if (flagContents[0] != CONVERTED_FLAG && friendlyInRange[i].getType() != RobotType.SLANDERER
-                        && flagContents[3] == homeECIDTag) {
-                        if (flag == scoutingFlag) {
-                            role = SCOUTING;
-                            rc.setFlag(flag);
-                            break;
-                        } else if (flagContents[0] == ATTACK_ENEMY) {
-                            target = new MapLocation(homeECx + flagContents[1],
-                                    homeECy + flagContents[2]);
-                            rc.setFlag(flag);
-                            role = ATTACKING;
-                            break;
-                        } else if (flag == rc.getFlag(rc.getID())) {
-                            role = SCOUTING;
-                            rc.setFlag(scoutingFlag);
-                            break;
-                        }
-                    }
-
-                }
-            }
-           //System.out.println("Checkpoint Return B: " + Clock.getBytecodeNum());
-            if (rc.canSenseLocation(target)) {
-                rc.setFlag(scoutingFlag);
-                role = SCOUTING;
-            }
-            //System.out.println("Checkpoint Return C: " + Clock.getBytecodeNum());
         }
         //System.out.println("Checkpoint 4: " + Clock.getBytecodeNum());
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ATTACK_ENEMY && rc.getID() % 5 <= 2) {
+            if (homeECFlagContents[0] == ENEMY_EC_FOUND && rc.getID() % 5 <= 2) {
 
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
                         homeECy + homeECFlagContents[2]);
                 role = ATTACKING;
-            } else if (homeECFlagContents[0] == ATTACK_NEUTRAL && ownFlag[1] == homeECFlagContents[1] &&
+            } /*else if (homeECFlagContents[0] == NEUTRAL_EC_FOUND && ownFlag[1] == homeECFlagContents[1] &&
                     homeECFlagContents[2] == ownFlag[2]) {
-                rc.setFlag(scoutingFlag);
+                rc.setFlag(0);
+                role = SCOUTING;
+                //to prevent positive feedback loop keep track of attacked neutral ecs in ec.java
+            }*/ else if (homeECFlagContents[0] == SECURED_EC && ownFlag[1] == homeECFlagContents[1]
+                    && ownFlag[2] == homeECFlagContents[2]){
+                rc.setFlag(0);
                 role = SCOUTING;
             }
         }
-        //System.out.println("Checkpoint 5: " + Clock.getBytecodeNum());
-        if (role != RETURNING) {
-            //if you are not returning info and a friendly is near with flag
-                if (friendlyInRange.length > 40) {
-                    for (int i = friendlyInRange.length/2; --i >= 0; ) {
-                        if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                                > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
-                            if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                                int flag = rc.getFlag(friendlyInRange[i].getID());
-                                int[] flagContents = decodeFlag(flag);
-                                //relay info if you are closer to home ec
-                                if (ECLocations[0] != null
-                                        && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                                        flagContents[3] == homeECIDTag) {
-                                    rc.setFlag(flag);
-                                    target = ECLocations[currentHomeEC];
-                                    role = RETURNING;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    for (int i = friendlyInRange.length; --i >= 0; ) {
-                        if (friendlyInRange[i].getLocation().distanceSquaredTo(ECLocations[currentHomeEC])
-                                > distToHome && friendlyInRange[i].getType() != RobotType.SLANDERER) {
-                            if (rc.canGetFlag(friendlyInRange[i].getID())) {
-                                int flag = rc.getFlag(friendlyInRange[i].getID());
-                                int[] flagContents = decodeFlag(flag);
-                                //relay info if you are closer to home ec
-                                if (ECLocations[0] != null
-                                        && (flagContents[0] == ENEMY_EC_FOUND || flagContents[0] == NEUTRAL_EC_FOUND) &&
-                                        flagContents[3] == homeECIDTag) {
-                                    rc.setFlag(flag);
-                                    target = ECLocations[currentHomeEC];
-                                    role = RETURNING;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-        }
         //System.out.println("Checkpoint 6: " + Clock.getBytecodeNum());
-        if (rc.getFlag(rc.getID()) == scoutingFlag) {
-            role = SCOUTING;
-        }
         homeECFlagContents = null;
     }
 
