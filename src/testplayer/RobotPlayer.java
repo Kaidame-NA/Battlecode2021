@@ -215,7 +215,7 @@ public strictfp class RobotPlayer {
         }
         return output + str;
     }
-    
+
     static boolean shouldSpread() throws GameActionException {
         Team friendly = rc.getTeam();
         RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
@@ -225,7 +225,7 @@ public strictfp class RobotPlayer {
             return false;
         }
     }
-    
+
     static Direction getPathDirSpread() throws GameActionException {
         Team friendly = rc.getTeam();
         RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
@@ -245,8 +245,6 @@ public strictfp class RobotPlayer {
                 nearbyfriendlies.add(robot);
             }
         }
-
-
          */
         int numberofnearbyfriendlies = friendlies.length;
 
@@ -264,7 +262,6 @@ public strictfp class RobotPlayer {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
                     cost += (Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2));
                 }
-
                  */
                 for(int i = numberofnearbyfriendlies; --i>=0;)
                 {
@@ -279,7 +276,7 @@ public strictfp class RobotPlayer {
         }
         return optimalDir;
     }
-    
+
     static Direction getPathDirToEnemyEC(MapLocation tgt) throws GameActionException {
 
         Team friendly = rc.getTeam();
@@ -748,7 +745,6 @@ public strictfp class RobotPlayer {
                     cost -= Math.abs(4.75 - Math.sqrt(Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2)));
                 }
                 /*
-
                 for(int i = numberofnearbyslanderers; --i>=0;)
                 {
                     MapLocation spreadTo = nearbyslanderers.get(i).getLocation();

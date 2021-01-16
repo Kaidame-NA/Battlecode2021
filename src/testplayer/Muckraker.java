@@ -116,6 +116,7 @@ public class Muckraker extends RobotPlayer{
             if (rc.getID() % 5 == 2) {
                 tryMove(getAlternatePathThreeDirToEnemyEC(target));
             }
+
 /*
             if (rc.getID() % 5 == 3 || rc.getID() % 5 == 4) {
                 tryMove(getAlternatePathDirToEnemyEC(target));
