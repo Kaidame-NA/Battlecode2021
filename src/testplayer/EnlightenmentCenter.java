@@ -15,6 +15,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static double buildcooldown;
     static HashSet<Integer> producedUnitIDs = new HashSet<Integer>();
     static boolean attacking;
+    static int tgtConviction = 0;
     //static HashSet<MapLocation> neutralAttackedECs = new HashSet<MapLocation>();
 
     static void setup() throws GameActionException {
@@ -23,9 +24,8 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static void run() throws GameActionException {
-        int tgtConviction = 0;
         HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
-        System.out.println("check 1: " + Clock.getBytecodeNum());
+        //System.out.println("check 1: " + Clock.getBytecodeNum());
         for (Integer id : producedUnitsCopy) {
             if (rc.canGetFlag(id)) {
                 int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
@@ -50,12 +50,12 @@ public class EnlightenmentCenter extends RobotPlayer{
                 producedUnitIDs.remove(id);
             }
         }
-        System.out.println("check 2: " + Clock.getBytecodeNum());
+        //System.out.println("check 2: " + Clock.getBytecodeNum());
         spawn();
-        System.out.println("check 3: " + Clock.getBytecodeNum());
+        //System.out.println("check 3: " + Clock.getBytecodeNum());
         //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
         bidVote();
-        System.out.println("check 4: " + Clock.getBytecodeNum());
+        //System.out.println("check 4: " + Clock.getBytecodeNum());
 
     }
 
