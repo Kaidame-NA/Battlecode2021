@@ -50,6 +50,12 @@ public class Muckraker extends RobotPlayer{
                 }
             }
         }
+        for (RobotInfo robot : rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy)) {
+            if (robot.getType() == RobotType.SLANDERER) {
+                tryMove(getPathDirTo(robot.getLocation()));
+                break;
+            }
+        }
         if (rc.canGetFlag(ECIDs[currentHomeEC])) {
             homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
         }
@@ -143,14 +149,7 @@ public class Muckraker extends RobotPlayer{
 
     static Direction getPathDirSpread() throws GameActionException {
         Team friendly = rc.getTeam();
-        RobotInfo[] friendlies = rc.senseNearbyRobots(25, friendly);
-        ArrayList<RobotInfo> nearbyecs = new ArrayList<RobotInfo>();
-        for (RobotInfo robot : friendlies) {
-            RobotType type = robot.getType();
-            if (type == RobotType.ENLIGHTENMENT_CENTER) {
-                nearbyecs.add(robot);
-            }
-        }
+        RobotInfo[] friendlies = rc.senseNearbyRobots(-1, friendly);
         int numberofnearbyfriendlies = friendlies.length;
 
         numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
