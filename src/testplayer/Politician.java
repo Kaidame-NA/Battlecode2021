@@ -184,7 +184,9 @@ public class Politician extends RobotPlayer{
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
             if (((homeECFlagContents[0] == ENEMY_EC_FOUND &&
-                rc.getConviction() > 29) || (homeECFlagContents[0] == NEUTRAL_EC_FOUND))
+                rc.getConviction() > 29) || (homeECFlagContents[0] == NEUTRAL_EC_FOUND
+                    && ((homeECFlagContents[3] == 255 && rc.getConviction() > 510)
+                    || (homeECFlagContents[3] < 255 && rc.getConviction() > homeECFlagContents[3] + 10))))
                 && role != FOLLOW && role != OVERFLOW && ownFlag[0] != SECURED_EC) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
