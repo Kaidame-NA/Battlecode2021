@@ -20,6 +20,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int slanderervals[] = {949,902,855,810,766,724,683,643,605,568,532,497,463,431,399,368,339,310,
             282,255,228,203,178,154,130,107,85,63,41};
     static int peakInfluence = 500;
+    static int effectiveTurn = 0;
 
 
 
@@ -66,7 +67,6 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static void spawn() throws GameActionException{
         double turnslost = numberofattackingunitsproduced * buildcooldown;
-        double effectiveturn = turnCount - turnslost;
         Direction spawnDir = getOptimalSpawn();
         RobotType unitType = RobotType.POLITICIAN;
         int conviction = 0;
@@ -97,8 +97,8 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if (enemyRushDefense() && rc.getInfluence() >= 22) {
-            conviction = 22;
+        else if ((effectiveTurn % 7 == 0 || enemyRushDefense()) && rc.getInfluence() >= 26) {
+            conviction = 26;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
@@ -371,6 +371,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         if (rc.canBuildRobot(unitType, spawnDir, conviction)) {
             rc.buildRobot(unitType, spawnDir, conviction);
+            effectiveTurn ++;
             if (unitType != RobotType.SLANDERER) {
                 RobotInfo builtRobot = rc.senseRobotAtLocation(rc.getLocation().add(spawnDir));
                 producedUnitIDs.add(builtRobot.getID());
