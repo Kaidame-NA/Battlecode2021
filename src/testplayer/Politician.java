@@ -103,11 +103,8 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30 && ecinrange()) {
-                tryMove(polisring());
-            }
-            else if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
-                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
+            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
+                tryMove(polisringv2());
             }
             else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
@@ -137,11 +134,8 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30 && ecinrange()) {
-                tryMove(polisring());
-            }
-            else if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
-                tryMove(getPathDirTo(ECLocations[currentHomeEC]));
+            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
+                tryMove(polisringv2());
             }
             else {
                 tryMove(getPathDirTo(target));
@@ -277,6 +271,27 @@ public class Politician extends RobotPlayer{
                                 Math.abs(adj.y - homeECy) - Math.abs(rc.getLocation().y - homeECy));
                     }
                 }
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
+        return optimalDir;
+    }
+
+    static Direction polisringv2() throws GameActionException {
+        MapLocation home = ECLocations[currentHomeEC];
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = - Double.MAX_VALUE;
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
+                double pass = rc.sensePassability(adj);
+                //double cost = - (rc.getType().actionCooldown/pass);
+                double cost = 0;
+                double radius = 4.75;
+                cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
                 if (cost > optimalCost && rc.canMove(dir)) {
                     optimalDir = dir;
                     optimalCost = cost;

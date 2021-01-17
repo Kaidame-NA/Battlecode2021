@@ -95,6 +95,20 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofpoliticiansproduced++;
         }
 
+        //defend
+
+        else if (enemyRushDefense() && rc.getInfluence() >= 22) {
+            conviction = 22;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+        else if (enemyRushDefense()) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
         //attack
 
         else if (numberofattackingunitsproduced < 50 && rc.getInfluence() >= 400 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
@@ -102,6 +116,15 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofpoliticiansproduced++;
             numberofunitsproduced++;
             numberofattackingunitsproduced++;
+        }
+
+        else if (numberofattackingunitsproduced < 50 && rc.getInfluence() < 400 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND
+         && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), getOptimalSlandererVal())) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = getOptimalSlandererVal();
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
         }
 
         else if (numberofattackingunitsproduced < 50 && rc.getInfluence() < 400 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
@@ -128,26 +151,21 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofattackingunitsproduced++;
         }
 
+        else if (rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
+        && rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), getOptimalSlandererVal())) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = getOptimalSpawnSlanderer();
+            conviction = getOptimalSlandererVal();
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
+        }
+
         else if (rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
             numberofattackingunitsproduced++;
-        }
-
-        //defend
-
-        else if (enemyRushDefense() && rc.getInfluence() >= 22) {
-            conviction = 22;
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
-        }
-        else if (enemyRushDefense()) {
-            unitType = RobotType.MUCKRAKER;
-            conviction = 1;
-            numberofunitsproduced++;
-            numberofmuckrakersproduced++;
         }
 
         //build 1
