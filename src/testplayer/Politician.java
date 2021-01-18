@@ -70,10 +70,11 @@ public class Politician extends RobotPlayer{
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
-                if (trailedMuckrakerID == 0 && role != OVERFLOW ) {
+                if (trailedMuckrakerID == 0 && role != OVERFLOW && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
                     trailedMuckrakerID = enemiesInRange[i].getID();
                     role = FOLLOW;
-                    rc.setFlag(0);
+                    rc.setFlag(encodeFlag(0, 0, 0, enemiesInRange[i].getID() % 256));
+                    break;
                 }
             }
         }
@@ -89,18 +90,18 @@ public class Politician extends RobotPlayer{
         } else if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+            if (enemiesInRange.length != 0) {
+                rc.setFlag(encodeFlag(0, rc.getLocation().x - homeECx, rc.getLocation().y - homeECy, 0));
+            }
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
                     rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
-                        target = unit.getLocation();
-                        role = ATTACKING;
-                    } else {
-                        rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
-                    }
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
             }
             if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
@@ -213,10 +214,16 @@ public class Politician extends RobotPlayer{
         if (rc.canSenseRobot(trailedMuckrakerID)) {
             MapLocation tgtLoc = rc.senseRobot(trailedMuckrakerID).getLocation();
             for (int i = friendlies.length; --i >= 0;) {
-                if (friendlies[i].getType() == RobotType.POLITICIAN
-                        && friendlies[i].getLocation().distanceSquaredTo(tgtLoc) < RobotType.POLITICIAN.sensorRadiusSquared
-                        && friendlies[i].getConviction() < 30) {
-                    return false;
+                if (friendlies[i].getType() == RobotType.POLITICIAN) {
+                    if (friendlies[i].getLocation().distanceSquaredTo(tgtLoc)
+                            <= RobotType.POLITICIAN.sensorRadiusSquared) {
+                        if (rc.canGetFlag(friendlies[i].getID())) {
+                            int[] flag = decodeFlag(rc.getFlag(friendlies[i].getID()));
+                            if (flag[3] == trailedMuckrakerID % 256) {
+                                return false;
+                            }
+                        }
+                    }
                 }
             }
             return true;
