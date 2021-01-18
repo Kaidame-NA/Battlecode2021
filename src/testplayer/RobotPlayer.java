@@ -203,13 +203,7 @@ public strictfp class RobotPlayer {
     }
 
     static String padBinary(String str, int tgtLength) {
-        tgtLength -= str.length();
-        String output = "";
-        for(int i = tgtLength; --i >= 0;)
-        {
-            output+="0";
-        }
-        return output + str;
+        return new String(new char[tgtLength - str.length()]).replace('\0', '0') + str;
     }
 
     static boolean shouldSpread() throws GameActionException {
