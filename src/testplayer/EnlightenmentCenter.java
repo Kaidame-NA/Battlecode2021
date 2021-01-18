@@ -37,20 +37,21 @@ public class EnlightenmentCenter extends RobotPlayer{
         for (Integer id : producedUnitsCopy) {
             if (rc.canGetFlag(id)) {
                 int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-                int[] flag = decodeFlag(rc.getFlag(id));
+                int unitFlag = rc.getFlag(id);
+                int[] flag = decodeFlag(unitFlag);
                 if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
                     tgtConviction = flag[3]; //check for switching attack target in this file
-                    rc.setFlag(rc.getFlag(id));
+                    rc.setFlag(unitFlag);
                     attacking = true;
                     //some logic about spawning correct poli size
                 } else if (flag[0] == ENEMY_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
-                    rc.setFlag(rc.getFlag(id));
+                    rc.setFlag(unitFlag);
                     tgtConviction = flag[3];
                     attacking = true;
                     //some logic about spawning correct poli size
                 } else if (flag[0] == SECURED_EC) {
                     if (ownFlag[1] == flag[1] && ownFlag[2] == flag[2]) {
-                        rc.setFlag(encodeFlag(flag[0], flag[1], flag[2], flag[3]));
+                        rc.setFlag(unitFlag);
                         attacking = false;
                     }
                 } else if (flag[0] == 0 && flag[1] != 0) {
