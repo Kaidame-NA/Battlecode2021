@@ -103,7 +103,7 @@ public class Politician extends RobotPlayer{
                     }
                 }
             }
-            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
+            if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
             }
             else if (shouldSpread()) {

@@ -97,7 +97,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if ((effectiveTurn % 7 == 0 || enemyRushDefense()) && rc.getInfluence() >= 26) {
+        else if ((effectiveTurn % 6 == 1|| enemyRushDefense()) && rc.getInfluence() >= 26) {
             conviction = 26;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
