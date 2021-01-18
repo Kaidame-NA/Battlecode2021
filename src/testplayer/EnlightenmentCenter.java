@@ -19,8 +19,9 @@ public class EnlightenmentCenter extends RobotPlayer{
     //static HashSet<MapLocation> neutralAttackedECs = new HashSet<MapLocation>();
     static int slanderervals[] = {949,902,855,810,766,724,683,643,605,568,532,497,463,431,399,368,339,310,
             282,255,228,203,178,154,130,107,85,63,41};
-    static int peakInfluence = 500;
+    static int peakInfluence = 86;
     static int effectiveTurn = 0;
+    static int wavecount = 7;
 
 
 
@@ -97,7 +98,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if ((effectiveTurn % 6 == 1|| enemyRushDefense()) && rc.getInfluence() >= 26) {
+        else if (enemyRushDefense() && rc.getInfluence() >= 26) {
             conviction = 26;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
@@ -189,10 +190,34 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofpoliticiansproduced++;
         }
 
+        else if (effectiveTurn % 7 == 0 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 26)) {
+            conviction = 26;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (wavecount < 7) {
+            if (rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
+                conviction = 24;
+                numberofunitsproduced++;
+                numberofpoliticiansproduced++;
+                wavecount--;
+            }
+            else if (rc.canBuildRobot(RobotType.MUCKRAKER, getOptimalSpawn(), 1)) {
+                unitType = RobotType.MUCKRAKER;
+                conviction = 1;
+                numberofunitsproduced++;
+                numberofmuckrakersproduced++;
+            }
+            if (wavecount == 0)
+                wavecount = 7;
+        }
+
         else if (shouldSpawnPoli() && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), 24)) {
             conviction = 24;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
+            wavecount = 6;
         }
 
         else if (rc.canBuildRobot(RobotType.SLANDERER, getOptimalSpawnSlanderer(), getOptimalSlandererVal())) {

@@ -284,6 +284,10 @@ public class Politician extends RobotPlayer{
         MapLocation home = ECLocations[currentHomeEC];
         Direction optimalDir = Direction.CENTER;
         double optimalCost = - Double.MAX_VALUE;
+
+        if (turnCount % 10 == 0) {
+            banList.clear();
+        }
         for (Direction dir: directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
@@ -292,7 +296,7 @@ public class Politician extends RobotPlayer{
                 double cost = 0;
                 double radius = 4.75;
                 cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
-                if (cost > optimalCost && rc.canMove(dir)) {
+                if (cost > optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
                     optimalCost = cost;
                 }
@@ -300,5 +304,4 @@ public class Politician extends RobotPlayer{
         }
         return optimalDir;
     }
-
 }
