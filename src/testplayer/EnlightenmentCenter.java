@@ -23,6 +23,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int effectiveTurn = 0;
     static int wavecount = 7;
     static int closestEnemyMuckDist = 9999;
+    static int closestEnemyMuckConv = 0;
 
 
 
@@ -59,6 +60,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                     int unitDist = unitPos.distanceSquaredTo(rc.getLocation());
                     if (unitDist < closestEnemyMuckDist) {
                         closestEnemyMuckDist = unitDist;
+                        closestEnemyMuckConv = flag[3];
                     }
                 }
             } else {
