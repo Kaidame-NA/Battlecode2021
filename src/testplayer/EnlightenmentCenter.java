@@ -107,12 +107,12 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if (enemyRushDefense() && rc.getInfluence() >= 26) {
-            conviction = 26;
+        else if (closestEnemyMuckDist < 100 && rc.getInfluence() >= 16) {
+            conviction = 16;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-        else if (enemyRushDefense()) {
+        else if (closestEnemyMuckDist < 100) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
@@ -425,18 +425,6 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
     }
-
-    static Boolean enemyRushDefense() throws GameActionException {
-        Team enemy = rc.getTeam().opponent();
-        RobotInfo[] enemies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
-
-        if (enemies.length > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
 
     static Boolean safeToSpawnSlanderer() throws GameActionException {
         Team friendly = rc.getTeam();
