@@ -114,12 +114,12 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if (closestEnemyMuckDist < 100 && rc.getInfluence() >= 16) {
+        else if (closestEnemyMuckDist < 81 && rc.getInfluence() >= 16) {
             conviction = 16;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-        else if (closestEnemyMuckDist < 100) {
+        else if (closestEnemyMuckDist < 81) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
