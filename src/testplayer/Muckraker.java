@@ -43,7 +43,9 @@ public class Muckraker extends RobotPlayer{
     static void run() throws GameActionException {
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
-        RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        int distToHome = 0;
+        //RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        RobotInfo[] enemiesInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
@@ -63,21 +65,29 @@ public class Muckraker extends RobotPlayer{
         if (currentHomeEC != -1) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+                distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
             }
         }
         //System.out.println("Checkpoint 3: " + Clock.getBytecodeNum());
         if (role == SCOUTING) {
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             //System.out.println("Checkpoint Scout A: " + Clock.getBytecodeNum());
+            if (enemiesInRange.length != 0) {
+                rc.setFlag(encodeFlag(0, rc.getLocation().x - homeECx, rc.getLocation().y - homeECy, 0));
+            }
+            //System.out.println("Checkpoint Scout A2: " + Clock.getBytecodeNum());
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
                     rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
             }
+
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());

@@ -90,18 +90,18 @@ public class Politician extends RobotPlayer{
         } else if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+            if (enemiesInRange.length != 0) {
+                rc.setFlag(encodeFlag(0, rc.getLocation().x - homeECx, rc.getLocation().y - homeECy, 0));
+            }
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
                     rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
                 else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
-                    if (rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10 > unit.getConviction()) {
-                        target = unit.getLocation();
-                        role = ATTACKING;
-                    } else {
-                        rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
-                    }
+                    rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
                 }
             }
             if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
