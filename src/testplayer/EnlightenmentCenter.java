@@ -22,7 +22,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int peakInfluence = 86;
     static int effectiveTurn = 0;
     static int wavecount = 7;
-    static int closestEnemyDist = 9999;
+    static int closestEnemyMuckDist = 9999;
 
 
 
@@ -56,8 +56,8 @@ public class EnlightenmentCenter extends RobotPlayer{
                 } else if (flag[0] == 0 && flag[1] != 0) {
                     MapLocation unitPos = new MapLocation(rc.getLocation().x + flag[1], rc.getLocation().y +flag[2]);
                     int unitDist = unitPos.distanceSquaredTo(rc.getLocation());
-                    if (unitDist < closestEnemyDist) {
-                        closestEnemyDist = unitDist;
+                    if (unitDist < closestEnemyMuckDist) {
+                        closestEnemyMuckDist = unitDist;
                     }
                 }
             } else {
@@ -71,7 +71,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
         bidVote();
         //System.out.println("check 4: " + Clock.getBytecodeNum());
-        closestEnemyDist = 9999;
+        closestEnemyMuckDist = 9999;
     }
 
     static void spawn() throws GameActionException{

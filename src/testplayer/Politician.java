@@ -90,8 +90,12 @@ public class Politician extends RobotPlayer{
         } else if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
-            if (enemiesInRange.length != 0) {
-                rc.setFlag(encodeFlag(0, rc.getLocation().x - homeECx, rc.getLocation().y - homeECy, 0));
+            for (int i = enemiesInRange.length; --i >= 0;) {
+                RobotInfo unit = enemiesInRange[i];
+                if (unit.getType() == RobotType.MUCKRAKER) {
+                    rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
+                }
             }
             for (int i = unitsInRange.length; --i >= 0;) {
                 RobotInfo unit = unitsInRange[i];

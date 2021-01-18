@@ -72,8 +72,12 @@ public class Muckraker extends RobotPlayer{
         if (role == SCOUTING) {
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             //System.out.println("Checkpoint Scout A: " + Clock.getBytecodeNum());
-            if (enemiesInRange.length != 0) {
-                rc.setFlag(encodeFlag(0, rc.getLocation().x - homeECx, rc.getLocation().y - homeECy, 0));
+            for (int i = enemiesInRange.length; --i >= 0;) {
+                RobotInfo unit = enemiesInRange[i];
+                if (unit.getType() == RobotType.MUCKRAKER) {
+                    rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
+                    break;
+                }
             }
             //System.out.println("Checkpoint Scout A2: " + Clock.getBytecodeNum());
             for (int i = unitsInRange.length; --i >= 0;) {
