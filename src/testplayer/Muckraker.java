@@ -13,6 +13,7 @@ public class Muckraker extends RobotPlayer{
     static int role;
     static final int SCOUTING = 0;
     static final int ATTACKING = 1;
+    static final int GLITCHED = 2;
     static int homeECx;
     static int homeECy;
     static MapLocation target;
@@ -29,10 +30,14 @@ public class Muckraker extends RobotPlayer{
                 ECLocations[currentHomeEC] = possibleECs[i].getLocation();
             }
         }
-        homeECx = ECLocations[currentHomeEC].x;
-        homeECy = ECLocations[currentHomeEC].y;
-        rc.setFlag(0);
-        role = SCOUTING;
+        if (currentHomeEC >=0) {
+            homeECx = ECLocations[currentHomeEC].x;
+            homeECy = ECLocations[currentHomeEC].y;
+            rc.setFlag(0);
+            role = SCOUTING;
+        } else {
+            role = GLITCHED;
+        }
     }
 
     static void run() throws GameActionException {
@@ -56,8 +61,10 @@ public class Muckraker extends RobotPlayer{
                 break;
             }
         }
-        if (rc.canGetFlag(ECIDs[currentHomeEC])) {
-            homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+        if (currentHomeEC != -1) {
+            if (rc.canGetFlag(ECIDs[currentHomeEC])) {
+                homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+            }
         }
         //System.out.println("Checkpoint 3: " + Clock.getBytecodeNum());
         if (role == SCOUTING) {
@@ -112,6 +119,12 @@ public class Muckraker extends RobotPlayer{
             }*/
             //System.out.println("Checkpoint Attack C: " + Clock.getBytecodeNum());
             
+        } else if (role == GLITCHED) {
+            if (shouldSpread()) {
+                tryMove(getPathDirSpread());
+            } else {
+                tryMove(randomDirection());
+            }
         }
         //System.out.println("Checkpoint 4: " + Clock.getBytecodeNum());
         if (homeECFlagContents != null) {
