@@ -134,7 +134,7 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if ((rc.getID() % 3 == 0 || rc.getID() % 3 == 1) && rc.getInfluence() < 30) {
+            if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
             }
             else {
@@ -294,7 +294,7 @@ public class Politician extends RobotPlayer{
                 double pass = rc.sensePassability(adj);
                 //double cost = - (rc.getType().actionCooldown/pass);
                 double cost = 0;
-                double radius = 4.75;
+                double radius = 6.2;
                 cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
                 if (cost > optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
