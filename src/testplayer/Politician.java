@@ -296,6 +296,7 @@ public class Politician extends RobotPlayer{
                 double cost = 0;
                 double radius = 6.2;
                 cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
+                cost += radius * pass;
                 if (cost > optimalCost && rc.canMove(dir) && !banList.contains(adj)) {
                     optimalDir = dir;
                     optimalCost = cost;
