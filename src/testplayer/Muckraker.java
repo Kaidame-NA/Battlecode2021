@@ -44,7 +44,6 @@ public class Muckraker extends RobotPlayer{
         Team enemy = rc.getTeam().opponent();
         int actionRadius = rc.getType().actionRadiusSquared;
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
-        int distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
         for (RobotInfo robot : rc.senseNearbyRobots(actionRadius, enemy)) {
             if (robot.type.canBeExposed()) {
                 // It's a slanderer... go get them!
