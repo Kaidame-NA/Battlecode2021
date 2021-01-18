@@ -23,6 +23,7 @@ public class Politician extends RobotPlayer{
     static int homeECy;
     static int muckrakersInRange;
     static int trailedMuckrakerID;
+    static int scoutedEnemyMuckID;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -70,10 +71,11 @@ public class Politician extends RobotPlayer{
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
-                if (trailedMuckrakerID == 0 && role != OVERFLOW && notTrailed(enemiesInRange[i].getID(), friendlyInRange)) {
-                    trailedMuckrakerID = enemiesInRange[i].getID();
+                RobotInfo unit = enemiesInRange[i];
+                if (trailedMuckrakerID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)) {
+                    trailedMuckrakerID = unit.getID();
                     role = FOLLOW;
-                    rc.setFlag(encodeFlag(0, 0, 0, enemiesInRange[i].getID() % 256));
+                    rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y-homeECy, enemiesInRange[i].getID() % 256));
                     break;
                 }
             }
@@ -90,10 +92,14 @@ public class Politician extends RobotPlayer{
         } else if (role == SCOUTING) {
             //go to point along direction of creation
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+            if (!rc.canSenseRobot(scoutedEnemyMuckID)) {
+                rc.setFlag(0);
+            }
             for (int i = enemiesInRange.length; --i >= 0;) {
                 RobotInfo unit = enemiesInRange[i];
                 if (unit.getType() == RobotType.MUCKRAKER) {
                     rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
+                    scoutedEnemyMuckID = unit.getID();
                     break;
                 }
             }

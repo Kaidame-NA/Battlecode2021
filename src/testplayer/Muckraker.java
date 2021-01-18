@@ -19,6 +19,7 @@ public class Muckraker extends RobotPlayer{
     static MapLocation target;
     static int stuckCounter;
     static int[] homeECFlagContents;
+    static int scoutedEnemyMuckID;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -72,10 +73,14 @@ public class Muckraker extends RobotPlayer{
         if (role == SCOUTING) {
             RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
             //System.out.println("Checkpoint Scout A: " + Clock.getBytecodeNum());
+            if (!rc.canSenseRobot(scoutedEnemyMuckID)) {
+                rc.setFlag(0);
+            }
             for (int i = enemiesInRange.length; --i >= 0;) {
                 RobotInfo unit = enemiesInRange[i];
                 if (unit.getType() == RobotType.MUCKRAKER) {
                     rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
+                    scoutedEnemyMuckID = unit.getID();
                     break;
                 }
             }
