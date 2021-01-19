@@ -38,7 +38,7 @@ public class Slanderer extends RobotPlayer {
             enemyEC = new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]);
         }
         if (ecinrange()) {
-            tryMove(slanderersSafe());
+            tryMove(slanderersSafev2());
         } else {
             tryMove(getPathDirTo(ECLocations[currentHomeEC]));
         }
@@ -97,6 +97,33 @@ public class Slanderer extends RobotPlayer {
                 }
             }
         };
+        return optimalDir;
+    }
+
+    static Direction slanderersSafev2() throws GameActionException {
+        MapLocation home = ECLocations[currentHomeEC];
+        Direction optimalDir = Direction.CENTER;
+        double optimalCost = - Double.MAX_VALUE;
+
+        for (Direction dir: directions) {
+            MapLocation adj = rc.adjacentLocation(dir);
+            if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
+                double pass = rc.sensePassability(adj);
+                //double cost = - (rc.getType().actionCooldown/pass);
+                double cost = 0;
+                double radius = 2.25;
+                //double distancefromhomeeq = Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
+                cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
+                cost += radius * pass;
+                if (!(enemyEC == null)) {
+                    cost += Math.abs(Math.sqrt(Math.pow(enemyEC.x - adj.x, 2) + Math.pow(enemyEC.y - adj.y, 2)));
+                }
+                if (cost > optimalCost && rc.canMove(dir)) {
+                    optimalDir = dir;
+                    optimalCost = cost;
+                }
+            }
+        }
         return optimalDir;
     }
 }
