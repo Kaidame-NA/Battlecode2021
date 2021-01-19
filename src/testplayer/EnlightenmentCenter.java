@@ -62,6 +62,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                     int unitDist = unitPos.distanceSquaredTo(rc.getLocation());
                     if (unitDist < closestEnemyMuckDist) {
                         closestEnemyMuckDist = unitDist;
+                        closestEnemyMuckConv = flag[3];
                     }
                 }
             } else {

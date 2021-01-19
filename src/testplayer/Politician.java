@@ -75,7 +75,7 @@ public class Politician extends RobotPlayer{
                 if (trailedMuckrakerID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)) {
                     trailedMuckrakerID = unit.getID();
                     role = FOLLOW;
-                    rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y-homeECy, enemiesInRange[i].getID() % 256));
+                    rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y-homeECy, Math.min(255, unit.getConviction())));
                     break;
                 }
             }
@@ -167,7 +167,7 @@ public class Politician extends RobotPlayer{
                 RobotInfo trailed = rc.senseRobot(trailedMuckrakerID);
                 target = trailed.getLocation();
                 rc.setFlag(encodeFlag(0, trailed.getLocation().x - homeECx,
-                        trailed.getLocation().y-homeECy, trailedMuckrakerID % 256));
+                        trailed.getLocation().y-homeECy, Math.min(trailed.getConviction(), 255)));
                 if (ECLocations[0] != null
                         && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
                         && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
@@ -227,14 +227,12 @@ public class Politician extends RobotPlayer{
         if (rc.canSenseRobot(trailedMuckrakerID)) {
             MapLocation tgtLoc = rc.senseRobot(trailedMuckrakerID).getLocation();
             for (int i = friendlies.length; --i >= 0;) {
-                if (friendlies[i].getType() == RobotType.POLITICIAN) {
+                if (friendlies[i].getType() == RobotType.POLITICIAN && friendlies[i].getConviction() < 30) {
                     if (friendlies[i].getLocation().distanceSquaredTo(tgtLoc)
-                            <= RobotType.POLITICIAN.sensorRadiusSquared) {
-                        if (rc.canGetFlag(friendlies[i].getID())) {
-                            int[] flag = decodeFlag(rc.getFlag(friendlies[i].getID()));
-                            if (flag[3] == trailedMuckrakerID % 256) {
-                                return false;
-                            }
+                            < rc.getLocation().distanceSquaredTo(tgtLoc)) {
+                        int[] friendlyFlag = decodeFlag(rc.getFlag(friendlies[i].getID()));
+                        if (friendlyFlag[0] == 0 && friendlyFlag[1] == tgtLoc.x && friendlyFlag[2] == tgtLoc.y) {
+                            return false;
                         }
                     }
                 }
