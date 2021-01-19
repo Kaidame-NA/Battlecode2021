@@ -77,6 +77,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         bidVote();
         //System.out.println("After bidding 5: " + Clock.getBytecodeNum() );
         closestEnemyMuckDist = 9999;
+        closestEnemyMuckConv = 0;
     }
 
     static void spawn() throws GameActionException{
