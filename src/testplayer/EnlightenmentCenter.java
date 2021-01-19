@@ -85,6 +85,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         Direction spawnDirSland = getOptimalSpawnSlanderer();
         int slandVal = getOptimalSlandererVal();
         RobotType unitType = RobotType.POLITICIAN;
+        int poliVal = getOptimalPoliVal();
 
         if (closestEnemyMuckDist >= 81)
             turnssinceattacked++;
@@ -115,8 +116,8 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //defend
 
-        else if (closestEnemyMuckDist < 81 && rc.getInfluence() >= getOptimalPoliVal()) {
-            conviction = getOptimalPoliVal();
+        else if (closestEnemyMuckDist < 81 && rc.getInfluence() >= poliVal) {
+            conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
             turnssinceattacked = 0;
@@ -137,9 +138,9 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofattackingunitsproduced++;
         }
-        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, getOptimalPoliVal()) &&
+        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
                 numberofattackingunitsproduced < 50 && rc.getInfluence() < 400 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
-            conviction = getOptimalPoliVal();
+            conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
@@ -177,9 +178,9 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofattackingunitsproduced++;
         }
 
-        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, getOptimalPoliVal()) &&
+        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
                 rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
-            conviction = getOptimalPoliVal();
+            conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
@@ -222,8 +223,8 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofpoliticiansproduced++;
         }
 
-        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, getOptimalPoliVal())) {
-            conviction = getOptimalPoliVal();
+        else if ((effectiveTurn % 7 == 0) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
@@ -245,8 +246,8 @@ public class EnlightenmentCenter extends RobotPlayer{
                 wavecount = 7;
         }
 */
-        else if (shouldSpawnPoli() && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, getOptimalPoliVal())) {
-            conviction = getOptimalPoliVal();
+        else if (shouldSpawnPoli() && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
             wavecount = 6;
@@ -504,6 +505,9 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static int getOptimalPoliVal() throws GameActionException {
         int optimalVal = (rc.getInfluence())/50 + 14;
+        if (optimalVal >=30) {
+            optimalVal =29;
+        }
         return optimalVal;
     }
 
