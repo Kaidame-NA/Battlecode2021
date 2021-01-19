@@ -114,7 +114,7 @@ public class Politician extends RobotPlayer{
                     break;
                 }
             }
-            if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
+            if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
             }
             else if (shouldSpread()) {
@@ -145,7 +145,7 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
             }
-            if ((rc.getID() % 2 == 0) && rc.getInfluence() < 30) {
+            if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
             }
             else {

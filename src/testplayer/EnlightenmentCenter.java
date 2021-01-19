@@ -18,12 +18,13 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int tgtConviction = 0;
     //static HashSet<MapLocation> neutralAttackedECs = new HashSet<MapLocation>();
     static int slanderervals[] = {949,902,855,810,766,724,683,643,605,568,532,497,463,431,399,368,339,310,
-            282,255,228,203,178,154,130,107,85,63,41};
+            282,255,228,203,178,154,130,107,85,63,41,21};
     static int peakInfluence = 86;
     static int effectiveTurn = 0;
     static int wavecount = 7;
     static int closestEnemyMuckDist = 9999;
     static int closestEnemyMuckConv = 0;
+    static int turnssinceattacked = 0;
 
 
 
@@ -85,6 +86,9 @@ public class EnlightenmentCenter extends RobotPlayer{
         int slandVal = getOptimalSlandererVal();
         RobotType unitType = RobotType.POLITICIAN;
 
+        if (closestEnemyMuckDist >= 81)
+            turnssinceattacked++;
+
         int conviction = 0;
         if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getInfluence() > 1000) {
             if (rc.getInfluence() < 1000000) {
@@ -115,12 +119,14 @@ public class EnlightenmentCenter extends RobotPlayer{
             conviction = 16;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
+            turnssinceattacked = 0;
         }
         else if (closestEnemyMuckDist < 81) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
+            turnssinceattacked = 0;
         }
 
         //attack
@@ -221,7 +227,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-
+/*
         else if (wavecount < 7) {
             if (rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, 24)) {
                 conviction = 24;
@@ -238,7 +244,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             if (wavecount == 0)
                 wavecount = 7;
         }
-
+*/
         else if (shouldSpawnPoli() && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, 24)) {
             conviction = 24;
             numberofunitsproduced++;
@@ -487,7 +493,8 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static int getOptimalSlandererVal() throws GameActionException {
-        for (int i = 0; i < slanderervals.length; i++) {
+        int upgradethreshold = turnssinceattacked/40;
+        for (int i = 0; i < slanderervals.length - upgradethreshold; i++) {
             if (slanderervals[i] <= rc.getInfluence()) {
                 return slanderervals[i];
             }
