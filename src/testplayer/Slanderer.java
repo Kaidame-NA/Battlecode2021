@@ -35,7 +35,7 @@ public class Slanderer extends RobotPlayer {
             }
         }
         if (homeECFlagContents[0] == ENEMY_EC_FOUND) {
-            enemyEC = new MapLocation(homeECFlagContents[1], homeECFlagContents[2]);
+            enemyEC = new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]);
         }
         if (ecinrange()) {
             tryMove(slanderersSafe());
