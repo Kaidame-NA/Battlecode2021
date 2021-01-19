@@ -86,16 +86,14 @@ public class EnlightenmentCenter extends RobotPlayer{
         RobotType unitType = RobotType.POLITICIAN;
 
         int conviction = 0;
-        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35) {
-            if (rc.getInfluence() > 49) {
-                if (rc.getInfluence() < 1000000) {
-                    conviction = rc.getInfluence();
-                } else {
-                    conviction = rc.getInfluence() - 100000;
-                }
-                numberofunitsproduced++;
-                numberofpoliticiansproduced++;
+        if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getInfluence() > 1000) {
+            if (rc.getInfluence() < 1000000) {
+                conviction = rc.getInfluence();
+            } else {
+                conviction = rc.getInfluence() - 100000;
             }
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
         }
 
         //overflow

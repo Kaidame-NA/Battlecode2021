@@ -43,7 +43,7 @@ public class Politician extends RobotPlayer{
             homeECy = ECLocations[currentHomeEC].y;
             rc.setFlag(0);
             role = SCOUTING;
-            if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35 && rc.getConviction() > 49) {
+            if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getConviction() > 1000) {
                 rc.setFlag(0);
                 role = OVERFLOW;
             }
