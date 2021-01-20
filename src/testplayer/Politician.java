@@ -70,6 +70,7 @@ public class Politician extends RobotPlayer{
         //follow muckrakers if small poli
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
+                    && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
                 RobotInfo unit = enemiesInRange[i];
                 if (trailedMuckrakerID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)) {
@@ -165,21 +166,28 @@ public class Politician extends RobotPlayer{
         } else if (role == FOLLOW) {
             if (rc.canSenseRobot(trailedMuckrakerID) && notTrailed(trailedMuckrakerID, friendlyInRange)) {
                 RobotInfo trailed = rc.senseRobot(trailedMuckrakerID);
-                target = trailed.getLocation();
-                rc.setFlag(encodeFlag(0, trailed.getLocation().x - homeECx,
-                        trailed.getLocation().y-homeECy, Math.min(trailed.getConviction(), 255)));
-                if (ECLocations[0] != null
-                        && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
-                        && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
-                    rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
-                } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius)) {
-                    rc.empower(actionRadius);
-                } else if (ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) > 500) {
+                if (rc.getConviction() > trailed.getConviction() + 10) {
+                    target = trailed.getLocation();
+                    rc.setFlag(encodeFlag(0, trailed.getLocation().x - homeECx,
+                            trailed.getLocation().y - homeECy, Math.min(trailed.getConviction(), 255)));
+                    if (ECLocations[0] != null
+                            && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
+                            && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
+                        rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
+                    } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius)) {
+                        rc.empower(actionRadius);
+                    } else if (ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) > 500) {
+                        trailedMuckrakerID = 0;
+                        rc.setFlag(0);
+                        role = SCOUTING;
+                    }
+                    tryMove(getPathDirTo(target));
+                }
+                else {
                     trailedMuckrakerID = 0;
                     rc.setFlag(0);
                     role = SCOUTING;
                 }
-                tryMove(getPathDirTo(target));
             } else {
                 trailedMuckrakerID = 0;
                 rc.setFlag(0);
