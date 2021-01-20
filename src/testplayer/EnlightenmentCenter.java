@@ -2,9 +2,7 @@ package testplayer;
 
 import battlecode.common.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class EnlightenmentCenter extends RobotPlayer{
 
@@ -26,6 +24,9 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int closestEnemyMuckConv = 0;
     static int turnssinceattacked = 0;
 
+    static int[] ownFlag = new int[4];
+    static int ownFlagNum = 0;
+    static int[] ifBlockExecutes = new int[4];
 
 
     static void setup() throws GameActionException {
@@ -35,27 +36,47 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static void run() throws GameActionException {
         //System.out.println("Before copy 1: " + Clock.getBytecodeNum());
-        HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
+        //HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
         //System.out.println("After copy 2: " + Clock.getBytecodeNum() );
-        for (Integer id : producedUnitsCopy) {
+        Iterator<Integer> iterator = producedUnitIDs.iterator();
+        //System.out.println("Iterator: " + Clock.getBytecodeNum());
+        int id = -1;
+        for (int i = producedUnitIDs.size(); --i >=0;) {
+            id = iterator.next();
             if (rc.canGetFlag(id)) {
-                int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
+                //System.out.println("1: " + Clock.getBytecodeNum());
+                //System.out.println("2: " + Clock.getBytecodeNum());
                 int unitFlag = rc.getFlag(id);
+                if(unitFlag == ownFlagNum)
+                {
+                    continue;
+                }
+                //System.out.println("3: " + Clock.getBytecodeNum());
                 int[] flag = decodeFlag(unitFlag);
+                //System.out.println("4: " + Clock.getBytecodeNum());
                 if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
                     tgtConviction = flag[3]; //check for switching attack target in this file
                     rc.setFlag(unitFlag);
+                    ownFlag = flag;
+                    ownFlagNum = unitFlag;
                     attacking = true;
+                    ifBlockExecutes[0]++;
                     //some logic about spawning correct poli size
                 } else if (flag[0] == ENEMY_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
                     rc.setFlag(unitFlag);
+                    ownFlag = flag;
+                    ownFlagNum = unitFlag;
                     tgtConviction = flag[3];
                     attacking = true;
+                    ifBlockExecutes[1]++;
                     //some logic about spawning correct poli size
                 } else if (flag[0] == SECURED_EC) {
                     if (ownFlag[1] == flag[1] && ownFlag[2] == flag[2]) {
                         rc.setFlag(unitFlag);
+                        ownFlag = flag;
+                        ownFlagNum = unitFlag;
                         attacking = false;
+                        ifBlockExecutes[2]++;
                     }
                 } else if (flag[0] == 0 && flag[1] != 0) {
                     MapLocation unitPos = new MapLocation(rc.getLocation().x + flag[1], rc.getLocation().y +flag[2]);
@@ -64,9 +85,11 @@ public class EnlightenmentCenter extends RobotPlayer{
                         closestEnemyMuckDist = unitDist;
                         closestEnemyMuckConv = flag[3];
                     }
+                    ifBlockExecutes[3]++;
                 }
+                //System.out.println("5: " + Clock.getBytecodeNum());
             } else {
-                producedUnitIDs.remove(id);
+                iterator.remove();
             }
         }
         //System.out.println(closestEnemyDist);
@@ -78,6 +101,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         //System.out.println("After bidding 5: " + Clock.getBytecodeNum() );
         closestEnemyMuckDist = 9999;
         closestEnemyMuckConv = 0;
+        System.out.println(Arrays.toString(ifBlockExecutes));
     }
 
     static void spawn() throws GameActionException{
