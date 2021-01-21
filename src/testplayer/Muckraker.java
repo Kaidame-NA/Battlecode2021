@@ -97,6 +97,16 @@ public class Muckraker extends RobotPlayer{
                 }
             }
 
+            if (rc.canSenseLocation(new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]))) {
+                for (int i = unitsInRange.length; --i >= 0;) {
+                    RobotInfo unit = unitsInRange[i];
+                    if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam()
+                            && unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
+                        role = SCOUTING;
+                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
+                    }
+                }
+            }
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());

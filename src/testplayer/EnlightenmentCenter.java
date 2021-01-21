@@ -103,7 +103,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         closestEnemyMuckDist = 9999;
         closestEnemyMuckConv = 0;
         System.out.println(Arrays.toString(ifBlockExecutes));
-        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[2] || lastTurnFlag[2] != ownFlag[2])  {
+        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[1] || lastTurnFlag[2] != ownFlag[2])  {
             //nukes = 0;
         }
         lastTurnFlag = ownFlag;

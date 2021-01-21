@@ -115,6 +115,16 @@ public class Politician extends RobotPlayer{
                     break;
                 }
             }
+            if (rc.canSenseLocation(new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]))) {
+                for (int i = unitsInRange.length; --i >= 0;) {
+                    RobotInfo unit = unitsInRange[i];
+                    if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam()
+                            && unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
+                        role = SCOUTING;
+                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
+                    }
+                }
+            }
             if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
             }
