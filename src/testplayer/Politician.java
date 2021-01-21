@@ -69,7 +69,7 @@ public class Politician extends RobotPlayer{
         }
         //follow muckrakers if small poli
         for (int i = enemiesInRange.length; --i >= 0;) {
-            if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < 30
+            if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < enemiesInRange[i].getConviction() + 30
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
                 RobotInfo unit = enemiesInRange[i];
@@ -182,7 +182,7 @@ public class Politician extends RobotPlayer{
                             && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
                             && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
                         rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
-                    } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius)) {
+                    } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
                         rc.empower(actionRadius);
                     } else if (ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) > 500) {
                         trailedMuckrakerID = 0;
