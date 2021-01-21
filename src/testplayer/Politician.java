@@ -122,7 +122,7 @@ public class Politician extends RobotPlayer{
                     if (tgt.getType() == RobotType.ENLIGHTENMENT_CENTER && tgt.getTeam() == rc.getTeam()
                             && tgt.getLocation().equals(tgtedEC) && !contains(tgt.getID(), ECIDs)) {
                         role = SCOUTING;
-                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
+                        rc.setFlag(encodeFlag(SECURED_EC, tgtedEC.x - homeECx, tgtedEC.y - homeECy, 0));
                     }
                 }
             }
