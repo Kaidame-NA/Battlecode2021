@@ -36,9 +36,6 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static void run() throws GameActionException {
-        if(rc.getRoundNum() > 500)// FOR DEBUGGING
-            rc.resign();
-
         if (turnCount % 2 == 1){
             effectiveTurn ++;
             System.out.println("effectiveTurn " + effectiveTurn);
@@ -47,10 +44,10 @@ public class EnlightenmentCenter extends RobotPlayer{
         //HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
         //System.out.println("After copy 2: " + Clock.getBytecodeNum() );
 
-        System.out.println("Iterator: " + Clock.getBytecodeNum() + ", size of HashSet: " + producedUnitIDs.size() );
+        //System.out.println("Iterator: " + Clock.getBytecodeNum() + ", size of HashSet: " + producedUnitIDs.size() );
         comms();
         //System.out.println(closestEnemyDist);
-        System.out.println("After iteration: " + Clock.getBytecodeNum() );
+        //System.out.println("After iteration: " + Clock.getBytecodeNum() );
         spawn();
         //System.out.println("After spawn 4: " + Clock.getBytecodeNum() );
         bidVote();
@@ -71,27 +68,40 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
     }
     static void comms() throws GameActionException{
-        Iterator<Integer> iterator = producedUnitIDs.iterator();
+        Iterator iterator = producedUnitIDs.iterator();
         int id = -1;
         //for (int i = producedUnitIDs.size(); --i >=0;) {
         while(iterator.hasNext()){
-            id = iterator.next();
+            //System.out.println(Clock.getBytecodeNum());
+            id = (int) iterator.next();
+            //System.out.println(Clock.getBytecodeNum());
 
             if(!rc.canGetFlag(id)){
                 iterator.remove();
+                //System.out.println("removed!");
             }
             else {
                 //System.out.println("1: " + Clock.getBytecodeNum());
                 //System.out.println("2: " + Clock.getBytecodeNum());
                 int unitFlag = rc.getFlag(id);
-                if(unitFlag == ownFlagNum)
+                if(unitFlag == 0 || unitFlag == ownFlagNum)
                 {
+                    //System.out.println("continued! bytecode: " + Clock.getBytecodeNum());
                     continue;
                 }
                 //System.out.println("3: " + Clock.getBytecodeNum());
                 int[] flag = decodeFlag(unitFlag);
                 //System.out.println("4: " + Clock.getBytecodeNum());
-                if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
+                if (flag[0] == 0 && flag[1] != 0) {
+                    MapLocation unitPos = new MapLocation(rc.getLocation().x + flag[1], rc.getLocation().y +flag[2]);
+                    int unitDist = unitPos.distanceSquaredTo(rc.getLocation());
+                    if (unitDist < closestEnemyMuckDist) {
+                        closestEnemyMuckDist = unitDist;
+                        closestEnemyMuckConv = flag[3];
+                    }
+                    ifBlockExecutes[3]++;
+                }
+                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
                     tgtConviction = flag[3]; //check for switching attack target in this file
                     rc.setFlag(unitFlag);
                     ownFlag = flag;
@@ -115,17 +125,10 @@ public class EnlightenmentCenter extends RobotPlayer{
                         attacking = false;
                         ifBlockExecutes[2]++;
                     }
-                } else if (flag[0] == 0 && flag[1] != 0) {
-                    MapLocation unitPos = new MapLocation(rc.getLocation().x + flag[1], rc.getLocation().y +flag[2]);
-                    int unitDist = unitPos.distanceSquaredTo(rc.getLocation());
-                    if (unitDist < closestEnemyMuckDist) {
-                        closestEnemyMuckDist = unitDist;
-                        closestEnemyMuckConv = flag[3];
-                    }
-                    ifBlockExecutes[3]++;
                 }
                 //System.out.println("5: " + Clock.getBytecodeNum());
             }
+            //System.out.println("end of loop: " + Clock.getBytecodeNum());
         }
     }
 
