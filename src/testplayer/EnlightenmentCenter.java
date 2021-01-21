@@ -15,7 +15,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static boolean attacking;
     static int tgtConviction = 0;
     //static HashSet<MapLocation> neutralAttackedECs = new HashSet<MapLocation>();
-    static int slanderervals[] = {949,902,855,810,766,724,683,643,605,568,532,497,463,431,399,368,339,310,
+    static int[] slanderervals = {949,902,855,810,766,724,683,643,605,568,532,497,463,431,399,368,339,310,
             282,255,228,203,178,154,130,107,85,63,41};
     static int peakInfluence = 86;
     static int effectiveTurn = 0;
@@ -36,19 +36,51 @@ public class EnlightenmentCenter extends RobotPlayer{
     }
 
     static void run() throws GameActionException {
+        if(rc.getRoundNum() > 500)// FOR DEBUGGING
+            rc.resign();
+
         if (turnCount % 2 == 1){
             effectiveTurn ++;
-            System.out.println(effectiveTurn);
+            System.out.println("effectiveTurn " + effectiveTurn);
         }
         //System.out.println("Before copy 1: " + Clock.getBytecodeNum());
         //HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
         //System.out.println("After copy 2: " + Clock.getBytecodeNum() );
+
+        System.out.println("Iterator: " + Clock.getBytecodeNum() + ", size of HashSet: " + producedUnitIDs.size() );
+        comms();
+        //System.out.println(closestEnemyDist);
+        System.out.println("After iteration: " + Clock.getBytecodeNum() );
+        spawn();
+        //System.out.println("After spawn 4: " + Clock.getBytecodeNum() );
+        bidVote();
+        //System.out.println("After bidding 5: " + Clock.getBytecodeNum() );
+        closestEnemyMuckDist = 9999;
+        closestEnemyMuckConv = 0;
+        System.out.println("ifBlockExecutes " + Arrays.toString(ifBlockExecutes));
+        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[1] || lastTurnFlag[2] != ownFlag[2])  {
+            nukes = 0;
+            System.out.println("reseeting nukess");
+            System.out.println(Arrays.toString(lastTurnFlag));
+            System.out.println(Arrays.toString(ownFlag));
+        }
+        lastTurnFlag = ownFlag;
+        if (effectiveTurn % 20 == 0) {
+            attacknuke = 0;
+            attacknukemuck = 0;
+        }
+    }
+    static void comms() throws GameActionException{
         Iterator<Integer> iterator = producedUnitIDs.iterator();
-        //System.out.println("Iterator: " + Clock.getBytecodeNum());
         int id = -1;
-        for (int i = producedUnitIDs.size(); --i >=0;) {
+        //for (int i = producedUnitIDs.size(); --i >=0;) {
+        while(iterator.hasNext()){
             id = iterator.next();
-            if (rc.canGetFlag(id)) {
+
+            if(!rc.canGetFlag(id)){
+                iterator.remove();
+            }
+            else {
                 //System.out.println("1: " + Clock.getBytecodeNum());
                 //System.out.println("2: " + Clock.getBytecodeNum());
                 int unitFlag = rc.getFlag(id);
@@ -93,30 +125,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                     ifBlockExecutes[3]++;
                 }
                 //System.out.println("5: " + Clock.getBytecodeNum());
-            } else {
-                iterator.remove();
             }
-        }
-        //System.out.println(closestEnemyDist);
-        //System.out.println("After iteration 3: " + Clock.getBytecodeNum() );
-        spawn();
-        //System.out.println("After spawn 4: " + Clock.getBytecodeNum() );
-        //only bidVote if we are not in overflow poli producing mode NVM FOR NOW
-        bidVote();
-        //System.out.println("After bidding 5: " + Clock.getBytecodeNum() );
-        closestEnemyMuckDist = 9999;
-        closestEnemyMuckConv = 0;
-        System.out.println(Arrays.toString(ifBlockExecutes));
-        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[1] || lastTurnFlag[2] != ownFlag[2])  {
-            nukes = 0;
-            System.out.println("reseeting nukess");
-            System.out.println(Arrays.toString(lastTurnFlag));
-            System.out.println(Arrays.toString(ownFlag));
-        }
-        lastTurnFlag = ownFlag;
-        if (effectiveTurn % 20 == 0) {
-            attacknuke = 0;
-            attacknukemuck = 0;
         }
     }
 
