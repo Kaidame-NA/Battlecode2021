@@ -115,14 +115,13 @@ public class Politician extends RobotPlayer{
                     break;
                 }
             }
-            if (rc.canSenseLocation(new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]))) {
-                for (int i = unitsInRange.length; --i >= 0;) {
-                    RobotInfo unit = unitsInRange[i];
-                    if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam()
-                            && unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
-                        role = SCOUTING;
-                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
-                    }
+            MapLocation tgtedEC = new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]);
+            if (rc.canSenseLocation(tgtedEC)) {
+                RobotInfo tgt = rc.senseRobotAtLocation(tgtedEC);
+                if (tgt.getType() == RobotType.ENLIGHTENMENT_CENTER && tgt.getTeam() == rc.getTeam()
+                        && tgt.getLocation().equals(tgtedEC) && !contains(tgt.getID(), ECIDs)) {
+                    role = SCOUTING;
+                    rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
                 }
             }
             if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {
@@ -137,14 +136,11 @@ public class Politician extends RobotPlayer{
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
             if (rc.canSenseLocation(target)) {
-                RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
-                for (int i = unitsInRange.length; --i >= 0;) {
-                    RobotInfo unit = unitsInRange[i];
-                    if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam()
-                        && unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
-                        role = SCOUTING;
-                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
-                    }
+                RobotInfo tgt = rc.senseRobotAtLocation(target);
+                if (tgt.getType() == RobotType.ENLIGHTENMENT_CENTER && tgt.getTeam() == rc.getTeam()
+                        && tgt.getLocation().equals(target) && !contains(tgt.getID(), ECIDs)) {
+                    role = SCOUTING;
+                    rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
                 }
             }
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius
