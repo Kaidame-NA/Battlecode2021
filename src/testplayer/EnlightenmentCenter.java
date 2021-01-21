@@ -27,6 +27,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int[] ownFlag = new int[4];
     static int ownFlagNum = 0;
     static int[] ifBlockExecutes = new int[4];
+    static int[] lastTurnFlag = new int[4];
 
 
     static void setup() throws GameActionException {
@@ -102,6 +103,10 @@ public class EnlightenmentCenter extends RobotPlayer{
         closestEnemyMuckDist = 9999;
         closestEnemyMuckConv = 0;
         System.out.println(Arrays.toString(ifBlockExecutes));
+        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[2] || lastTurnFlag[2] != ownFlag[2])  {
+            //nukes = 0;
+        }
+        lastTurnFlag = ownFlag;
     }
 
     static void spawn() throws GameActionException{
