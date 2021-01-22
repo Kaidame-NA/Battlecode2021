@@ -73,7 +73,7 @@ public class Politician extends RobotPlayer{
             if (enemiesInRange[i].getType() == RobotType.POLITICIAN && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                     && rc.getConviction() < 1000 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196) {
                 RobotInfo unit = enemiesInRange[i];
-                if (trailedID == 0 && role != OVERFLOW && role != ATTACKING) {
+                if (trailedID == 0 && role != OVERFLOW && decodeFlag(rc.getFlag(rc.getID()))[0] != NEUTRAL_EC_FOUND) {
                     trailedID = unit.getID();
                     role = FOLLOW;
                     break;
@@ -83,7 +83,8 @@ public class Politician extends RobotPlayer{
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
                 RobotInfo unit = enemiesInRange[i];
-                if (trailedID == 0 && role != OVERFLOW && role != ATTACKING && notTrailed(unit.getID(), friendlyInRange)) {
+                if (trailedID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)
+                        && decodeFlag(rc.getFlag(rc.getID()))[0] != NEUTRAL_EC_FOUND) {
                     trailedID = unit.getID();
                     role = FOLLOW;
                     rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y-homeECy, Math.min(255, unit.getConviction())));
@@ -229,7 +230,7 @@ public class Politician extends RobotPlayer{
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
             if (((homeECFlagContents[0] == ENEMY_EC_FOUND &&
-                rc.getConviction() > 1000) || (homeECFlagContents[0] == NEUTRAL_EC_FOUND
+                rc.getConviction() > 29) || (homeECFlagContents[0] == NEUTRAL_EC_FOUND
                     && ((homeECFlagContents[3] == 255 && rc.getConviction() > 510 && rc.getConviction() < 610)
                     || (homeECFlagContents[3] < 255 && rc.getConviction() > homeECFlagContents[3] + 10
                     && rc.getConviction() < homeECFlagContents[3] + 110))))
