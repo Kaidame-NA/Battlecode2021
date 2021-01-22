@@ -83,7 +83,7 @@ public class Politician extends RobotPlayer{
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
                 RobotInfo unit = enemiesInRange[i];
-                if (trailedID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)) {
+                if (trailedID == 0 && role != OVERFLOW && role != ATTACKING && notTrailed(unit.getID(), friendlyInRange)) {
                     trailedID = unit.getID();
                     role = FOLLOW;
                     rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y-homeECy, Math.min(255, unit.getConviction())));
