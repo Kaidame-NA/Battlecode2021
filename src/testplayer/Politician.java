@@ -73,7 +73,7 @@ public class Politician extends RobotPlayer{
             if (enemiesInRange[i].getType() == RobotType.POLITICIAN && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                     && rc.getConviction() < 1000) {
                 RobotInfo unit = enemiesInRange[i];
-                if (trailedID == 0 && role != OVERFLOW) {
+                if (trailedID == 0 && role != OVERFLOW && role != ATTACKING) {
                     trailedID = unit.getID();
                     role = FOLLOW;
                     break;
