@@ -103,18 +103,11 @@ public class EnlightenmentCenter extends RobotPlayer{
                     }
                     ifBlockExecutes[3]++;
                 }
-                else if (flag[0] == NEUTRAL_EC_FOUND) {
-                    if (!containsLocationFromFlag(unitFlag, neutralECTargets)) {
-                        indexOfNeutralTgts ++;
-                        neutralECTargets[indexOfNeutralTgts] = unitFlag;
-                    }
-                    updateFlags(unitFlag, neutralECTargets);
-                    int bestNeutralTgtFlag = neutralECTargets[findBestNeutralCapture()];
-                    int[] decoded = decodeFlag(bestNeutralTgtFlag);
-                    tgtConviction = decoded[3]; //check for switching attack target in this file
-                    rc.setFlag(bestNeutralTgtFlag);
-                    ownFlag = decoded;
-                    ownFlagNum = bestNeutralTgtFlag;
+                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
+                    tgtConviction = flag[3]; //check for switching attack target in this file
+                    rc.setFlag(unitFlag);
+                    ownFlag = flag;
+                    ownFlagNum = unitFlag;
                     attacking = true;
                     ifBlockExecutes[0]++;
                     //some logic about spawning correct poli size
@@ -860,18 +853,5 @@ public class EnlightenmentCenter extends RobotPlayer{
                 arr[i] = newFlag;
             }
         }
-    }
-
-    static int findBestNeutralCapture() {
-        int lowestHpIndex = -1;
-        int lowestHp = 999;
-        for (int i = 0; i < indexOfNeutralTgts + 1; i++) {
-            int[] decoded = decodeFlag(neutralECTargets[indexOfNeutralTgts]);
-            if (decoded[3] < lowestHp) {
-                lowestHp = decoded[3];
-                lowestHpIndex = i;
-            }
-        }
-        return lowestHpIndex;
     }
 }
