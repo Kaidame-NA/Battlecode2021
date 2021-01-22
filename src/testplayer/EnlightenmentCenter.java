@@ -27,6 +27,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int[] ownFlag = new int[4];
     static int ownFlagNum = 0;
     static int scoutFlag = 0;
+    static boolean scoutFlagTurn = false;
     static int[] ifBlockExecutes = new int[4];
     static int[] lastTurnFlag = new int[4];
 
@@ -66,6 +67,7 @@ public class EnlightenmentCenter extends RobotPlayer{
         }
     }
     static void comms() throws GameActionException{
+        //scoutFlagTurn = !scoutFlagTurn;
         Iterator iterator = producedUnitIDs.iterator();
         int id = -1;
         //for (int i = producedUnitIDs.size(); --i >=0;) {
@@ -129,6 +131,11 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
             //System.out.println("end of loop: " + Clock.getBytecodeNum());
         }
+        /*
+        if (scoutFlagTurn && scoutFlag != 0) {
+            rc.setFlag(scoutFlag);
+        }
+        scoutFlag = 0;*/
     }
 
     static void spawn() throws GameActionException {
