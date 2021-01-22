@@ -57,13 +57,12 @@ public class EnlightenmentCenter extends RobotPlayer{
         closestEnemyMuckDist = 9999;
         closestEnemyMuckConv = 0;
         System.out.println("ifBlockExecutes " + Arrays.toString(ifBlockExecutes));
-        if (lastTurnFlag[0] != ownFlag[0] || lastTurnFlag[1] != ownFlag[1] || lastTurnFlag[2] != ownFlag[2])  {
-            nukes = 0;
-        }
+
         lastTurnFlag = ownFlag;
         if (effectiveTurn % 20 == 0) {
             attacknuke = 0;
             attacknukemuck = 0;
+            nukes = 0;
         }
     }
     static void comms() throws GameActionException{
