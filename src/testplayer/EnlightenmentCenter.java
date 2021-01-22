@@ -26,6 +26,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     static int[] ownFlag = new int[4];
     static int ownFlagNum = 0;
+    static int scoutFlag = 0;
     static int[] ifBlockExecutes = new int[4];
     static int[] lastTurnFlag = new int[4];
 
@@ -96,6 +97,7 @@ public class EnlightenmentCenter extends RobotPlayer{
                     if (unitDist < closestEnemyMuckDist) {
                         closestEnemyMuckDist = unitDist;
                         closestEnemyMuckConv = flag[3];
+                        scoutFlag = unitFlag;
                     }
                     ifBlockExecutes[3]++;
                 }
