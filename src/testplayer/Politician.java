@@ -132,7 +132,7 @@ public class Politician extends RobotPlayer{
             else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(randomDirection());
             }
 
         } else if (role == ATTACKING) {

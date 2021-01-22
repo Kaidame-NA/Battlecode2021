@@ -112,7 +112,7 @@ public class Muckraker extends RobotPlayer{
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(randomDirection());
             }
             //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
         } else if (role == ATTACKING) {

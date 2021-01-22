@@ -62,8 +62,10 @@ public strictfp class RobotPlayer {
                 rc.resign();
             }
 
+ */
 
-*/
+
+
 
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
