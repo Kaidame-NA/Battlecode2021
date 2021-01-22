@@ -681,7 +681,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
 
-        if (nearbyPoliticians * 5 < nearbySlanderers || enemies.length != 0) {
+        if (nearbyPoliticians * 4 < nearbySlanderers || enemies.length != 0) {
             return false;
         } else {
             return true;
