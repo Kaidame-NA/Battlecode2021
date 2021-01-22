@@ -71,7 +71,7 @@ public class Politician extends RobotPlayer{
         //follow muckrakers if big enough poli
         for (int i = enemiesInRange.length; --i >= 0;) {
             if (enemiesInRange[i].getType() == RobotType.POLITICIAN && rc.getConviction() > enemiesInRange[i].getConviction() + 10
-                    && rc.getConviction() < 1000) {
+                    && rc.getConviction() < 1000 && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196) {
                 RobotInfo unit = enemiesInRange[i];
                 if (trailedID == 0 && role != OVERFLOW && role != ATTACKING) {
                     trailedID = unit.getID();
