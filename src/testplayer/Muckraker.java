@@ -156,7 +156,7 @@ public class Muckraker extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ENEMY_EC_FOUND && rc.getID() % 5 <= 2) {
+            if (homeECFlagContents[0] == ENEMY_EC_FOUND && (rc.getID() % 5 <= 2 || rc.getConviction() > 100)) {
 
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],

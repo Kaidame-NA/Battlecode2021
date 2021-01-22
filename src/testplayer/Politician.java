@@ -180,7 +180,8 @@ public class Politician extends RobotPlayer{
                             trailed.getLocation().y - homeECy, Math.min(trailed.getConviction(), 255)));
                     if (ECLocations[0] != null
                             && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
-                            && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))) {
+                            && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()))
+                            && rc.getLocation().distanceSquaredTo(trailed.getLocation()) < 3) {
                         rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedMuckrakerID).getLocation()));
                     } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
                         rc.empower(actionRadius);
