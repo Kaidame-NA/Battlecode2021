@@ -11,6 +11,7 @@ public class Politician extends RobotPlayer{
     static int[] ECIDs = new int[20];
     static MapLocation[] ECLocations = new MapLocation[20];
     static int currentHomeEC = -1;
+    static int ecsStored = -1;
     static final int SCOUTING = 0;
     static final int ATTACKING = 1;
     static final int CONVERTED = 2;
@@ -33,6 +34,7 @@ public class Politician extends RobotPlayer{
                 currentHomeEC ++;
                 ECIDs[currentHomeEC] = possibleECs[i].getID();
                 ECLocations[currentHomeEC] = possibleECs[i].getLocation();
+                ecsStored ++;
             }
         }
         if (currentHomeEC == -1) {
@@ -81,7 +83,7 @@ public class Politician extends RobotPlayer{
             }
             else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < enemiesInRange[i].getConviction() + 30
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
-                && ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 500) {
+                && ECLocations[0] != null && nearECS(500)) {
                 RobotInfo unit = enemiesInRange[i];
                 if (trailedID == 0 && role != OVERFLOW && notTrailed(unit.getID(), friendlyInRange)
                         && decodeFlag(rc.getFlag(rc.getID()))[0] != NEUTRAL_EC_FOUND) {
@@ -185,7 +187,7 @@ public class Politician extends RobotPlayer{
         } else if (role == FOLLOW) {
             if (rc.canSenseRobot(trailedID) && notTrailed(trailedID, friendlyInRange)) {
                 RobotInfo trailed = rc.senseRobot(trailedID);
-                if (trailed.getType() == RobotType.POLITICIAN && rc.getConviction() > trailed.getConviction() + 10) {
+                if (trailed.getType() == RobotType.POLITICIAN) {
                     target = trailed.getLocation();
                     if (rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()))
                             && rc.getLocation().distanceSquaredTo(trailed.getLocation()) < 3
@@ -194,19 +196,19 @@ public class Politician extends RobotPlayer{
                     }
                     tryMove(getPathDirTo(target));
                 }
-                else if (rc.getConviction() > trailed.getConviction() + 10) {
+                else if (trailed.getType() == RobotType.MUCKRAKER) {
                     target = trailed.getLocation();
                     rc.setFlag(encodeFlag(0, trailed.getLocation().x - homeECx,
                             trailed.getLocation().y - homeECy, Math.min(trailed.getConviction(), 255)));
                     if (ECLocations[0] != null
-                            && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) < 196
+                            && nearECS(196)
                             && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()))
                             && rc.getLocation().distanceSquaredTo(trailed.getLocation()) < 3
                             && rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) > trailed.getConviction() + 10) {
                         rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()));
                     } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
                         rc.empower(actionRadius);
-                    } else if (ECLocations[0] != null && rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]) > 500) {
+                    } else if (ECLocations[0] != null && !nearECS(500)) {
                         trailedID = 0;
                         rc.setFlag(0);
                         role = SCOUTING;
@@ -256,10 +258,23 @@ public class Politician extends RobotPlayer{
                     homeECy = ECLocations[currentHomeEC].y;
                     rc.setFlag(0);
                     role = SCOUTING;
+                } else if (!contains(friendlyInRange[i].getID(), ECIDs)){
+                    ecsStored ++;
+                    ECIDs[ecsStored] = friendlyInRange[i].getID();
+                    ECLocations[ecsStored] = friendlyInRange[i].getLocation();
                 }
             }
         }
     homeECFlagContents = null;
+    }
+
+    static boolean nearECS(int radius) {
+        for (int i = 0; i < ecsStored + 1; i ++) {
+            if (rc.getLocation().distanceSquaredTo(ECLocations[i]) < radius) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static boolean notTrailed(int trailedMuckrakerID, RobotInfo[] friendlies) throws GameActionException {
