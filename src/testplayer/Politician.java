@@ -81,7 +81,7 @@ public class Politician extends RobotPlayer{
                     break;
                 }
             }
-            else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && rc.getConviction() < enemiesInRange[i].getConviction() + 30
+            else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && nearECS(500)) {
                 RobotInfo unit = enemiesInRange[i];
