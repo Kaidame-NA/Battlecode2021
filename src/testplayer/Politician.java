@@ -232,7 +232,7 @@ public class Politician extends RobotPlayer{
                 rc.getConviction() > 1000) || (homeECFlagContents[0] == NEUTRAL_EC_FOUND
                     && ((homeECFlagContents[3] == 255 && rc.getConviction() > 510 && rc.getConviction() < 610)
                     || (homeECFlagContents[3] < 255 && rc.getConviction() > homeECFlagContents[3] + 10
-                    && rc.getConviction() > homeECFlagContents[3] + 110))))
+                    && rc.getConviction() < homeECFlagContents[3] + 110))))
                 && role != FOLLOW && role != OVERFLOW && ownFlag[0] != SECURED_EC) {
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
