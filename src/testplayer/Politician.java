@@ -81,7 +81,7 @@ public class Politician extends RobotPlayer{
                     break;
                 }
             }
-            else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && (rc.getConviction() < enemiesInRange[i].getConviction() + 30 || nearECS(81))
+            else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && (rc.getConviction() < enemiesInRange[i].getConviction() + 30 || nearECS(196))
                     && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                 && ECLocations[0] != null && nearECS(500)) {
                 RobotInfo unit = enemiesInRange[i];
@@ -144,10 +144,11 @@ public class Politician extends RobotPlayer{
             }
             else if (shouldSpread()) {
                 tryMove(getPathDirSpread());
-            } else {
+            } else if (rc.getID() % 2 == 0){
                 tryMove(randomDirection());
+            } else {
+                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
             }
-
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way
             if (rc.canSenseLocation(target)) {
@@ -180,8 +181,10 @@ public class Politician extends RobotPlayer{
 
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
-            } else {
+            } else if (rc.getID() % 2 == 0){
                 tryMove(randomDirection());
+            } else {
+                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
             }
 
         } else if (role == FOLLOW) {
