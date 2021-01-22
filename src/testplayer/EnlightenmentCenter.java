@@ -315,7 +315,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
             numberofunitsproduced++;
         }
-
+/*
         else if (rc.getInfluence() >= 10000 && (numberofunitsproduced % 7 == 3 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5 || numberofunitsproduced % 7 == 6) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
                 rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             conviction = poliVal;
@@ -338,15 +338,15 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
-
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 3 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
+*/
+        else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 2 == 1) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
                 rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 4) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
+        else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 2 == 0) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
                 && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
             unitType = RobotType.SLANDERER;
             spawnDir = spawnDirSland;
@@ -355,21 +355,37 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofslanderersproduced++;
         }
 
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 6) && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 4  || numberofunitsproduced % 10 == 2 || numberofunitsproduced % 10 == 6 || numberofunitsproduced % 10 == 7 || numberofunitsproduced % 10 == 9) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
+                rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
+            conviction = poliVal;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 0 || numberofunitsproduced % 10 == 3 || numberofunitsproduced % 10 == 5 || numberofunitsproduced % 10 == 8) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
+                && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = spawnDirSland;
+            conviction = slandVal;
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
+        }
+
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 1) && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 3 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 3 || numberofunitsproduced % 6 == 2 || numberofunitsproduced % 6 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
                 rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 4) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 0 || numberofunitsproduced % 6 == 4) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
                 && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
             unitType = RobotType.SLANDERER;
             spawnDir = spawnDirSland;
@@ -378,7 +394,30 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofslanderersproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 6) && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 1) && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal) &&
+                rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
+            conviction = poliVal;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && spawnSafeSlanderer && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND
+                && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = spawnDirSland;
+            conviction = slandVal;
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 3 ||  numberofunitsproduced % 7 == 6) && rc.getInfluence() < tgtConviction + 11 && decodeFlag(rc.getFlag(rc.getID()))[0] == NEUTRAL_EC_FOUND) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
@@ -405,7 +444,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-
+/*
         else if (rc.getInfluence() >= 10000 && (numberofunitsproduced % 7 == 3  || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5 || numberofunitsproduced % 7 == 6) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
             conviction = poliVal;
             numberofunitsproduced++;
@@ -426,14 +465,14 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
-
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 3  || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+*/
+        else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 2 == 1) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
             conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 4) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+        else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 2 == 0) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
             unitType = RobotType.SLANDERER;
             spawnDir = spawnDirSland;
             conviction = slandVal;
@@ -441,20 +480,35 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofslanderersproduced++;
         }
 
-        else if (rc.getInfluence() >= 1050 && (numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 6) && rc.canBuildRobot(RobotType.MUCKRAKER, spawnDir, 1)) {
+
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 4  || numberofunitsproduced % 10 == 2 || numberofunitsproduced % 10 == 6 || numberofunitsproduced % 10 == 7 || numberofunitsproduced % 10 == 9) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            conviction = poliVal;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 0 || numberofunitsproduced % 10 == 3 || numberofunitsproduced % 10 == 5 || numberofunitsproduced % 10 == 8) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = spawnDirSland;
+            conviction = slandVal;
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
+        }
+
+        else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 10 == 1) && rc.canBuildRobot(RobotType.MUCKRAKER, spawnDir, 1)) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 3 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 3  || numberofunitsproduced % 6 == 2 || numberofunitsproduced % 6 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
             conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 4) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 0 || numberofunitsproduced % 6 == 4) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
             unitType = RobotType.SLANDERER;
             spawnDir = spawnDirSland;
             conviction = slandVal;
@@ -462,7 +516,28 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofslanderersproduced++;
         }
 
-        else if ((numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 6) && rc.canBuildRobot(RobotType.MUCKRAKER, spawnDir, 1)) {
+        else if (rc.getInfluence() >= 100 && (numberofunitsproduced % 6 == 1) && rc.canBuildRobot(RobotType.MUCKRAKER, spawnDir, 1)) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            conviction = poliVal;
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 0 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+            unitType = RobotType.SLANDERER;
+            spawnDir = spawnDirSland;
+            conviction = slandVal;
+            numberofunitsproduced++;
+            numberofslanderersproduced++;
+        }
+
+        else if ((numberofunitsproduced % 7 == 1 || numberofunitsproduced % 7 == 3 ||  numberofunitsproduced % 7 == 6) && rc.canBuildRobot(RobotType.MUCKRAKER, spawnDir, 1)) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
