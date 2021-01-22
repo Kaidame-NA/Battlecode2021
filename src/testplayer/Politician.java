@@ -189,9 +189,8 @@ public class Politician extends RobotPlayer{
                 RobotInfo trailed = rc.senseRobot(trailedID);
                 if (trailed.getType() == RobotType.POLITICIAN) {
                     target = trailed.getLocation();
-                    if (rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()))
-                            && rc.getLocation().distanceSquaredTo(trailed.getLocation()) < 3
-                            && rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) > trailed.getConviction() + 10) {
+                    if (rc.canEmpower(rc.getLocation().distanceSquaredTo(trailed.getLocation()))
+                            && canKill(trailed, rc.getLocation().distanceSquaredTo(trailed.getLocation()))) {
                         rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()));
                     }
                     tryMove(getPathDirTo(target));
@@ -202,9 +201,8 @@ public class Politician extends RobotPlayer{
                             trailed.getLocation().y - homeECy, Math.min(trailed.getConviction(), 255)));
                     if (ECLocations[0] != null
                             && nearECS(196)
-                            && rc.canEmpower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()))
-                            && rc.getLocation().distanceSquaredTo(trailed.getLocation()) < 3
-                            && rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) > trailed.getConviction() + 10) {
+                            && rc.canEmpower(rc.getLocation().distanceSquaredTo(trailed.getLocation()))
+                            && canKill(trailed, rc.getLocation().distanceSquaredTo(trailed.getLocation()))) {
                         rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()));
                     } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
                         rc.empower(actionRadius);
@@ -266,6 +264,11 @@ public class Politician extends RobotPlayer{
             }
         }
     homeECFlagContents = null;
+    }
+
+    static boolean canKill(RobotInfo tgt, int radius) {
+        int unitsInRange = rc.senseNearbyRobots(radius).length;
+        return ((rc.getConviction()*rc.getEmpowerFactor(rc.getTeam(), 0) - 10)/unitsInRange > tgt.getConviction());
     }
 
     static boolean nearECS(int radius) {
