@@ -13,6 +13,7 @@ public class Slanderer extends RobotPlayer {
     static int homeECy;
     static int[] homeECFlagContents;
     static MapLocation enemyEC;
+    static MapLocation lastScoutedEnemyMuck;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -32,6 +33,19 @@ public class Slanderer extends RobotPlayer {
         if (currentHomeEC != -1) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+            }
+        }
+        RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        for (int i = 0; i < friendlyInRange.length; i ++) {
+            RobotInfo unit = friendlyInRange[i];
+            if (rc.canGetFlag(unit.getID())) {
+                int flag = rc.getFlag(unit.getID());
+                int[] decoded = decodeFlag(flag);
+                if (decoded[0] == 0 && decoded[1] != 0) {
+                    lastScoutedEnemyMuck = new MapLocation(decoded[1] + homeECx, decoded[2] + homeECy);
+                    rc.setFlag(flag);
+                    break;
+                }
             }
         }
         if (homeECFlagContents[0] == ENEMY_EC_FOUND) {
