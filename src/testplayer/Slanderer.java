@@ -56,6 +56,7 @@ public class Slanderer extends RobotPlayer {
         } else {
             tryMove(getPathDirTo(ECLocations[currentHomeEC]));
         }
+
         enemyEC = null;
     }
 
@@ -129,7 +130,9 @@ public class Slanderer extends RobotPlayer {
                 //double distancefromhomeeq = Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
                 cost -= Math.abs(radius - Math.sqrt(Math.pow(home.x - adj.x, 2) + Math.pow(home.y - adj.y, 2)));
                 cost += radius * pass;
-                if (!(enemyEC == null)) {
+                if (lastScoutedEnemyMuck != null) {
+                    cost += Math.abs(Math.sqrt(Math.pow(lastScoutedEnemyMuck.x - adj.x, 2) + Math.pow(lastScoutedEnemyMuck.y - adj.y, 2)));
+                } else if (!(enemyEC == null)) {
                     cost += Math.abs(Math.sqrt(Math.pow(enemyEC.x - adj.x, 2) + Math.pow(enemyEC.y - adj.y, 2)));
                 }
                 if (cost > optimalCost && rc.canMove(dir)) {
