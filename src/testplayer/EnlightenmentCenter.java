@@ -153,6 +153,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             turnssinceattacked++;
 
         int conviction = 0;
+        /*
         if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getInfluence() > 1000) {
             if (rc.getInfluence() < 1000000) {
                 conviction = rc.getInfluence();
@@ -173,7 +174,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-
+*/
         //defend
 
         //if i have over 1000 go get those neutrals no matter what.  Otherwise prioritize defense.
@@ -220,7 +221,7 @@ public class EnlightenmentCenter extends RobotPlayer{
 
 
  */
-        else if (closestEnemyMuckDist < 81 && closestEnemyMuckConv > 16 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), closestEnemyMuckConv + 11)) {
+        if (closestEnemyMuckDist < 81 && closestEnemyMuckConv > 16 && rc.canBuildRobot(RobotType.POLITICIAN, getOptimalSpawn(), closestEnemyMuckConv + 11)) {
             conviction = closestEnemyMuckConv + 11;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
