@@ -86,6 +86,7 @@ public class EnlightenmentCenter extends RobotPlayer {
         RobotType unitType = RobotType.POLITICIAN;
 
         int conviction = 0;
+        /*
         if (rc.getEmpowerFactor(rc.getTeam(), 10) > 1.35) {
             if (rc.getInfluence() > 49) {
                 if (rc.getInfluence() < 1000000) {
@@ -108,10 +109,10 @@ public class EnlightenmentCenter extends RobotPlayer {
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
         }
-
+*/
         //defend
 
-        else if (closestEnemyMuckDist < 81 && rc.getInfluence() >= 16) {
+        if (closestEnemyMuckDist < 81 && rc.getInfluence() >= 16) {
             conviction = 16;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
