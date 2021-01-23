@@ -56,13 +56,13 @@ public strictfp class RobotPlayer {
         }
         while (true) {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to freeze
-/*
-            if(turnCount >= 500)
+
+            if(turnCount >= 700)
             {
                 rc.resign();
             }
 
- */
+
 
 
 
