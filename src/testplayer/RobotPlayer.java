@@ -62,7 +62,7 @@ public strictfp class RobotPlayer {
                 rc.resign();
             }
 
- */
+*/
 
 
 
