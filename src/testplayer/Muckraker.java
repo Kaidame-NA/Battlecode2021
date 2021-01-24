@@ -111,8 +111,6 @@ public class Muckraker extends RobotPlayer{
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
-            } else if (rc.getID() % 2 == 0){
-                tryMove(randomDirection());
             } else {
                 tryMove(awayFromLocation(ECLocations[currentHomeEC]));
             }
