@@ -23,8 +23,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int closestEnemyMuckDist = 9999;
     static int closestEnemyMuckConv = 0;
     static int turnssinceattacked = 0;
-    static int[] neutralECTargets = new int[20];
-    static int indexOfNeutralTgts = -1;
+    static HashSet<int[]> ECTargets = new HashSet<int[]>();
     static int[] ownFlag = new int[4];
     static int ownFlagNum = 0;
     static int scoutFlag = 0;
@@ -103,24 +102,45 @@ public class EnlightenmentCenter extends RobotPlayer{
                     }
                     ifBlockExecutes[3]++;
                 }
-                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
-                    tgtConviction = flag[3]; //check for switching attack target in this file
-                    rc.setFlag(unitFlag);
-                    ownFlag = flag;
-                    ownFlagNum = unitFlag;
-                    attacking = true;
-                    ifBlockExecutes[0]++;
+                else if (flag[0] == NEUTRAL_EC_FOUND ) {
+                    if (!attacking) {
+                        ECTargets.add(flag);
+                        tgtConviction = flag[3]; //check for switching attack target in this file
+                        /*
+                        rc.setFlag(unitFlag);
+                        ownFlag = flag;
+                        ownFlagNum = unitFlag; */
+                        attacking = true;
+                        ifBlockExecutes[0]++;
+                    } else if ((flag[1] == ownFlag[1] && flag[2] == ownFlag[2])) {
+                        updateFlags(flag, ECTargets);
+                        tgtConviction = flag[3]; //check for switching attack target in this file
+                        attacking = true;
+                        ifBlockExecutes[0]++;
+                    }
+                    else if (!containsLocationFromFlag(flag, ECTargets)){
+                        ECTargets.add(flag);
+                    }
                     //some logic about spawning correct poli size
-                } else if (flag[0] == ENEMY_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
-                    rc.setFlag(unitFlag);
-                    ownFlag = flag;
-                    ownFlagNum = unitFlag;
-                    tgtConviction = flag[3];
-                    attacking = true;
-                    ifBlockExecutes[1]++;
+                } else if (flag[0] == ENEMY_EC_FOUND) {
+                    if (!attacking) {
+                        ECTargets.add(flag);
+                        tgtConviction = flag[3]; //check for switching attack target in this file
+                        attacking = true;
+                        ifBlockExecutes[1]++;
+                    } else if ((flag[1] == ownFlag[1] && flag[2] == ownFlag[2])) {
+                        updateFlags(flag, ECTargets);
+                        tgtConviction = flag[3]; //check for switching attack target in this file
+                        attacking = true;
+                        ifBlockExecutes[0]++;
+                    }
+                    else if (!containsLocationFromFlag(flag, ECTargets)){
+                        ECTargets.add(flag);
+                    }
                     //some logic about spawning correct poli size
                 } else if (flag[0] == SECURED_EC) {
                     if (ownFlag[1] == flag[1] && ownFlag[2] == flag[2]) {
+                        removeFlag(flag, ECTargets);
                         rc.setFlag(unitFlag);
                         ownFlag = flag;
                         ownFlagNum = unitFlag;
@@ -131,6 +151,32 @@ public class EnlightenmentCenter extends RobotPlayer{
                 //System.out.println("5: " + Clock.getBytecodeNum());
             }
             //System.out.println("end of loop: " + Clock.getBytecodeNum());
+        }
+        if (containsNeutrals(ECTargets)) {
+            int lowestConv = 501;
+            int[] tgt = new int[4];
+            for (int[] flag : ECTargets) {
+                if (flag[0] == NEUTRAL_EC_FOUND) {
+                    if (flag[3] < lowestConv) {
+                        lowestConv = flag[3];
+                        tgt = flag;
+                    }
+                }
+            }
+            int encoded = encodeFlag(tgt[0], tgt[1], tgt[2], tgt[3]);
+            rc.setFlag(encoded);
+            ownFlag = tgt;
+            ownFlagNum = encoded;
+        } else if (containsEnemies(ECTargets)) {
+            for (int[] flag : ECTargets) {
+                if (flag[0] == ENEMY_EC_FOUND) {
+                    int encoded = encodeFlag(flag[0], flag[1], flag[2], flag[3]);
+                    rc.setFlag(encoded);
+                    ownFlag = flag;
+                    ownFlagNum = encoded;
+                    break;
+                }
+            }
         }
         /*
         if (scoutFlagTurn && scoutFlag != 0) {
@@ -874,24 +920,52 @@ public class EnlightenmentCenter extends RobotPlayer{
 
     }
 
-    static boolean containsLocationFromFlag(int neutralFlag, int[] arr) {
-        int[] decodedTgt = decodeFlag(neutralFlag);
-        for (int i = arr.length; --i >= 0;) {
-            int[] decoded = decodeFlag(arr[i]);
-            if (decoded[1] == decodedTgt[1] && decoded[2] == decodedTgt[2]) {
+    static boolean containsLocationFromFlag(int[] tgt, HashSet<int[]> arr) {
+        for (int[] flag : arr) {
+            if (flag[1] == tgt[1] && flag[2] == tgt[2]) {
                 return true;
             }
         }
         return false;
     }
 
-    static void updateFlags(int newFlag, int[] arr) {
-        int[] decodedTgt = decodeFlag(newFlag);
-        for (int i = arr.length; --i >= 0;) {
-            int[] decoded = decodeFlag(arr[i]);
-            if (decoded[1] == decodedTgt[1] && decoded[2] == decodedTgt[2]) {
-                arr[i] = newFlag;
+    static void updateFlags(int[] newFlag, HashSet<int[]> arr) {
+        int[] tgt = new int[4];
+        for (int[] flag : arr) {
+            if (flag[1] == newFlag[1] && flag[2] == newFlag[2]) {
+                tgt = flag;
+                break;
             }
         }
+        arr.remove(tgt);
+        arr.add(newFlag);
+    }
+
+    static boolean containsNeutrals(HashSet<int[]> arr) {
+        for (int[] flag : arr) {
+            if (flag[0] == NEUTRAL_EC_FOUND) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean containsEnemies(HashSet<int[]> arr) {
+        for (int[] flag : arr) {
+            if (flag[0] == ENEMY_EC_FOUND) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static void removeFlag(int[] flagTgt, HashSet<int[]> arr) {
+        int[] tgt = new int[4];
+        for (int[] flag : arr) {
+            if (flag[1] == flagTgt[1] && flag[2] == flagTgt[2]) {
+                tgt = flag;
+            }
+        }
+        arr.remove(tgt);
     }
 }
