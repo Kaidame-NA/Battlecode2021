@@ -487,8 +487,73 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofunitsproduced++;
             numberofslanderersproduced++;
         }
-        else if (turnCount == 3 || turnCount == 7 || turnCount == 11 || turnCount == 15 || turnCount == 19 || turnCount == 23 || turnCount == 27 ||
-                turnCount == 31 || turnCount ==35 || turnCount == 39) {
+
+        //early spawning 8 cardinal directions
+        else if (turnCount == 3) {
+            spawnDir = Direction.NORTH;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 7) {
+            spawnDir = Direction.EAST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 11) {
+            spawnDir = Direction.SOUTH;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 15 ) {
+            spawnDir = Direction.WEST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 19) {
+            spawnDir = Direction.NORTHEAST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 23) {
+            spawnDir = Direction.SOUTHEAST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 27) {
+            spawnDir = Direction.SOUTHWEST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount == 31) {
+            spawnDir = Direction.NORTHWEST;
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (turnCount ==35 || turnCount == 39) {
             unitType = RobotType.MUCKRAKER;
             conviction = 1;
             numberofunitsproduced++;
