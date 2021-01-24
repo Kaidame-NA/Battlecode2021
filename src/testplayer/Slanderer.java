@@ -35,7 +35,9 @@ public class Slanderer extends RobotPlayer {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
             }
         }
+        Team enemy = rc.getTeam().opponent();
         RobotInfo[] friendlyInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam());
+        RobotInfo[] enemiesInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy);
         for (int i = 0; i < friendlyInRange.length; i ++) {
             RobotInfo unit = friendlyInRange[i];
             if (rc.canGetFlag(unit.getID())) {
@@ -46,6 +48,13 @@ public class Slanderer extends RobotPlayer {
                     rc.setFlag(flag);
                     break;
                 }
+            }
+        }
+        for (int i = 0; i < enemiesInRange.length; i ++) {
+            RobotInfo unit = enemiesInRange[i];
+            if (unit.getType() == RobotType.MUCKRAKER) {
+                rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
+                break;
             }
         }
         if (homeECFlagContents[0] == ENEMY_EC_FOUND) {
