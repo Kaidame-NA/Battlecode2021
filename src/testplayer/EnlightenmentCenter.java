@@ -252,16 +252,16 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         //attack
 
-        else if (rc.getInfluence() >1000 && attacknuke <1 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
-            conviction = rc.getInfluence()/2;
+        else if (rc.getInfluence() >1000 && attacknuke <6) {
+            conviction = bigPoliVal;
             numberofpoliticiansproduced++;
             numberofunitsproduced++;
             attacknuke++;
         }
 
-        else if (rc.getInfluence() >1000 && attacknukemuck <1 && decodeFlag(rc.getFlag(rc.getID()))[0] == ENEMY_EC_FOUND) {
+        else if (rc.getInfluence() >1000 && attacknukemuck <3) {
             unitType = RobotType.MUCKRAKER;
-            conviction = rc.getInfluence()/3;
+            conviction = bigPoliVal;
             numberofmuckrakersproduced++;
             numberofunitsproduced++;
             attacknukemuck++;
