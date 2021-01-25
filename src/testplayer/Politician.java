@@ -177,6 +177,11 @@ public class Politician extends RobotPlayer{
                 } else if (canKill(rc.senseRobotAtLocation(target), rc.getLocation().distanceSquaredTo(target))) {
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 }
+            } else if ((rc.getCooldownTurns() < 1 && !rc.canMove(rc.getLocation().directionTo(target))
+                    && movesSinceClosest > 4)){
+                if (rc.canEmpower(actionRadius)) {
+                    rc.empower(actionRadius);
+                }
             }
             if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {
                 tryMove(polisringv2());
