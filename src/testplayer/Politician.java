@@ -220,7 +220,29 @@ public class Politician extends RobotPlayer{
                             && canKill(trailed, rc.getLocation().distanceSquaredTo(trailed.getLocation()))) {
                         rc.empower(rc.getLocation().distanceSquaredTo(trailed.getLocation()));
                     } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
-                        rc.empower(actionRadius);
+                        ArrayList<RobotInfo> mucksInAttackRange = new ArrayList<>();
+                        for (int i = attackable.length; --i >= 0;) {
+                            if (attackable[i].getType() == RobotType.MUCKRAKER) {
+                                mucksInAttackRange.add(attackable[i]);
+                            }
+                        }
+                        int highestCanKill = 0;
+                        int optimalExplodeRadius = actionRadius;
+                        for (int i = 1; i <= 9; i ++) {
+                            int canKillCount = 0;
+                            for (RobotInfo muck : mucksInAttackRange) {
+                                if (canKill(muck, i)) {
+                                    canKillCount ++;
+                                }
+                            }
+                            if (canKillCount > highestCanKill) {
+                                highestCanKill = canKillCount;
+                                optimalExplodeRadius = i;
+                            }
+                        }
+                        if (highestCanKill >= 2) {
+                            rc.empower(optimalExplodeRadius);
+                        }
                     } else if (ECLocations[0] != null && !nearECS(500)) {
                         trailedID = 0;
                         rc.setFlag(0);
