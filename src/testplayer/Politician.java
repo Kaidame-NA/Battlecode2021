@@ -78,7 +78,7 @@ public class Politician extends RobotPlayer{
             if (enemiesInRange[i].getType() == RobotType.POLITICIAN && rc.getConviction() > enemiesInRange[i].getConviction() + 10
                     && rc.getConviction() < 1000 && (enemiesInRange[i].getConviction() > rc.getConviction() - 100) && nearECS(196)) {
                 RobotInfo unit = enemiesInRange[i];
-                if (trailedID == 0 && decodeFlag(rc.getFlag(rc.getID()))[0] != NEUTRAL_EC_FOUND) {
+                if (trailedID == 0 && decodeFlag(rc.getFlag(rc.getID()))[0] != NEUTRAL_EC_FOUND && (turnCount > 20 || rc.getConviction() < 100)) {
                     trailedID = unit.getID();
                     role = FOLLOW;
                     break;
