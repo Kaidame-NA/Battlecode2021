@@ -62,7 +62,7 @@ public class Muckraker extends RobotPlayer{
         }
         for (RobotInfo robot : rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy)) {
             if (robot.getType() == RobotType.SLANDERER) {
-                tryMove(getPathDirTo(robot.getLocation()));
+                tryMove(rc.getLocation().directionTo(robot.getLocation()));
                 break;
             }
         }
