@@ -85,7 +85,7 @@ public class Politician extends RobotPlayer{
                 }
             }
             else if (enemiesInRange[i].getType() == RobotType.MUCKRAKER && (rc.getConviction() < enemiesInRange[i].getConviction() + 30
-                    || (nearECS(196) && (turnCount > 300 || rc.getConviction() < 100)))
+                    || (nearECS(144) && (turnCount > 300 || rc.getConviction() < 100)))
                     && (rc.getConviction() > enemiesInRange[i].getConviction() + 10 || (enemiesInRange[i].getConviction() >= 255 && rc.getConviction() > 100))
                 && ECLocations[0] != null && nearECS(500)) {
                 RobotInfo unit = enemiesInRange[i];
@@ -170,7 +170,7 @@ public class Politician extends RobotPlayer{
             if (rc.getLocation().distanceSquaredTo(target) < actionRadius
                     && (rc.getConviction() - 10)*rc.getEmpowerFactor(rc.getTeam(), 0) > 0
             && rc.canEmpower(rc.getLocation().distanceSquaredTo(target)) && role == ATTACKING) {
-                if (rc.getLocation().distanceSquaredTo(target) <= 2
+                if (rc.getLocation().distanceSquaredTo(target) == 1
                         || (rc.getCooldownTurns() < 1 && !rc.canMove(rc.getLocation().directionTo(target))
                         && movesSinceClosest > 4)) {
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
