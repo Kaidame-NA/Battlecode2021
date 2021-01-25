@@ -25,6 +25,7 @@ public class Politician extends RobotPlayer{
     static int muckrakersInRange;
     static int trailedID;
     static int scoutedEnemyMuckID;
+    static Direction scoutDir;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -45,6 +46,7 @@ public class Politician extends RobotPlayer{
             homeECy = ECLocations[currentHomeEC].y;
             rc.setFlag(0);
             role = SCOUTING;
+            scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
             /*
             if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getConviction() > 1000) {
                 rc.setFlag(0);
@@ -149,7 +151,10 @@ public class Politician extends RobotPlayer{
             } else if (rc.getID() % 2 == 0){
                 tryMove(polisringv2());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(scoutDir);
+                if (!rc.canMove(scoutDir) && rc.getCooldownTurns() < 1) {
+                    scoutDir = randomDirection();
+                }
             }
         } else if (role == ATTACKING) {
             //only attacks target location atm, no reaction to other units on the way

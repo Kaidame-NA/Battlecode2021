@@ -20,6 +20,7 @@ public class Muckraker extends RobotPlayer{
     static int stuckCounter;
     static int[] homeECFlagContents;
     static int scoutedEnemyMuckID;
+    static Direction scoutDir;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
@@ -35,6 +36,7 @@ public class Muckraker extends RobotPlayer{
             homeECx = ECLocations[currentHomeEC].x;
             homeECy = ECLocations[currentHomeEC].y;
             rc.setFlag(0);
+            scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
             role = SCOUTING;
         } else {
             role = GLITCHED;
@@ -112,7 +114,10 @@ public class Muckraker extends RobotPlayer{
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(scoutDir);
+                if (!rc.canMove(scoutDir) && rc.getCooldownTurns() < 1) {
+                    scoutDir = randomDirection();
+                }
             }
             //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
         } else if (role == ATTACKING) {
