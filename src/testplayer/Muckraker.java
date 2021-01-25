@@ -39,6 +39,7 @@ public class Muckraker extends RobotPlayer{
             scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
             role = SCOUTING;
         } else {
+            scoutDir = randomDirection();
             role = GLITCHED;
         }
     }
@@ -68,7 +69,6 @@ public class Muckraker extends RobotPlayer{
         if (currentHomeEC != -1) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
-                scoutDir = randomDirection();
                 distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
             }
         }
