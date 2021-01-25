@@ -112,14 +112,11 @@ public class Muckraker extends RobotPlayer{
                 }
             }
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
-            if (shouldSpread() && rc.getConviction() < 100) {
-                tryMove(getPathDirSpread());
-            } else {
                 tryMove(scoutDir);
                 if (!rc.onTheMap(rc.getLocation().add(scoutDir))) {
                     scoutDir = scoutDir.opposite();
                 }
-            }
+
             //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
         } else if (role == ATTACKING) {
             //System.out.println("Checkpoint Attack A: " + Clock.getBytecodeNum());
