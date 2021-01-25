@@ -206,7 +206,7 @@ public class Politician extends RobotPlayer{
                     target = trailed.getLocation();
                     if (rc.canEmpower(rc.getLocation().distanceSquaredTo(trailed.getLocation()))
                             && canKill(trailed, rc.getLocation().distanceSquaredTo(trailed.getLocation()))) {
-                        rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()));
+                        rc.empower(rc.getLocation().distanceSquaredTo(trailed.getLocation()));
                     }
                     tryMove(getPathDirTo(target));
                 }
@@ -218,7 +218,7 @@ public class Politician extends RobotPlayer{
                             && nearECS(196)
                             && rc.canEmpower(rc.getLocation().distanceSquaredTo(trailed.getLocation()))
                             && canKill(trailed, rc.getLocation().distanceSquaredTo(trailed.getLocation()))) {
-                        rc.empower(rc.getLocation().distanceSquaredTo(rc.senseRobot(trailedID).getLocation()));
+                        rc.empower(rc.getLocation().distanceSquaredTo(trailed.getLocation()));
                     } else if (muckrakersInRange > 1 && rc.canEmpower(actionRadius) && rc.getConviction() < 30) {
                         rc.empower(actionRadius);
                     } else if (ECLocations[0] != null && !nearECS(500)) {
