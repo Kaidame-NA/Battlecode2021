@@ -129,7 +129,8 @@ public class EnlightenmentCenter extends RobotPlayer{
                     }
                     ifBlockExecutes[3]++;
                 }
-                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
+                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2])
+                        || ownFlag[0] == ENEMY_EC_FOUND)) {
                     tgtConviction = flag[3]; //check for switching attack target in this file
                     rc.setFlag(unitFlag);
                     ownFlag = flag;
