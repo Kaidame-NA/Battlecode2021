@@ -154,10 +154,8 @@ public class Muckraker extends RobotPlayer{
         } else if (role == GLITCHED) {
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
-            } else if (rc.getID() % 2 == 0){
-                tryMove(randomDirection());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(randomDirection());
             }
         }
         //System.out.println("Checkpoint 4: " + Clock.getBytecodeNum());
