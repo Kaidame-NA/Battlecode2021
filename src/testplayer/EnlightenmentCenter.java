@@ -10,7 +10,7 @@ public class EnlightenmentCenter extends RobotPlayer{
     static int numberofunits = rc.getRobotCount();
     static int numberofunitsproduced, numberofmuckrakersproduced,
             numberofslanderersproduced, numberofpoliticiansproduced, nukes, attacknuke, attacknukemuck,
-            threshold = 0;
+            thresholdone, thresholdtwo, thresholdthree, thresholdfour, thresholdfive, attacknukethresholdthree = 0;
     static double buildcooldown;
     static HashSet<Integer> producedUnitIDs = new HashSet<Integer>();
     static boolean attacking;
@@ -46,6 +46,22 @@ public class EnlightenmentCenter extends RobotPlayer{
         if (turnCount % 2 == 1){
             effectiveTurn ++;
         }
+        if (rc.getInfluence() > 1000) {
+            thresholdone = 1;
+        }
+        if (rc.getInfluence() > 1500) {
+            thresholdtwo = 1;
+        }
+        if (rc.getInfluence() > 3000) {
+            thresholdthree = 1;
+        }
+        if (rc.getInfluence() > 5000) {
+            thresholdfour = 1;
+        }
+        if (rc.getInfluence() > 10000) {
+            thresholdfive = 1;
+        }
+
 
         //System.out.println("Before copy 1: " + Clock.getBytecodeNum());
         //HashSet<Integer> producedUnitsCopy = (HashSet<Integer>) producedUnitIDs.clone();
@@ -86,11 +102,11 @@ public class EnlightenmentCenter extends RobotPlayer{
         lastTurnFlag = ownFlag;
         if (effectiveTurn % 10 == 0) {
             attacknuke = 0;
+            nukes = 0;
         }
 
         if (effectiveTurn % 20 == 0) {
             attacknukemuck = 0;
-            nukes = 0;
         }
     }
     static void comms() throws GameActionException{
@@ -298,6 +314,20 @@ public class EnlightenmentCenter extends RobotPlayer{
                 numberofpoliticiansproduced++;
             }
     }
+    /*else if (smallRushMap == 0 && thresholdthree == 1) {
+        if (attacknukethresholdthree == 10) {
+            thresholdthree = 2;
+        }
+
+        if (attacknukethresholdthree < 10 && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, 400)) {
+            conviction = 400;
+            numberofmuckrakersproduced++;
+            numberofunitsproduced++;
+            attacknukethresholdthree++;
+        }
+    }
+
+     */
 
     else if (smallRushMap == 2 && rc.getInfluence() > 100) {
             if (attacknuke < 2) {
@@ -601,13 +631,26 @@ public class EnlightenmentCenter extends RobotPlayer{
 
         else if (smallRushMap == 0) {
         System.out.println(numberofunitsproduced);
-            if (rc.getInfluence() >= 1000 && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
+        if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+        else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
+            conviction = getOptimalPoliVal();
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+            else if (rc.getInfluence() >= 1000 && spawnSafeSlanderer && rc.canBuildRobot(RobotType.SLANDERER, spawnDirSland, slandVal)) {
                 unitType = RobotType.SLANDERER;
                 spawnDir = spawnDirSland;
                 conviction = slandVal;
                 numberofunitsproduced++;
                 numberofslanderersproduced++;
-            }  else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 4 == 1) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            }
+
+            else if (rc.getInfluence() >= 500 && (numberofunitsproduced % 4 == 1) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
                 conviction = poliVal;
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
@@ -627,7 +670,9 @@ public class EnlightenmentCenter extends RobotPlayer{
                 conviction = slandVal;
                 numberofunitsproduced++;
                 numberofslanderersproduced++;
-            }  else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            }
+
+            else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
                 conviction = poliVal;
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
@@ -644,23 +689,25 @@ public class EnlightenmentCenter extends RobotPlayer{
                 numberofmuckrakersproduced++;
             }
 
-            else if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
-                unitType = RobotType.MUCKRAKER;
-                conviction = 1;
-                numberofunitsproduced++;
-                numberofmuckrakersproduced++;
-            }
-            else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
-                conviction = getOptimalPoliVal();
-                numberofunitsproduced++;
-                numberofpoliticiansproduced++;
-            }
+
 
 
         }
         else if (smallRushMap == 1) {
         System.out.println("hi");
-            if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 4 == 3) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, bigPoliVal)) {
+        if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
+            conviction = getOptimalPoliVal();
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+            else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 4 == 3) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, bigPoliVal)) {
                 conviction = bigPoliVal;
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
@@ -723,7 +770,9 @@ public class EnlightenmentCenter extends RobotPlayer{
                 conviction = 1;
                 numberofunitsproduced++;
                 numberofmuckrakersproduced++;
-            } else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+            }
+
+            else if ((numberofunitsproduced % 7 == 4) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
                 conviction = poliVal;
                 numberofunitsproduced++;
                 numberofpoliticiansproduced++;
@@ -745,24 +794,26 @@ public class EnlightenmentCenter extends RobotPlayer{
                 numberofmuckrakersproduced++;
             }
 
-            else if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
-                unitType = RobotType.MUCKRAKER;
-                conviction = 1;
-                numberofunitsproduced++;
-                numberofmuckrakersproduced++;
-            }
-
-            else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
-                conviction = getOptimalPoliVal();
-                numberofunitsproduced++;
-                numberofpoliticiansproduced++;
-            }
 
         }
 
         else if (smallRushMap == 2) {
         System.out.println("heleleo");
-        if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 4 == 3) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, bigPoliVal)) {
+
+        if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
+            unitType = RobotType.MUCKRAKER;
+            conviction = 1;
+            numberofunitsproduced++;
+            numberofmuckrakersproduced++;
+        }
+
+        else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
+            conviction = getOptimalPoliVal();
+            numberofunitsproduced++;
+            numberofpoliticiansproduced++;
+        }
+
+        else if (rc.getInfluence() >= 1000 && (numberofunitsproduced % 4 == 3) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, bigPoliVal)) {
             conviction = bigPoliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
@@ -825,7 +876,9 @@ public class EnlightenmentCenter extends RobotPlayer{
             conviction = 1;
             numberofunitsproduced++;
             numberofmuckrakersproduced++;
-        } else if ((numberofunitsproduced % 7 == 4 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
+        }
+
+        else if ((numberofunitsproduced % 7 == 4 || numberofunitsproduced % 7 == 2 || numberofunitsproduced % 7 == 5) && rc.canBuildRobot(RobotType.POLITICIAN, spawnDir, poliVal)) {
             conviction = poliVal;
             numberofunitsproduced++;
             numberofpoliticiansproduced++;
@@ -847,18 +900,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             numberofmuckrakersproduced++;
         }
 
-        else if (numberofunitsproduced == 0 && rc.getInfluence() > 0) {
-            unitType = RobotType.MUCKRAKER;
-            conviction = 1;
-            numberofunitsproduced++;
-            numberofmuckrakersproduced++;
-        }
 
-        else if (numberofpoliticiansproduced == 0 && rc.getInfluence() > 0) {
-            conviction = getOptimalPoliVal();
-            numberofunitsproduced++;
-            numberofpoliticiansproduced++;
-        }
         }
 
         if (rc.canBuildRobot(unitType, spawnDir, conviction)) {
