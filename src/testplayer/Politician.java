@@ -45,8 +45,8 @@ public class Politician extends RobotPlayer{
             homeECx = ECLocations[currentHomeEC].x;
             homeECy = ECLocations[currentHomeEC].y;
             rc.setFlag(0);
-            role = SCOUTING;
             scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
+            role = SCOUTING;
             /*
             if (rc.getEmpowerFactor(rc.getTeam(), 10) > 2 && rc.getConviction() > 1000) {
                 rc.setFlag(0);
@@ -152,8 +152,8 @@ public class Politician extends RobotPlayer{
                 tryMove(polisringv2());
             } else {
                 tryMove(scoutDir);
-                if (!rc.canMove(scoutDir) && rc.getCooldownTurns() < 1) {
-                    scoutDir = randomDirection();
+                if (!rc.onTheMap(rc.getLocation().add(scoutDir))) {
+                    scoutDir = scoutDir.opposite();
                 }
             }
         } else if (role == ATTACKING) {
@@ -190,10 +190,8 @@ public class Politician extends RobotPlayer{
 
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
-            } else if (rc.getID() % 2 == 0){
-                tryMove(randomDirection());
             } else {
-                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
+                tryMove(randomDirection());
             }
 
         } else if (role == FOLLOW) {
@@ -267,6 +265,7 @@ public class Politician extends RobotPlayer{
                     homeECx = ECLocations[currentHomeEC].x;
                     homeECy = ECLocations[currentHomeEC].y;
                     rc.setFlag(0);
+                    scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
                     role = SCOUTING;
                 } else if (!contains(friendlyInRange[i].getID(), ECIDs)){
                     ecsStored ++;

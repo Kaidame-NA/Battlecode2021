@@ -68,6 +68,7 @@ public class Muckraker extends RobotPlayer{
         if (currentHomeEC != -1) {
             if (rc.canGetFlag(ECIDs[currentHomeEC])) {
                 homeECFlagContents = decodeFlag(rc.getFlag(ECIDs[currentHomeEC]));
+                scoutDir = randomDirection();
                 distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
             }
         }
@@ -115,8 +116,8 @@ public class Muckraker extends RobotPlayer{
                 tryMove(getPathDirSpread());
             } else {
                 tryMove(scoutDir);
-                if (!rc.canMove(scoutDir) && rc.getCooldownTurns() < 1) {
-                    scoutDir = randomDirection();
+                if (!rc.onTheMap(rc.getLocation().add(scoutDir))) {
+                    scoutDir = scoutDir.opposite();
                 }
             }
             //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
