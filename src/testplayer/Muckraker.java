@@ -133,7 +133,7 @@ public class Muckraker extends RobotPlayer{
             }
             //System.out.println("Checkpoint Attack B: " + Clock.getBytecodeNum());
             //attack groups:
-            if (rc.getID() % 5 == 0) {
+            if (rc.getID() % 5 == 0 || rc.getConviction() >= 100) {
                 tryMove(getPathDirToEnemyEC(target));
             }
 
