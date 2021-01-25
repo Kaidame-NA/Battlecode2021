@@ -72,6 +72,10 @@ public class Politician extends RobotPlayer{
                 distToHome = rc.getLocation().distanceSquaredTo(ECLocations[currentHomeEC]);
             } //maybe something about if cant then its taken
         }
+        if (homeECFlagContents == null) {
+            role = CONVERTED;
+            currentHomeEC = -1;
+        }
         //poli v poli micro
         //follow muckrakers if big enough poli
         for (int i = enemiesInRange.length; --i >= 0;) {
@@ -176,11 +180,6 @@ public class Politician extends RobotPlayer{
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
                 } else if (canKill(rc.senseRobotAtLocation(target), rc.getLocation().distanceSquaredTo(target))) {
                     rc.empower(rc.getLocation().distanceSquaredTo(target));
-                }
-            } else if ((rc.getCooldownTurns() < 1 && !rc.canMove(rc.getLocation().directionTo(target))
-                    && movesSinceClosest > 4)){
-                if (rc.canEmpower(actionRadius)) {
-                    rc.empower(actionRadius);
                 }
             }
             if ((rc.getID() % 3 == 0) && rc.getInfluence() < 30) {

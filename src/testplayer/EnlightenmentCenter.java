@@ -129,22 +129,14 @@ public class EnlightenmentCenter extends RobotPlayer{
                     }
                     ifBlockExecutes[3]++;
                 }
-                else if (flag[0] == NEUTRAL_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2])
-                        || ownFlag[0] == ENEMY_EC_FOUND)) {
+                else if ((flag[0] == NEUTRAL_EC_FOUND || flag[0] == ENEMY_EC_FOUND)
+                        && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
                     tgtConviction = flag[3]; //check for switching attack target in this file
                     rc.setFlag(unitFlag);
                     ownFlag = flag;
                     ownFlagNum = unitFlag;
                     attacking = true;
                     ifBlockExecutes[0]++;
-                    //some logic about spawning correct poli size
-                } else if (flag[0] == ENEMY_EC_FOUND && (!attacking || (flag[1] == ownFlag[1] && flag[2] == ownFlag[2]))) {
-                    rc.setFlag(unitFlag);
-                    ownFlag = flag;
-                    ownFlagNum = unitFlag;
-                    tgtConviction = flag[3];
-                    attacking = true;
-                    ifBlockExecutes[1]++;
                     //some logic about spawning correct poli size
                 } else if (flag[0] == SECURED_EC) {
                     if (ownFlag[1] == flag[1] && ownFlag[2] == flag[2]) {
