@@ -31,6 +31,8 @@ public class EnlightenmentCenter extends RobotPlayer{
     static boolean scoutFlagTurn = false;
     static int[] ifBlockExecutes = new int[4];
     static int[] lastTurnFlag = new int[4];
+    static int poliToSlandererRatio = 4;
+    static boolean smallRushMap = false;
 
 
     static void setup() throws GameActionException {
@@ -134,6 +136,9 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
             //System.out.println("end of loop: " + Clock.getBytecodeNum());
         }
+        if (closestEnemyMuckDist < 100 && turnCount < 80) {
+            smallRushMap = true;
+        }
         /*
         if (scoutFlagTurn && scoutFlag != 0) {
             rc.setFlag(scoutFlag);
@@ -149,6 +154,9 @@ public class EnlightenmentCenter extends RobotPlayer{
         RobotType unitType = RobotType.POLITICIAN;
         int poliVal = getOptimalPoliVal();
         int bigPoliVal = getOptimalBigPoliVal();
+        if (turnCount > 80 && !smallRushMap) {
+            poliToSlandererRatio = 7;
+        }
 
         if (closestEnemyMuckDist >= 81)
             turnssinceattacked++;
@@ -817,7 +825,7 @@ public class EnlightenmentCenter extends RobotPlayer{
             }
         }
 
-        if (nearbyPoliticians * 4 < nearbySlanderers || nearbynotPoliticians != 0) {
+        if (nearbyPoliticians * poliToSlandererRatio < nearbySlanderers || nearbynotPoliticians != 0) {
             return false;
         } else {
             return true;
