@@ -1,5 +1,7 @@
-package testplayer;
+package sprint2;
+
 import battlecode.common.*;
+import sprint2.*;
 
 import java.util.*;
 
@@ -33,6 +35,7 @@ public strictfp class RobotPlayer {
     static final int ENEMY_EC_FOUND = 1;
     static final int NEUTRAL_EC_FOUND = 2;
     static final int SECURED_EC = 3;
+
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -49,37 +52,42 @@ public strictfp class RobotPlayer {
 
         //System.out.println("I'm a " + rc.getType() + " and I just got created!");
         switch (rc.getType()) {
-            case POLITICIAN: Politician.setup(); break;
-            case SLANDERER: Slanderer.setup(); break;
-            case MUCKRAKER: Muckraker.setup(); break;
-            case ENLIGHTENMENT_CENTER: EnlightenmentCenter.setup(); break;
+            case POLITICIAN:
+                Politician.setup();
+                break;
+            case SLANDERER:
+                Slanderer.setup();
+                break;
+            case MUCKRAKER:
+                Muckraker.setup();
+                break;
+            case ENLIGHTENMENT_CENTER:
+                EnlightenmentCenter.setup();
+                break;
         }
         while (true) {
             // Try/catch blocks stop unhandled exceptions, which cause your robot to freeze
-/*
-            if(turnCount >= 500)
-            {
-                rc.resign();
-            }
-
-*/
-
-
-
-
-
-
-
-
+//            if(turnCount >= 1000)
+//            {
+//                rc.resign();
+//            }
             try {
                 // Here, we've separated the controls into a different method for each RobotType.
                 // You may rewrite this into your own control structure if you wish.
                 //System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
                 switch (rc.getType()) {
-                    case ENLIGHTENMENT_CENTER: EnlightenmentCenter.run(); break;
-                    case POLITICIAN:           Politician.run();          break;
-                    case SLANDERER:            Slanderer.run();           break;
-                    case MUCKRAKER:            Muckraker.run();           break;
+                    case ENLIGHTENMENT_CENTER:
+                        EnlightenmentCenter.run();
+                        break;
+                    case POLITICIAN:
+                        Politician.run();
+                        break;
+                    case SLANDERER:
+                        Slanderer.run();
+                        break;
+                    case MUCKRAKER:
+                        Muckraker.run();
+                        break;
                 }
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
@@ -120,6 +128,7 @@ public strictfp class RobotPlayer {
      */
 
     public static HashSet<MapLocation> banList = new HashSet(); //CREATE THE BANLIST
+
     static boolean tryMove(Direction dir) throws GameActionException {
         //System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.canMove(dir)) {
@@ -153,7 +162,7 @@ public strictfp class RobotPlayer {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) * passabilityWeight + //rc.getCooldownTurns()
+                double cost = Math.pow((rc.getType().actionCooldown / pass), 2) * passabilityWeight + //rc.getCooldownTurns()
                         (Math.abs(tgt.x - adj.x) - Math.abs(tgt.x - rc.getLocation().x) +
                                 Math.abs(tgt.y - adj.y) - Math.abs(tgt.y - rc.getLocation().y)) * distanceWeight;
                 //System.out.println("Cost: " + cost);
@@ -168,8 +177,8 @@ public strictfp class RobotPlayer {
         if (localClosestDist < closestDistToTarget) {
             closestDistToTarget = localClosestDist;
             movesSinceClosest = 0;
-        } else if (optimalDir != Direction.CENTER){
-            movesSinceClosest ++;
+        } else if (optimalDir != Direction.CENTER) {
+            movesSinceClosest++;
         }
         if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
@@ -252,20 +261,19 @@ public strictfp class RobotPlayer {
         numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = - Double.MAX_VALUE;
-        for (Direction dir: directions) {
+        double optimalCost = -Double.MAX_VALUE;
+        for (Direction dir : directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);
-                double cost = - (rc.getType().actionCooldown/pass);
+                double cost = -(rc.getType().actionCooldown / pass);
                 /*
                 if (nearbyecs.size() != 0) {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
                     cost += (Math.pow(spreadfromecone.x - adj.x, 2) + Math.pow(spreadfromecone.y - adj.y, 2));
                 }
                  */
-                for(int i = numberofnearbyfriendlies; --i>=0;)
-                {
+                for (int i = numberofnearbyfriendlies; --i >= 0; ) {
                     MapLocation spreadFrom = friendlies[i].getLocation();
                     cost += (Math.pow(spreadFrom.x - adj.x, 2) + Math.pow(spreadFrom.y - adj.y, 2));
                 }
@@ -308,7 +316,7 @@ public strictfp class RobotPlayer {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                double cost = Math.pow((rc.getType().actionCooldown / pass), 2) +
                         (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
 
                 if (nearbyecs.size() != 0) {
@@ -341,8 +349,8 @@ public strictfp class RobotPlayer {
         if (localClosestDist < closestDistToTarget) {
             closestDistToTarget = localClosestDist;
             movesSinceClosest = 0;
-        } else if (optimalDir != Direction.CENTER){
-            movesSinceClosest ++;
+        } else if (optimalDir != Direction.CENTER) {
+            movesSinceClosest++;
         }
         if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
@@ -391,7 +399,7 @@ public strictfp class RobotPlayer {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                double cost = Math.pow((rc.getType().actionCooldown / pass), 2) +
                         (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
 
                 if (nearbyenemyecs.size() != 0) {
@@ -429,8 +437,8 @@ public strictfp class RobotPlayer {
         if (localClosestDist < closestDistToTarget) {
             closestDistToTarget = localClosestDist;
             movesSinceClosest = 0;
-        } else if (optimalDir != Direction.CENTER){
-            movesSinceClosest ++;
+        } else if (optimalDir != Direction.CENTER) {
+            movesSinceClosest++;
         }
         if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
@@ -479,7 +487,7 @@ public strictfp class RobotPlayer {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                double cost = Math.pow((rc.getType().actionCooldown / pass), 2) +
                         (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
 
                 if (nearbyenemyecs.size() != 0) {
@@ -517,8 +525,8 @@ public strictfp class RobotPlayer {
         if (localClosestDist < closestDistToTarget) {
             closestDistToTarget = localClosestDist;
             movesSinceClosest = 0;
-        } else if (optimalDir != Direction.CENTER){
-            movesSinceClosest ++;
+        } else if (optimalDir != Direction.CENTER) {
+            movesSinceClosest++;
         }
         if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
@@ -567,7 +575,7 @@ public strictfp class RobotPlayer {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj)) {
                 double pass = rc.sensePassability(adj);
-                double cost = Math.pow((rc.getType().actionCooldown/pass), 2) +
+                double cost = Math.pow((rc.getType().actionCooldown / pass), 2) +
                         (Math.abs(tgt.x - adj.x) + Math.abs(tgt.y - adj.y));
 
                 if (nearbyenemyecs.size() != 0) {
@@ -605,8 +613,8 @@ public strictfp class RobotPlayer {
         if (localClosestDist < closestDistToTarget) {
             closestDistToTarget = localClosestDist;
             movesSinceClosest = 0;
-        } else if (optimalDir != Direction.CENTER){
-            movesSinceClosest ++;
+        } else if (optimalDir != Direction.CENTER) {
+            movesSinceClosest++;
         }
         if (movesSinceClosest > 6 && rc.canMove(rc.getLocation().directionTo(tgt))) {
             optimalDir = rc.getLocation().directionTo(tgt);
@@ -624,31 +632,31 @@ public strictfp class RobotPlayer {
     //runs the direction to run away from the first enemy seen; otherwise return randomdir (for now)
     static Direction awayFromEnemies() throws GameActionException {
         RobotInfo[] Enemies = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, rc.getTeam().opponent());
-        for(RobotInfo info: Enemies){
-            return optimalDirection( awayFromLocation(info.location) );
+        for (RobotInfo info : Enemies) {
+            return optimalDirection(awayFromLocation(info.location));
         }
         return randomDirection();//eventually change to "normal" slanderer or bot movement
     }
 
-    static Direction optimalDirection(Direction dir) throws GameActionException{
+    static Direction optimalDirection(Direction dir) throws GameActionException {
         SortedMap<Double, Direction> directions
                 = new TreeMap<Double, Direction>(Collections.reverseOrder()); //sorted high to low passability
 
-        if(rc.canSenseLocation( rc.getLocation().add(dir) ) )
-            directions.put(rc.sensePassability( rc.getLocation().add(dir) ), dir);
-        if(rc.canSenseLocation( rc.getLocation().add(dir.rotateLeft()) ) )
-            directions.put(rc.sensePassability( rc.getLocation().add(dir.rotateLeft()) ), dir.rotateLeft());
-        if(rc.canSenseLocation( rc.getLocation().add(dir.rotateRight()) ) )
-            directions.put(rc.sensePassability( rc.getLocation().add(dir.rotateRight()) ), dir.rotateRight());
+        if (rc.canSenseLocation(rc.getLocation().add(dir)))
+            directions.put(rc.sensePassability(rc.getLocation().add(dir)), dir);
+        if (rc.canSenseLocation(rc.getLocation().add(dir.rotateLeft())))
+            directions.put(rc.sensePassability(rc.getLocation().add(dir.rotateLeft())), dir.rotateLeft());
+        if (rc.canSenseLocation(rc.getLocation().add(dir.rotateRight())))
+            directions.put(rc.sensePassability(rc.getLocation().add(dir.rotateRight())), dir.rotateRight());
 
-        for (Map.Entry mapElement : directions.entrySet() ) {
+        for (Map.Entry mapElement : directions.entrySet()) {
             //Getting the Key
             //double key = (double)mapElement.getKey();
 
             // Finding the value
             Direction value = (Direction) mapElement.getValue();
 
-            if(rc.canMove(value) ){
+            if (rc.canMove(value)) {
                 return value;
             }
         }
@@ -679,8 +687,8 @@ public strictfp class RobotPlayer {
         numberofnearbypolis = nearbypolis.size() > 10 ? 10 : numberofnearbypolis; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = - Double.MAX_VALUE;
-        for (Direction dir: directions) {
+        double optimalCost = -Double.MAX_VALUE;
+        for (Direction dir : directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);
@@ -692,12 +700,11 @@ public strictfp class RobotPlayer {
                 }
                 //technically this code below shouldnt ever be run, but its here just in case
                 if (nearbyecs.size() == 0) {
-                    for(int i = numberofnearbypolis; --i>=0;)
-                    {
+                    for (int i = numberofnearbypolis; --i >= 0; ) {
                         MapLocation spreadTo = nearbypolis.get(i).getLocation();
                         cost += Math.sqrt(Math.pow(spreadTo.x - adj.x, 2) + Math.pow(spreadTo.y - adj.y, 2));
                     }
-                    cost += (rc.getType().actionCooldown/pass);
+                    cost += (rc.getType().actionCooldown / pass);
                 }
 
 
@@ -706,7 +713,8 @@ public strictfp class RobotPlayer {
                     optimalCost = cost;
                 }
             }
-        };
+        }
+        ;
         return optimalDir;
     }
 
@@ -733,8 +741,8 @@ public strictfp class RobotPlayer {
         numberofnearbyslanderers = nearbyslanderers.size() > 10 ? 10 : numberofnearbyslanderers; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = - Double.MAX_VALUE;
-        for (Direction dir: directions) {
+        double optimalCost = -Double.MAX_VALUE;
+        for (Direction dir : directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);

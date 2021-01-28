@@ -1,12 +1,13 @@
-package testplayer;
+package sprint2;
 
 import battlecode.common.*;
 import com.sun.org.apache.bcel.internal.generic.RETURN;
+import sprint2.RobotPlayer;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class Muckraker extends RobotPlayer{
+public class Muckraker extends RobotPlayer {
     static int[] ECIDs = new int[20];
     static MapLocation[] ECLocations = new MapLocation[20];
     static int currentHomeEC = -1;
@@ -20,26 +21,23 @@ public class Muckraker extends RobotPlayer{
     static int stuckCounter;
     static int[] homeECFlagContents;
     static int scoutedEnemyMuckID;
-    static Direction scoutDir;
 
     static void setup() throws GameActionException {
         turnCount = rc.getRoundNum();
         RobotInfo[] possibleECs = rc.senseNearbyRobots(2, rc.getTeam());
-        for (int i = possibleECs.length; --i >= 0;){
+        for (int i = possibleECs.length; --i >= 0; ) {
             if (possibleECs[i].getType() == RobotType.ENLIGHTENMENT_CENTER) {
-                currentHomeEC ++;
+                currentHomeEC++;
                 ECIDs[currentHomeEC] = possibleECs[i].getID();
                 ECLocations[currentHomeEC] = possibleECs[i].getLocation();
             }
         }
-        if (currentHomeEC >=0) {
+        if (currentHomeEC >= 0) {
             homeECx = ECLocations[currentHomeEC].x;
             homeECy = ECLocations[currentHomeEC].y;
             rc.setFlag(0);
-            scoutDir = awayFromLocation(ECLocations[currentHomeEC]);
             role = SCOUTING;
         } else {
-            scoutDir = randomDirection();
             role = GLITCHED;
         }
     }
@@ -62,7 +60,7 @@ public class Muckraker extends RobotPlayer{
         }
         for (RobotInfo robot : rc.senseNearbyRobots(rc.getType().sensorRadiusSquared, enemy)) {
             if (robot.getType() == RobotType.SLANDERER) {
-                tryMove(rc.getLocation().directionTo(robot.getLocation()));
+                tryMove(getPathDirTo(robot.getLocation()));
                 break;
             }
         }
@@ -79,7 +77,7 @@ public class Muckraker extends RobotPlayer{
             if (!rc.canSenseRobot(scoutedEnemyMuckID)) {
                 rc.setFlag(0);
             }
-            for (int i = enemiesInRange.length; --i >= 0;) {
+            for (int i = enemiesInRange.length; --i >= 0; ) {
                 RobotInfo unit = enemiesInRange[i];
                 if (unit.getType() == RobotType.MUCKRAKER) {
                     rc.setFlag(encodeFlag(0, unit.getLocation().x - homeECx, unit.getLocation().y - homeECy, Math.min(unit.getConviction(), 255)));
@@ -88,52 +86,40 @@ public class Muckraker extends RobotPlayer{
                 }
             }
             //System.out.println("Checkpoint Scout A2: " + Clock.getBytecodeNum());
-            for (int i = unitsInRange.length; --i >= 0;) {
+            for (int i = unitsInRange.length; --i >= 0; ) {
                 RobotInfo unit = unitsInRange[i];
                 if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == enemy) {
                     rc.setFlag(encodeFlag(ENEMY_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
                     break;
-                }
-                else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
+                } else if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == Team.NEUTRAL) {
                     rc.setFlag(encodeFlag(NEUTRAL_EC_FOUND, unit.location.x - homeECx, unit.location.y - homeECy, Math.min(unit.getConviction(), 255)));
                     break;
                 }
             }
 
-            if (homeECFlagContents != null) {
-                MapLocation tgtedEC = new MapLocation(homeECx + homeECFlagContents[1], homeECy + homeECFlagContents[2]);
-                if (rc.canSenseLocation(tgtedEC)) {
-                    RobotInfo tgt = rc.senseRobotAtLocation(tgtedEC);
-                    if (tgt.getType() == RobotType.ENLIGHTENMENT_CENTER && tgt.getTeam() == rc.getTeam()
-                            && tgt.getLocation().equals(tgtedEC)) {
-                        role = SCOUTING;
-                        rc.setFlag(encodeFlag(SECURED_EC, tgtedEC.x - homeECx, tgtedEC.y - homeECy, 0));
-                    }
-                }
-            }
             //System.out.println("Checkpoint Scout B: " + Clock.getBytecodeNum());
-            if (shouldSpread() && rc.getConviction() < 100) {
+            if (shouldSpread()) {
                 tryMove(getPathDirSpread());
             } else {
-                tryMove(scoutDir);
-                if (!rc.onTheMap(rc.getLocation().add(scoutDir))) {
-                    scoutDir = scoutDir.opposite();
-                }
+                tryMove(awayFromLocation(ECLocations[currentHomeEC]));
             }
             //System.out.println("Checkpoint Scout C: " + Clock.getBytecodeNum());
         } else if (role == ATTACKING) {
             //System.out.println("Checkpoint Attack A: " + Clock.getBytecodeNum());
             if (rc.canSenseLocation(target)) {
-                RobotInfo tgt = rc.senseRobotAtLocation(target);
-                if (tgt.getType() == RobotType.ENLIGHTENMENT_CENTER && tgt.getTeam() == rc.getTeam()
-                        && tgt.getLocation().equals(target)) {
-                    role = SCOUTING;
-                    rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
+                RobotInfo[] unitsInRange = rc.senseNearbyRobots(rc.getType().sensorRadiusSquared);
+                for (int i = unitsInRange.length; --i >= 0; ) {
+                    RobotInfo unit = unitsInRange[i];
+                    if (unit.getType() == RobotType.ENLIGHTENMENT_CENTER && unit.getTeam() == rc.getTeam() &&
+                            unit.getLocation().equals(target) && !contains(unit.getID(), ECIDs)) {
+                        role = SCOUTING;
+                        rc.setFlag(encodeFlag(SECURED_EC, target.x - homeECx, target.y - homeECy, 0));
+                    }
                 }
             }
             //System.out.println("Checkpoint Attack B: " + Clock.getBytecodeNum());
             //attack groups:
-            if (rc.getID() % 5 == 0 || rc.getConviction() >= 100) {
+            if (rc.getID() % 5 == 0) {
                 tryMove(getPathDirToEnemyEC(target));
             }
 
@@ -150,7 +136,7 @@ public class Muckraker extends RobotPlayer{
                 tryMove(getAlternatePathDirToEnemyEC(target));
             }*/
             //System.out.println("Checkpoint Attack C: " + Clock.getBytecodeNum());
-            
+
         } else if (role == GLITCHED) {
             if (shouldSpread()) {
                 tryMove(getPathDirSpread());
@@ -162,7 +148,7 @@ public class Muckraker extends RobotPlayer{
         if (homeECFlagContents != null) {
             //if its an attack command, attack
             int[] ownFlag = decodeFlag(rc.getFlag(rc.getID()));
-            if (homeECFlagContents[0] == ENEMY_EC_FOUND && (rc.getID() % 5 <= 2 || rc.getConviction() > 1)) {
+            if (homeECFlagContents[0] == ENEMY_EC_FOUND && rc.getID() % 5 <= 2) {
 
                 rc.setFlag(rc.getFlag(ECIDs[currentHomeEC]));
                 target = new MapLocation(homeECx + homeECFlagContents[1],
@@ -174,7 +160,7 @@ public class Muckraker extends RobotPlayer{
                 role = SCOUTING;
                 //to prevent positive feedback loop keep track of attacked neutral ecs in ec.java
             }*/ else if (homeECFlagContents[0] == SECURED_EC && ownFlag[1] == homeECFlagContents[1]
-                    && ownFlag[2] == homeECFlagContents[2]){
+                    && ownFlag[2] == homeECFlagContents[2]) {
                 rc.setFlag(0);
                 role = SCOUTING;
             }
@@ -184,7 +170,7 @@ public class Muckraker extends RobotPlayer{
     }
 
     static boolean contains(int ecid, int[] arr) {
-        for (int i = arr.length; --i >= 0;) {
+        for (int i = arr.length; --i >= 0; ) {
             if (arr[i] == ecid) {
                 return true;
             }
@@ -200,12 +186,12 @@ public class Muckraker extends RobotPlayer{
         numberofnearbyfriendlies = friendlies.length > 10 ? 10 : numberofnearbyfriendlies; // cap at 10
 
         Direction optimalDir = Direction.CENTER;
-        double optimalCost = - Double.MAX_VALUE;
-        for (Direction dir: directions) {
+        double optimalCost = -Double.MAX_VALUE;
+        for (Direction dir : directions) {
             MapLocation adj = rc.adjacentLocation(dir);
             if (rc.canSenseLocation(adj) && rc.canMove(dir)) {
                 double pass = rc.sensePassability(adj);
-                double cost = - (rc.getType().actionCooldown/pass);
+                double cost = -(rc.getType().actionCooldown / pass);
                 /*
                 if (nearbyecs.size() != 0) {
                     MapLocation spreadfromecone = nearbyecs.get(0).getLocation();
@@ -213,10 +199,9 @@ public class Muckraker extends RobotPlayer{
                 }
 
                  */
-                for(int i = numberofnearbyfriendlies; --i>=0;)
-                {
+                for (int i = numberofnearbyfriendlies; --i >= 0; ) {
                     MapLocation spreadFrom = friendlies[i].getLocation();
-                    cost += (30.0/rc.getLocation().distanceSquaredTo(spreadFrom)) * ((Math.abs(adj.x - spreadFrom.x) + Math.abs(adj.y - spreadFrom.y))
+                    cost += (30.0 / rc.getLocation().distanceSquaredTo(spreadFrom)) * ((Math.abs(adj.x - spreadFrom.x) + Math.abs(adj.y - spreadFrom.y))
                             - (Math.abs(rc.getLocation().x - spreadFrom.x) + Math.abs(rc.getLocation().y - spreadFrom.y)))
                             /*+ (Math.abs(adj.x - homeECx) - Math.abs(rc.getLocation().x - homeECx) +
                             Math.abs(adj.y - homeECy) - Math.abs(rc.getLocation().y - homeECy))*/;
